@@ -75,13 +75,13 @@ try {
   await p.click('#a-buy');
   await p.click('#a-cards'); ok(await p.locator('.card').count() >= 1, 'koupená výprava není v seznamu'); await p.mouse.click(5, 5);
   const pts0 = await p.evaluate(() => __so.S.view().players[__so.S.cur].pts);
-  await p.evaluate(() => { const g = __so.S.host.g, h = g.players[__so.S.cur].hand; g.bank.brick += h.brick; h.brick = 0; __so.S.refresh(); });
-  await until(p, async () => (await view(p)).hand.brick === 0, 'odebrání cihel');
+  await p.evaluate(() => { const g = __so.S.host.g, h = g.players[__so.S.cur].hand; g.bank.stone += h.stone; h.stone = 0; __so.S.refresh(); });
+  await until(p, async () => (await view(p)).hand.stone === 0, 'odebrání kamene');
   await p.click('#a-city'); await p.waitForSelector('.price');
-  ok((await p.locator('.price[data-kind=city]').textContent()).includes('Chybí: 2× cihly'), 'ceník neukazuje chybějící cihly');
+  ok((await p.locator('.price[data-kind=city]').textContent()).includes('Chybí: 3× kámen'), 'ceník neukazuje chybějící kámen');
   await p.mouse.click(5, 5);
-  await p.evaluate(() => { const g = __so.S.host.g, h = g.players[__so.S.cur].hand; g.bank.brick -= 4; h.brick = 4; __so.S.refresh(); });
-  await until(p, async () => (await view(p)).hand.brick === 4, 'vrácení cihel');
+  await p.evaluate(() => { const g = __so.S.host.g, h = g.players[__so.S.cur].hand; g.bank.stone -= 4; h.stone = 4; __so.S.refresh(); });
+  await until(p, async () => (await view(p)).hand.stone === 4, 'vrácení kamene');
   await p.click('#a-city'); v = await view(p);
   await tapSpot(p, 'v', v.legal.find(a => a.t === 'build' && a.kind === 'city').at); await p.click('#city-ok');
   await until(p, async () => (await p.evaluate(() => __so.S.view().players[__so.S.cur].pts)) === pts0 + 1, 'stavba města');
