@@ -502,6 +502,21 @@ test('síť: připojení, lobby, start, pohledy', () => {
   const late = r.join({ name: 'Pozdě', token: 'tokenpozde1' });
   eq(late.log.err[0].code, 'started');
 });
+test('síť: volba barvy v lobby', () => {
+  const r = room([{ kind: 'local', name: 'Host', color: 0 }, { kind: 'open', color: 1 }, { kind: 'bot', level: 'mid', color: 2 }]);
+  const loc = r.join(null, true), c = r.join({ name: 'Pavel', token: 'tokenpavel1' });
+  c.C.color(1, 0); // barva hostitele: odmítnuto
+  eq(c.log.err.at(-1).code, 'color'); eq(r.H.seats[1].color, 1);
+  c.C.color(1, 2); // barva bota: prohodí se
+  eq(r.H.seats.map(s => s.color), [0, 2, 1]);
+  eq(c.log.lobby.at(-1).seats.map(s => s.color), [0, 2, 1]);
+  c.C.color(0, 5); eq(c.log.err.at(-1).code, 'seat'); // cizí místo
+  c.C.color(1, 99); eq(r.H.seats[1].color, 2); // neplatná barva
+  loc.C.color(0, 7); eq(r.H.seats[0].color, 7);
+  r.H.start();
+  eq(c.last().view.colors, [7, 2, 1]);
+  c.C.color(1, 4); eq(c.log.err.at(-1).code, 'started'); eq(r.H.g.colors, [7, 2, 1]);
+});
 test('síť: akce za cizího hráče a poškozené zprávy', () => {
   const r = room([{ kind: 'local', name: 'Host' }, { kind: 'open' }]);
   const loc = r.join(null, true), c = r.join({ name: 'Pavel', token: 'tokenpavel1' });

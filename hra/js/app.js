@@ -117,7 +117,7 @@ function netLines(s) {
 function drawLobby(s) {
   if (s.G || s.left) return;
   show(false);
-  showLobby($screen, s.lobby, { host: !!s.host, net: s.host && s.net ? netLines(s) : null, start: () => s.host.start(), leave: () => { if (s.host) store.del('so-host'); s.leave(); } });
+  showLobby($screen, s.lobby, { color: (pid, c) => s.client.color(pid, c), host: !!s.host, net: s.host && s.net ? netLines(s) : null, start: () => s.host.start(), leave: () => { if (s.host) store.del('so-host'); s.leave(); } });
 }
 
 // ---------- hostitel ----------

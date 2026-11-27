@@ -97,18 +97,8 @@ export function createBoard(cv, onPick) {
     v.map.hexes.forEach((_, i) => { path(i); ctx.stroke(); });
     ctx.strokeStyle = '#e9dcb2'; ctx.lineWidth = 0.22;
     v.map.hexes.forEach((_, i) => { path(i); ctx.stroke(); });
-    // přístavy
-    for (const pt of v.map.ports) {
-      const e = g.E[pt.e], a = g.V[e.a], b = g.V[e.b], hx = v.map.hexes[e.hex[0]], c = hexXY(hx.q, hx.r);
-      const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2, d = Math.hypot(mx - c.x, my - c.y);
-      const px = mx + (mx - c.x) / d * 0.62, py = my + (my - c.y) / d * 0.62;
-      ctx.strokeStyle = '#7a5a3a'; ctx.lineWidth = 0.09;
-      ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(px, py); ctx.lineTo(b.x, b.y); ctx.stroke();
-      ctx.beginPath(); ctx.arc(px, py, 0.27, 0, 7);
-      ctx.fillStyle = pt.type === 'any' ? '#f4efe0' : RES_COLOR[pt.type]; ctx.fill();
-      ctx.strokeStyle = INK; ctx.lineWidth = 0.05; ctx.stroke();
-      text(pt.type === 'any' ? '3:1' : '2:1', px, py, 0.2, pt.type === 'any' || pt.type === 'grain' ? INK : '#fff');
-    }
+    // přístavy: dřevěné molo od pobřeží k bóji s žetonem suroviny (2:1) nebo kotvou (3:1)
+    for (const pt of v.map.ports) port(pt);
     // dílky
     v.map.hexes.forEach((hx, i) => {
       const c = hexXY(hx.q, hx.r);
@@ -180,6 +170,50 @@ export function createBoard(cv, onPick) {
   function text(t, x, y, size, color) {
     ctx.font = `700 ${size}px system-ui, sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     ctx.fillStyle = color; ctx.fillText(t, x, y);
+  }
+  function port(pt) {
+    const g = B.g, e = g.E[pt.e], a = g.V[e.a], b = g.V[e.b], hx = B.v.map.hexes[e.hex[0]], c = hexXY(hx.q, hx.r);
+    const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2, d = Math.hypot(mx - c.x, my - c.y), ux = (mx - c.x) / d, uy = (my - c.y) / d;
+    const px = mx + ux * 0.74, py = my + uy * 0.74;
+    // dvě mola od rohů hrany
+    for (const v of [a, b]) {
+      const sx = v.x + (mx - v.x) * 0.25, sy = v.y + (my - v.y) * 0.25, ex = px + (v.x - mx) * 0.32, ey = py + (v.y - my) * 0.32;
+      const ang = Math.atan2(ey - sy, ex - sx), len = Math.hypot(ex - sx, ey - sy);
+      ctx.save(); ctx.translate(sx, sy); ctx.rotate(ang);
+      ctx.shadowColor = 'rgba(0,0,0,.45)'; ctx.shadowBlur = 0.06 * B.cam.k * dpr; ctx.shadowOffsetY = 0.03 * B.cam.k * dpr;
+      ctx.fillStyle = '#6e4a26'; ctx.fillRect(0, -0.065, len, 0.13);
+      ctx.shadowColor = 'transparent';
+      ctx.strokeStyle = 'rgba(30,18,8,.65)'; ctx.lineWidth = 0.012;
+      for (let t = 0.07; t < len; t += 0.07) { ctx.beginPath(); ctx.moveTo(t, -0.065); ctx.lineTo(t, 0.065); ctx.stroke(); }
+      ctx.fillStyle = '#3b2612'; for (const t of [0.02, len - 0.04]) { ctx.beginPath(); ctx.arc(t, -0.075, 0.03, 0, 7); ctx.arc(t, 0.075, 0.03, 0, 7); ctx.fill(); }
+      ctx.restore();
+    }
+    // mosazná bója se žetonem
+    const r = 0.36;
+    ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.55)'; ctx.shadowBlur = 0.12 * B.cam.k * dpr; ctx.shadowOffsetY = 0.04 * B.cam.k * dpr;
+    ctx.beginPath(); ctx.arc(px, py, r, 0, 7); ctx.fillStyle = '#7a5520'; ctx.fill(); ctx.restore();
+    const gr = ctx.createLinearGradient(px, py - r, px, py + r); gr.addColorStop(0, '#f2d27a'); gr.addColorStop(0.5, '#b88a3a'); gr.addColorStop(1, '#7a5520');
+    ctx.beginPath(); ctx.arc(px, py, r, 0, 7); ctx.fillStyle = gr; ctx.fill();
+    const img = pt.type !== 'any' && sprite('res-' + pt.type);
+    if (img) ctx.drawImage(img, px - r * 0.9, py - r * 0.9, r * 1.8, r * 1.8);
+    else {
+      ctx.beginPath(); ctx.arc(px, py, r * 0.84, 0, 7); ctx.fillStyle = pt.type === 'any' ? '#1f4f6e' : RES_COLOR[pt.type]; ctx.fill();
+      if (pt.type === 'any') anchor(px, py - 0.02, 0.2);
+    }
+    // štítek s poměrem pod bójí
+    const lx = px, ly = py + r * 0.98, w = 0.42, hgt = 0.2;
+    ctx.beginPath(); ctx.roundRect ? ctx.roundRect(lx - w / 2, ly - hgt / 2, w, hgt, 0.05) : ctx.rect(lx - w / 2, ly - hgt / 2, w, hgt);
+    ctx.fillStyle = '#2b1d10'; ctx.fill(); ctx.strokeStyle = '#d8b25a'; ctx.lineWidth = 0.02; ctx.stroke();
+    ctx.font = "700 0.155px Georgia, 'Noto Serif', serif"; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = '#f4e3b5';
+    ctx.fillText(pt.type === 'any' ? '3:1' : '2:1', lx, ly + 0.005);
+  }
+  function anchor(x, y, s) { // kotva pro přístav 3:1
+    ctx.save(); ctx.strokeStyle = '#f4e3b5'; ctx.fillStyle = '#f4e3b5'; ctx.lineWidth = s * 0.16; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.arc(x, y - s * 0.62, s * 0.14, 0, 7); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x, y - s * 0.48); ctx.lineTo(x, y + s * 0.62); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x - s * 0.32, y - s * 0.22); ctx.lineTo(x + s * 0.32, y - s * 0.22); ctx.stroke();
+    ctx.beginPath(); ctx.arc(x, y + s * 0.05, s * 0.58, 0.25 * Math.PI, 0.75 * Math.PI); ctx.stroke();
+    ctx.restore();
   }
   // cesta: trám v barvě hráče s tmavým obrysem, světlou hranou a stínem
   function road(ax, ay, bx, by, p) {

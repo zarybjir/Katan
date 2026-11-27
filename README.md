@@ -26,7 +26,8 @@ získá cílový počet bodů. Android aplikace; server hry běží na zařízen
 - Zvuky: hod kostkami, příchod surovin, platby do banky, stavby, bouře, krádež, nabídka obchodu,
   začátek vlastního tahu a vítězství. Vypínají se tamtéž.
 
-- Barvu si každé místo vybírá při zakládání hry z osmi barev.
+- Barvu si každé místo vybírá při zakládání hry z osmi barev; hráč připojený po síti si ji může
+  změnit v lobby (barvy ostatních lidí jsou obsazené).
 
 ## Pravidla ve zkratce
 

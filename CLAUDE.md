@@ -220,7 +220,9 @@ převádí jen `ui/board.js`.
 - Stavba: vybrat typ → zvýrazní se dovolená místa → klepnutí umístí. Drahé nebo nevratné akce
   (město, odhození karet) se potvrzují, ostatní ne.
 - Hráče rozlišuje jen barva (značky zadavatel nechce). Paleta je `COLORS` (8 barev);
-  barvu volí hostitel pro každé místo při zakládání, ve stavu je `colors` (index palety pro hráče).
+  barvu volí hostitel pro každé místo při zakládání, hráč ji může změnit v lobby zprávou `color`
+  (jen před startem; barvu jiného člověka vzít nejde, s botem se prohodí). Ve stavu je `colors`.
+  Přístavy kreslí `port()` v `board.js`: molo, mosazná bója se žetonem suroviny nebo kotvou, štítek s poměrem.
   V UI se barva hráče bere vždy přes `pc(p)` (tečka v textu: `dot(p)`) z `dom.js`, nikdy `COLORS[p]`.
   Cesty jsou kreslené trámy v barvě hráče, čísla na dílcích mosazné žetony (`road`, `token` v `board.js`). Čísla na dílcích ukazují i četnost
   (tečky nebo velikost písma).

@@ -1,5 +1,5 @@
 // Tvary zpráv a jejich kontrola. Zprávy jsou JSON s polem `t`.
-// klient → hostitel: hello {name, token, proto}, action {pid, a}, back {pid}, ping
+// klient → hostitel: hello {name, token, proto}, action {pid, a}, back {pid}, color {pid, c} (jen v lobby), ping
 // hostitel → klient: lobby {...}, view {pid, view, ev, seq, seats}, error {code, msg}, pong
 import { NET } from '../data.js';
 

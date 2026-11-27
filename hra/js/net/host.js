@@ -5,7 +5,7 @@ import { apply, legal } from '../core/rules.js';
 import { next } from '../core/rng.js';
 import { botAct } from '../bot/bot.js';
 import { parse, pack, cleanName, okToken } from './proto.js';
-import { PROTO, NET, RULES, BOT_NAMES } from '../data.js';
+import { PROTO, NET, RULES, BOT_NAMES, COLORS } from '../data.js';
 
 // opt: { seats:[{kind:'local'|'bot'|'open', name, level}], target, map, seed, code, save(text), botDelay, now(), restore }
 export function createHost(opt) {
@@ -68,6 +68,15 @@ export function createHost(opt) {
     const pid = Number.isInteger(m.pid) ? m.pid : pids[0];
     if (!pids.includes(pid) || pid < 0) return err(c, 'seat', 'Akce za cizího hráče.');
     if (m.t === 'back') { H.seats[pid].away = false; broadcast(); return; }
+    if (m.t === 'color') { // volba barvy v lobby; barvu jiného člověka vzít nejde, s botem nebo volným místem se prohodí
+      if (H.g) return err(c, 'started', 'Hra už běží.');
+      const k = m.c;
+      if (!Number.isInteger(k) || k < 0 || k >= COLORS.length) return;
+      const o = H.seats.find((s, i) => i !== pid && s.color === k);
+      if (o && (o.kind === 'local' || (o.kind === 'open' && o.token))) return err(c, 'color', 'Tuto barvu už má jiný hráč.');
+      if (o) o.color = H.seats[pid].color;
+      H.seats[pid].color = k; broadcast(); return;
+    }
     if (m.t !== 'action' || !H.g) return;
     H.seats[pid].away = false;
     const r = H.act(pid, m.a);

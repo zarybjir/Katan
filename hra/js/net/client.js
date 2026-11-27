@@ -27,6 +27,7 @@ export function createClient(conn, hello, h) {
   if (hello) conn.send(pack({ t: 'hello', name: hello.name, token: hello.token, proto: PROTO }));
   C.act = (pid, a) => conn.send(pack({ t: 'action', pid, a }));
   C.back = pid => conn.send(pack({ t: 'back', pid }));
+  C.color = (pid, c) => conn.send(pack({ t: 'color', pid, c }));
   C.close = () => { C.open = false; clearInterval(beat); conn.onclose = null; conn.close(); };
   return C;
 }

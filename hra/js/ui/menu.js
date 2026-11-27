@@ -92,9 +92,14 @@ export function showJoin(root, A, onJoin, onBack) {
 export function showLobby(root, m, o) {
   screen(root, h('h2', null, o.host ? 'Hra čeká na hráče' : 'Čekání na spuštění hry'),
     o.net && h('div', { class: 'net', id: 'net' }, o.net.map(l => h('p', null, l))),
-    m.seats.map((s, i) => h('div', { class: 'seat' }, h('span', { class: 'pdot big', style: `background:${COLORS[s.color ?? i]}` }),
+    m.seats.map((s, i) => h('div', { class: 'seat' + (m.you.includes(i) ? ' wrap' : '') }, h('span', { class: 'pdot big', style: `background:${COLORS[s.color ?? i]}` }),
       h('span', { class: 'grow' }, s.kind === 'bot' ? `${s.name} (bot, ${BOT_LEVEL[s.level]})` : s.kind === 'open' ? (s.taken ? s.name : 'volné místo') : s.name),
-      m.you.includes(i) && h('span', { class: 'dim' }, 'toto zařízení'), s.kind === 'open' && s.taken && h('span', { class: 'dim' }, 'připojeno'))),
+      m.you.includes(i) && h('span', { class: 'dim' }, 'toto zařízení'), s.kind === 'open' && s.taken && h('span', { class: 'dim' }, 'připojeno'),
+      // vlastní místo: výběr barvy (barvy ostatních lidí jsou zašedlé)
+      m.you.includes(i) && o.color && h('div', { class: 'colors full' }, COLORS.map((c, k) => {
+        const owner = m.seats.findIndex((x, j) => j !== i && x.color === k), human = owner >= 0 && (m.seats[owner].kind === 'local' || (m.seats[owner].kind === 'open' && m.seats[owner].taken));
+        return h('button', { class: 'cdot' + (s.color === k ? ' on' : ''), style: `--c:${c}`, title: COLOR_NAME[k], 'aria-label': COLOR_NAME[k], 'data-color': k, disabled: human, onclick: () => o.color(i, k) });
+      })))),
     h('p', { class: 'dim' }, `Mapa: ${MAPS[m.map] || MAPS.island}, cíl: ${m.target} bodů`),
     o.host && h('button', { class: 'btn', id: 'l-start', onclick: o.start }, 'Spustit hru'),
     h('button', { class: 'btn ghost', id: 'l-leave', onclick: o.leave }, o.host ? 'Zrušit' : 'Odejít'));
