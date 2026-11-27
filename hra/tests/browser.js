@@ -27,6 +27,13 @@ async function open(ctx, name) {
 }
 const view = p => p.evaluate(() => { const S = __so.S, v = S && S.view(); return v && { phase: v.phase, turn: v.turn, you: v.you, turnNo: v.turnNo, legal: v.legal, pending: S.pending, roads: Object.keys(v.roads).length, bld: Object.keys(v.bld).length, hand: v.players[v.you]?.hand, trade: v.trade }; });
 const tapSpot = async (p, type, id) => { const c = await p.evaluate(([t, i]) => __so.S.G.board.px(t, i), [type, id]); await p.mouse.click(c.x, c.y); };
+// klepnutí s chvěním prstu: součet pohybů přes 10 px, vzdálenost od začátku pod toleranci
+const shakyTap = async (p, type, id) => {
+  const c = await p.evaluate(([t, i]) => __so.S.G.board.px(t, i), [type, id]);
+  await p.mouse.move(c.x, c.y); await p.mouse.down();
+  for (const [dx, dy] of [[5, -4], [-6, 5], [4, 6], [-3, -5], [2, 1]]) await p.mouse.move(c.x + dx, c.y + dy, { steps: 2 });
+  await p.mouse.up();
+};
 // jeden krok hráče přes rozhraní; vrací false, když není co dělat
 async function step(p) {
   const v = await view(p);
@@ -36,7 +43,7 @@ async function step(p) {
   if (!L.length || v.phase === 'end') return false;
   const a = L[0];
   if (L.some(x => x.t === 'end')) await p.click('#a-end');
-  else if (a.t === 'build') await tapSpot(p, a.kind === 'road' ? 'e' : 'v', a.at);
+  else if (a.t === 'build') await shakyTap(p, a.kind === 'road' ? 'e' : 'v', a.at);
   else if (a.t === 'roll') await p.click('#a-roll');
   else if (a.t === 'storm') { await tapSpot(p, 'h', a.hex); const b = p.locator('.modal .btn').first(); if (await b.count()) await b.click(); }
   else if (a.t === 'discard') { for (let i = 0; i < a.n; i++) await p.locator('.picker .res:not([disabled])').first().click(); await p.click('#discard-go'); }
@@ -83,7 +90,7 @@ try {
   await p.evaluate(() => { const g = __so.S.host.g, h = g.players[__so.S.cur].hand; g.bank.stone -= 4; h.stone = 4; __so.S.refresh(); });
   await until(p, async () => (await view(p)).hand.stone === 4, 'vrácení kamene');
   await p.click('#a-city'); v = await view(p);
-  await tapSpot(p, 'v', v.legal.find(a => a.t === 'build' && a.kind === 'city').at); await p.click('#city-ok');
+  await shakyTap(p, 'v', v.legal.find(a => a.t === 'build' && a.kind === 'city').at); await p.click('#city-ok', { timeout: 3000 });
   await until(p, async () => (await p.evaluate(() => __so.S.view().players[__so.S.cur].pts)) === pts0 + 1, 'stavba města');
   // nabídka obchodu botům
   await p.click('#a-trade'); await p.locator('.picker').nth(0).locator('.res[data-res=wood]').click(); await p.locator('.picker').nth(1).locator('.res[data-res=brick]').click(); await p.click('#offer-go');

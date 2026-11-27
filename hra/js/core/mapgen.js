@@ -95,16 +95,22 @@ export function genMap(seed, players, type = 'island') {
     land.forEach((i, j) => { hexes[i].n = nums[j]; });
     if (!quality(hexes).hot) break;
   }
-  // přístavy na pobřeží, s rozestupem
+  // přístavy: 2:1 pro každou surovinu na rozhraní dvou dílků (hrana pobřeží, jejíž vrchol
+  // sousedí se dvěma dílky), 3:1 na samotném okraji (oba vrcholy jen u jednoho dílku)
   const coast = shuffle(R, Object.values(g.E).filter(e => e.hex.length === 1).map(e => e.id).sort());
-  const want = Math.round(n / 3), used = new Set(), ports = [];
-  const types = shuffle(R, RES.slice());
-  for (const e of coast) {
-    if (ports.length >= want) break;
-    const { a, b } = g.E[e];
-    if ([a, b].some(v => used.has(v) || g.V[v].adj.some(w => used.has(w)))) continue;
-    used.add(a); used.add(b);
-    ports.push({ e, type: ports.length % 2 ? 'any' : types[(ports.length / 2) % 5] });
-  }
+  const seam = coast.filter(e => [g.E[e].a, g.E[e].b].some(v => g.V[v].hex.length > 1));
+  const tip = coast.filter(e => !seam.includes(e));
+  const used = new Set(), ports = [];
+  const place = (list, type, gap) => {
+    for (const e of list) {
+      const { a, b } = g.E[e];
+      if ([a, b].some(v => used.has(v) || (gap && g.V[v].adj.some(w => used.has(w))))) continue;
+      used.add(a); used.add(b); ports.push({ e, type }); return true;
+    }
+    return false;
+  };
+  const put = (first, second, type) => place(first, type, true) || place(second, type, true) || place(coast, type, false);
+  for (const r of shuffle(R, RES.slice())) put(seam, tip, r);
+  for (let i = 0; i < Math.max(2, Math.round(n / 8)); i++) put(tip, seam, 'any');
   return { hexes, ports, storm: hexes.findIndex(h => h.t === 'waste') };
 }

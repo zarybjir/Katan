@@ -179,29 +179,38 @@ export function createBoard(cv, onPick) {
   }
 
   // ---------- vstup ----------
-  const pts = new Map(); let moved = 0, pinch = 0;
-  cv.addEventListener('pointerdown', e => { cv.setPointerCapture(e.pointerId); pts.set(e.pointerId, { x: e.offsetX, y: e.offsetY }); if (pts.size === 1) moved = 0; pinch = 0; });
+  // Klepnutí vs. posun: rozhoduje vzdálenost od místa dotyku (ne součet drobných pohybů prstu),
+  // klepnutí se vyhodnotí v místě dotyku. SLOP je tolerance chvění prstu v CSS px.
+  const SLOP = 16, pts = new Map();
+  let start = null, panning = false, pinch = 0;
+  cv.addEventListener('pointerdown', e => {
+    if (e.isPrimary) pts.clear(); // první prst: zapomenout ztracené dotyky z dřívějška
+    try { cv.setPointerCapture(e.pointerId); } catch {}
+    pts.set(e.pointerId, { x: e.offsetX, y: e.offsetY });
+    if (pts.size === 1) { start = { x: e.offsetX, y: e.offsetY }; panning = false; }
+    else { start = null; pinch = 0; } // druhý prst = zoom, klepnutí se už nevyhodnotí
+  });
   cv.addEventListener('pointermove', e => {
     const p = pts.get(e.pointerId);
     if (!p) return;
     const dx = e.offsetX - p.x, dy = e.offsetY - p.y;
+    p.x = e.offsetX; p.y = e.offsetY;
     if (pts.size === 1) {
-      moved += Math.abs(dx) + Math.abs(dy);
-      if (moved > 10) { B.cam.x -= dx / B.cam.k; B.cam.y -= dy / B.cam.k; B.moved = true; B.draw(); }
-      p.x = e.offsetX; p.y = e.offsetY;
+      if (!panning && start && Math.hypot(e.offsetX - start.x, e.offsetY - start.y) > SLOP) panning = true;
+      if (panning) { B.cam.x -= dx / B.cam.k; B.cam.y -= dy / B.cam.k; B.moved = true; B.draw(); }
     } else if (pts.size === 2) {
-      p.x = e.offsetX; p.y = e.offsetY;
       const [a, b] = [...pts.values()], d = Math.hypot(a.x - b.x, a.y - b.y);
       if (pinch) zoom(d / pinch, (a.x + b.x) / 2, (a.y + b.y) / 2);
-      pinch = d; moved = 99;
+      pinch = d;
     }
   });
   const up = e => {
-    const p = pts.get(e.pointerId);
-    pts.delete(e.pointerId); pinch = 0;
-    if (p && e.type === 'pointerup' && moved <= 10 && pts.size === 0) tap(e.offsetX, e.offsetY);
+    const had = pts.delete(e.pointerId);
+    if (!pts.size) pinch = 0;
+    if (had && e.type === 'pointerup' && !panning && start && !pts.size) tap(start.x, start.y);
+    if (!pts.size) start = null;
   };
-  cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', up);
+  cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', up); cv.addEventListener('lostpointercapture', up);
   cv.addEventListener('wheel', e => { e.preventDefault(); zoom(e.deltaY < 0 ? 1.15 : 1 / 1.15, e.offsetX, e.offsetY); }, { passive: false });
   function zoom(f, px, py) {
     const w = toWorld(px, py), k = Math.max(B.minK || 10, Math.min((B.minK || 10) * 6, B.cam.k * f));
@@ -211,7 +220,7 @@ export function createBoard(cv, onPick) {
   function tap(px, py) {
     const t = B.targets, g = B.g;
     if (!t || !g) return;
-    const w = toWorld(px, py), reach = Math.max(0.42, 26 / B.cam.k);
+    const w = toWorld(px, py), reach = Math.max(0.42, 30 / B.cam.k);
     let best = null, bd = reach;
     for (const id of t.v || []) { const d = Math.hypot(g.V[id].x - w.x, g.V[id].y - w.y); if (d < bd) { bd = d; best = { type: 'v', id }; } }
     for (const id of t.e || []) { const e = g.E[id], d = Math.hypot((g.V[e.a].x + g.V[e.b].x) / 2 - w.x, (g.V[e.a].y + g.V[e.b].y) / 2 - w.y); if (d < bd) { bd = d; best = { type: 'e', id }; } }

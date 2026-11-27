@@ -103,7 +103,8 @@ test('mapa: 1000 seedů každého typu splní pravidla', () => {
     const cnt = {}; for (const h of m.hexes) cnt[h.t] = (cnt[h.t] || 0) + 1;
     const vals = ['forest', 'quarry', 'field', 'pasture', 'claypit'].map(t => cnt[t] || 0);
     ok(Math.max(...vals) - Math.min(...vals) <= 1, 'nerovnoměrné dílky');
-    ok(m.ports.length >= 4, 'málo přístavů: ' + m.ports.length);
+    for (const r of RES) eq(m.ports.filter(p => p.type === r).length, 1, `${type} seed ${seed}: přístav ${r}`);
+    ok(m.ports.filter(p => p.type === 'any').length >= 2, 'málo přístavů 3:1');
     const pv = m.ports.flatMap(p => [g.E[p.e].a, g.E[p.e].b]);
     ok(new Set(pv).size === pv.length, 'přístavy sdílejí vrchol');
     for (const p of m.ports) ok(g.E[p.e].hex.length === 1, 'přístav mimo pobřeží');
@@ -140,6 +141,18 @@ test('mapa: boti dohrají hru na každém typu', () => {
     let steps = 0;
     while (s.phase !== 'end') { if (!botStep(s, 'mid', rnd, invariants)) throw new Error(`${type} seed ${seed}: hra se zasekla`); if (++steps > 40000) throw new Error(`${type} seed ${seed}: hra nekončí`); }
   }
+});
+test('mapa: přístavy 2:1 na rozhraní dílků, 3:1 na okraji', () => {
+  let seamOk = 0, seamAll = 0, tipOk = 0, tipAll = 0;
+  for (const type of Object.keys(MAPS)) for (let seed = 1; seed <= 300; seed++) {
+    const m = genMap(seed, 2 + seed % 5, type), g = graph(m.hexes);
+    for (const p of m.ports) {
+      const two = [g.E[p.e].a, g.E[p.e].b].some(v => g.V[v].hex.length > 1);
+      if (p.type === 'any') { tipAll++; if (!two) tipOk++; } else { seamAll++; if (two) seamOk++; }
+    }
+  }
+  ok(seamOk / seamAll > 0.97, `2:1 na rozhraní jen ${seamOk}/${seamAll}`);
+  ok(tipOk / tipAll > 0.9, `3:1 na okraji jen ${tipOk}/${tipAll}`);
 });
 test('mapa: stejný seed dá stejnou mapu', () => {
   eq(genMap(77, 4), genMap(77, 4));
