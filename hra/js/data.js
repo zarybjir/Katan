@@ -10,6 +10,8 @@ export const TERRAIN = { forest: 'wood', quarry: 'stone', field: 'grain', pastur
 export const TERRAIN_NAME = { forest: 'les', quarry: 'skály', field: 'pole', pasture: 'pastvina', claypit: 'hliniště', waste: 'pustina' };
 // obrázky dílků v gfx/ (bez přípony .jpg); víc variant = víc položek v poli
 export const TERRAIN_GFX = { forest: ['les-1'], quarry: ['skaly-1'], field: ['pole-1'], pasture: ['pastvina-1'], claypit: ['hliniste-1'], waste: ['pustina-1'] };
+// hotové šestiúhelníkové dílky s okrajem (špičkou nahoru); když chybí, použije se TERRAIN_GFX
+export const TERRAIN_HEX = { forest: ['hex-les', 'hex-les-2'], quarry: ['hex-skaly', 'hex-skaly-2'], field: ['hex-pole'], pasture: ['hex-pastvina'], claypit: ['hex-hliniste'], waste: ['hex-pustina'] };
 export const TERRAIN_COLOR = { forest: '#3c8f55', quarry: '#9aa1aa', field: '#ecc94f', pasture: '#9fcf5a', claypit: '#c2673f', waste: '#d9cfb4' };
 
 // ---------- stavby ----------
@@ -76,7 +78,7 @@ export const deckFor = n => { const k = n > 4 ? 1.4 : 1; return { guard: Math.ro
 
 // ---------- hráči a boti ----------
 // paleta barev hráčů; hráč si barvu vybírá při zakládání hry (index do palety je v stavu hry `colors`)
-export const COLORS = ['#d6423b', '#2b6fd6', '#f2f2f2', '#e88a1a', '#7a3fbf', '#1f9e8f', '#3a3a3a', '#e0609e'];
+export const COLORS = ['#ff2b2b', '#1f7bff', '#ffffff', '#ff9500', '#a640ff', '#00c9a7', '#2b2b2b', '#ff3fae'];
 export const COLOR_NAME = ['červená', 'modrá', 'bílá', 'oranžová', 'fialová', 'tyrkysová', 'černá', 'růžová'];
 export const COLOR_LIGHT = [false, false, true, false, false, false, false, false]; // světlá barva = tmavé písmo
 export const BOT_NAMES = ['Alba', 'Bruno', 'Cyril', 'Dora', 'Emil', 'Flora'];

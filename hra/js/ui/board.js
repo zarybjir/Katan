@@ -1,6 +1,6 @@
 // Kreslení mapy na canvas, posun a zoom, výběr místa dotykem.
 import { graph, hexXY } from '../core/hex.js';
-import { TERRAIN_COLOR, TERRAIN_GFX, RES_COLOR, PIPS, COLORS } from '../data.js';
+import { TERRAIN_COLOR, TERRAIN_GFX, TERRAIN_HEX, RES_COLOR, PIPS, COLORS } from '../data.js';
 
 // ---------- obrázky dílků ----------
 // figurky obarvené na barvu hráče: bílý obrázek × barva, předkreslené jednou na hráče
@@ -18,7 +18,11 @@ function tinted(name, color) {
     x.globalCompositeOperation = 'screen'; x.globalAlpha = 0.26; x.drawImage(img, 0, 0); x.globalAlpha = 1;
   }
   x.globalCompositeOperation = 'destination-in'; x.drawImage(img, 0, 0);
-  return (TINT[k] = c);
+  if (color === '#120c06' || color === '#ffffff' || !('filter' in x)) return (TINT[k] = c);
+  // zářivější barva: zvýšená sytost a jas
+  const d = document.createElement('canvas'); d.width = c.width; d.height = c.height;
+  const y = d.getContext('2d'); y.filter = 'saturate(1.6) brightness(1.08)'; y.drawImage(c, 0, 0);
+  return (TINT[k] = d);
 }
 // samostatné obrázky (bouře); načtou se jednou, do té doby se kreslí náhradní tvar
 function sprite(name) {
@@ -43,6 +47,8 @@ function texture(t, q, r) {
 import { pc } from './dom.js';
 
 const INK = '#1d2a38';
+const S3W = Math.sqrt(3); // šířka dílku (špičkou nahoru) při výšce 2
+const HEX_TILES = false; // hotové šestiúhelníkové dílky z gfx/hex-*.webp
 
 export function createBoard(cv, onPick) {
   const ctx = cv.getContext('2d');
@@ -105,6 +111,13 @@ export function createBoard(cv, onPick) {
     // dílky
     v.map.hexes.forEach((hx, i) => {
       const c = hexXY(hx.q, hx.r);
+      const hl = HEX_TILES && TERRAIN_HEX[hx.t], ht = hl && sprite(hl[Math.abs(hx.q * 7 + hx.r * 13) % hl.length]);
+      if (ht) { // hotový šestiúhelníkový dílek i s okrajem
+        ctx.drawImage(ht, c.x - S3W / 2, c.y - 1, S3W, 2);
+        if (hx.n) token(c.x, c.y + 0.18, hx.n);
+        if (B.targets && B.targets.h && B.targets.h.includes(i)) { path(i); ctx.fillStyle = 'rgba(255,255,255,.28)'; ctx.fill(); ctx.strokeStyle = '#fff'; ctx.lineWidth = 0.08; ctx.stroke(); }
+        return;
+      }
       path(i); ctx.fillStyle = TERRAIN_COLOR[hx.t] || '#d8c79c'; ctx.fill(); // 'blank' = náhled tvaru
       const tx = texture(hx.t, hx.q, hx.r);
       if (tx) { // téměř celý obrázek; malý posun a zrcadlení podle polohy dílku, aby stejné dílky nevypadaly stejně

@@ -173,6 +173,8 @@ prohlížeč, WebView i Node v testech.
 - `hra/lib/peerjs.min.js` – jediná cizí knihovna (MIT), načítá se až při hře přes internet. Nečti ji.
 - `hra/gfx/` – obrázky dílků (`<krajina>-<varianta>.jpg`, 640×640, JPEG kvalita 80; seznam
   variant je `TERRAIN_GFX` v `data.js`). Dílek bez obrázku se kreslí barvou a značkou.
+  Hotové šestiúhelníkové dílky s okrajem jsou `hex-*.webp` (`TERRAIN_HEX`), zapínají se
+  konstantou `HEX_TILES` v `board.js` (zatím vypnuto, čeká na rozhodnutí zadavatele).
   Další malovaná grafika: `res-*.webp` a `banka.webp` (žetony, `icons.js`), `boure.webp` (mapa),
   `fig-osada.webp`, `fig-mesto.webp` (bílé figurky, `board.js` je obarví na barvu
   hráče), `btn-wood.webp`, `btn-brass.webp`, `ramecek.webp` (CSS `border-image`), `drevo-*.jpg`, `more.jpg`,
@@ -229,6 +231,7 @@ převádí jen `ui/board.js`.
 - Hráče rozlišuje jen barva (značky zadavatel nechce). Paleta je `COLORS` (8 barev);
   barvu volí hostitel pro každé místo při zakládání, hráč ji může změnit v lobby zprávou `color`
   (jen před startem; barvu jiného člověka vzít nejde, s botem se prohodí). Ve stavu je `colors`.
+  Paleta je zářivá; obarvené figurky a cesty mají navíc `saturate(1.6)`.
   Stavby jsou větší, zesvětlené (barva hráče + `screen` bílé figurky) se světlým obrysem a stínem;
   krajiny jsou mírně ztlumené, aby stavby
   vynikly; poslední stavba se kolečkem nevyznačuje.
