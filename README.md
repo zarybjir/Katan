@@ -23,7 +23,7 @@ získá cílový počet bodů. Android aplikace; server hry běží na zařízen
 
 | Stavba | Cena |
 |---|---|
-| cesta | dřevo, kámen |
+| cesta | dřevo, cihly |
 | osada (1 bod) | dřevo, kámen, obilí, ovce |
 | město (2 body) | 2 obilí, 2 cihly, ovce |
 | výprava (karta) | obilí, ovce, cihly |

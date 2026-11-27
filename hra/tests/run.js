@@ -209,13 +209,15 @@ test('stavba: cesta, osada, město a jejich ceny', () => {
   setHand(s, 0, {});
   const e = roadSpots(s, 0)[0];
   bad(s, 0, { t: 'build', kind: 'road', at: e });
-  setHand(s, 0, { wood: 1, stone: 1 });
+  setHand(s, 0, { wood: 1, stone: 1 }); // kámen na cestu nestačí
+  bad(s, 0, { t: 'build', kind: 'road', at: e });
+  setHand(s, 0, { wood: 1, brick: 1 });
   bad(s, 1, { t: 'build', kind: 'road', at: e });
   const bank = { ...s.bank };
   must(s, 0, { t: 'build', kind: 'road', at: e });
   eq(total(s.players[0].hand), 0); eq(s.roads[e], 0);
-  eq([s.bank.wood, s.bank.stone], [bank.wood + 1, bank.stone + 1]);
-  setHand(s, 0, { wood: 1, stone: 1 });
+  eq([s.bank.wood, s.bank.brick, s.bank.stone], [bank.wood + 1, bank.brick + 1, bank.stone]);
+  setHand(s, 0, { wood: 1, brick: 1 });
   bad(s, 0, { t: 'build', kind: 'road', at: e }); // obsazeno
   // osada: jen u vlastní cesty a ne vedle jiné stavby
   setHand(s, 0, { wood: 9, stone: 9, grain: 9, sheep: 9, brick: 9 });
