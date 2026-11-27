@@ -1,6 +1,6 @@
 // Tabulky hry. Čísla se ladí tady, ne v kódu.
 export const NAME = 'Souostroví';
-export const PROTO = 3;
+export const PROTO = 4;
 
 // ---------- suroviny a dílky ----------
 export const RES = ['wood', 'stone', 'grain', 'sheep', 'brick'];
@@ -15,8 +15,8 @@ export const TERRAIN_COLOR = { forest: '#3c8f55', quarry: '#9aa1aa', field: '#ec
 // ---------- stavby ----------
 export const COST = {
   road: { wood: 1, brick: 1 },
-  settle: { wood: 1, stone: 1, grain: 1, sheep: 1 },
-  city: { grain: 2, brick: 2, sheep: 1 },
+  settle: { wood: 1, brick: 1, grain: 1, sheep: 1 },
+  city: { stone: 3, grain: 2 },
   card: { grain: 1, sheep: 1, brick: 1 },
 };
 export const KIND_NAME = { road: 'cesta', settle: 'osada', city: 'město', card: 'výprava' };

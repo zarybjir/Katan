@@ -24,8 +24,8 @@ získá cílový počet bodů. Android aplikace; server hry běží na zařízen
 | Stavba | Cena |
 |---|---|
 | cesta | dřevo, cihly |
-| osada (1 bod) | dřevo, kámen, obilí, ovce |
-| město (2 body) | 2 obilí, 2 cihly, ovce |
+| osada (1 bod) | dřevo, cihly, obilí, ovce |
+| město (2 body) | 3 kámen, 2 obilí |
 | výprava (karta) | obilí, ovce, cihly |
 
 - Osada nesmí stát hned vedle jiné stavby a musí navazovat na vlastní cestu.
