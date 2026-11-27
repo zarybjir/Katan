@@ -14,6 +14,9 @@ function tinted(name, color) {
   const x = c.getContext('2d');
   x.drawImage(img, 0, 0);
   x.globalCompositeOperation = 'multiply'; x.fillStyle = color; x.fillRect(0, 0, c.width, c.height);
+  if (color !== '#120c06' && color !== '#ffffff') { // zesvětlit stínování, aby figurka nezapadla do mapy
+    x.globalCompositeOperation = 'screen'; x.globalAlpha = 0.26; x.drawImage(img, 0, 0); x.globalAlpha = 1;
+  }
   x.globalCompositeOperation = 'destination-in'; x.drawImage(img, 0, 0);
   return (TINT[k] = c);
 }
@@ -236,10 +239,10 @@ export function createBoard(cv, onPick) {
   function house(x, y, p, city) {
     const fig = tinted(city ? 'fig-mesto' : 'fig-osada', pc(p));
     if (fig) {
-      const s = city ? 1.12 : 0.86, ol = tinted(city ? 'fig-mesto' : 'fig-osada', '#120c06'), o = 0.028;
+      const s = city ? 1.12 : 0.86, ol = tinted(city ? 'fig-mesto' : 'fig-osada', '#ffffff'), o = 0.024;
       const X = x - s / 2, Y = y - s * 0.62;
-      ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.75)'; ctx.shadowBlur = 0.14 * B.cam.k * dpr; ctx.shadowOffsetY = 0.06 * B.cam.k * dpr;
-      if (ol) for (const [dx, dy] of [[o, 0], [-o, 0], [0, o], [0, -o], [o, o], [-o, o], [o, -o], [-o, -o]]) ctx.drawImage(ol, X + dx, Y + dy, s, s); // tmavý obrys
+      ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.5)'; ctx.shadowBlur = 0.12 * B.cam.k * dpr; ctx.shadowOffsetY = 0.05 * B.cam.k * dpr;
+      if (ol) { ctx.globalAlpha = 0.9; for (const [dx, dy] of [[o, 0], [-o, 0], [0, o], [0, -o], [o, o], [-o, o], [o, -o], [-o, -o]]) ctx.drawImage(ol, X + dx, Y + dy, s, s); } // světlý obrys
       ctx.restore();
       ctx.drawImage(fig, X, Y, s, s);
       return;
