@@ -386,6 +386,23 @@ test('nejdelší cesta: délka, přerušení, držitel', () => {
   s.roads[e(5)] = 0; updateBonus(s); eq(s.longLen[0], 6);
 });
 
+test('nejdelší cesta: shoda bonus nepřebere, delší ano', () => {
+  const s = started(9, 2), g = graph(s.map.hexes);
+  s.roads = {}; s.bld = {}; s.long = null;
+  const eid = (a, b) => (a < b ? a + '|' + b : b + '|' + a);
+  const find = (p, ban) => { if (p.length === 8) return p; for (const nx of g.V[p[p.length - 1]].adj) if (!p.includes(nx) && !ban.has(nx)) { const r = find([...p, nx], ban); if (r) return r; } return null; };
+  const a = find([Object.keys(g.V)[0]], new Set());
+  const ban = new Set(a.flatMap(v => [v, ...g.V[v].adj]));
+  const b = find([Object.keys(g.V).find(v => !ban.has(v) && find([v], ban))], ban);
+  ok(a && b, 'nenalezeny dvě oddělené trasy');
+  const lay = (path, p, n) => { for (let i = 0; i < n; i++) s.roads[eid(path[i], path[i + 1])] = p; updateBonus(s); };
+  lay(a, 0, 4); eq(s.long, null, 'čtyři úseky na bonus nestačí:');
+  lay(a, 0, 5); eq(s.long, 0);
+  lay(b, 1, 5); eq(s.long, 0, 'shoda bonus přebrala:');
+  eq(points(s, 0, false) - points(s, 1, false), RULES.longPts);
+  lay(b, 1, 6); eq(s.long, 1, 'delší cesta bonus nepřebrala:');
+});
+
 // ---------- pohled ----------
 test('pohled: bez cizích karet, balíčku a stavu náhody', () => {
   const s = started();
