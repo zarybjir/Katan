@@ -1,6 +1,6 @@
 // Tabulky hry. Čísla se ladí tady, ne v kódu.
 export const NAME = 'Osadníci';
-export const PROTO = 10;
+export const PROTO = 11;
 
 // ---------- suroviny a dílky ----------
 export const RES = ['wood', 'stone', 'grain', 'sheep', 'brick'];
@@ -41,6 +41,13 @@ export const MAP_TEXT = {
   ridge: 'Dlouhý úzký pás pevniny.',
 };
 export const PORTS_ANY = 4; // počet přístavů 3:1 (2:1 je po jednom pro každou surovinu)
+// souměrný ostrov: čísla se kladou ve spirále od okraje ke středu (pustina se přeskočí) v tomto
+// pořadí; posloupnosti jsou vlastní, nalezené tak, aby pro každou polohu pustiny šlo zvolit začátek
+// a směr spirály, při kterém stejná čísla ani 6 a 8 nesousedí. Klíč = počet dílků s číslem.
+export const SPIRAL = {
+  18: [11, 4, 5, 12, 6, 4, 5, 8, 11, 9, 2, 10, 8, 3, 10, 3, 6, 9],
+  29: [5, 9, 6, 9, 11, 8, 11, 11, 8, 6, 10, 12, 6, 10, 4, 5, 4, 9, 3, 5, 9, 3, 4, 3, 6, 10, 8, 2, 5],
+};
 export const NUMS = [6, 8, 5, 9, 4, 10, 3, 11, 5, 9, 6, 8, 4, 10, 2, 12, 3, 11]; // pořadí přidělování čísel
 export const PIPS = { 2: 1, 3: 2, 4: 3, 5: 4, 6: 5, 8: 5, 9: 4, 10: 3, 11: 2, 12: 1 };
 

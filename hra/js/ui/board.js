@@ -64,7 +64,7 @@ export function createBoard(cv, onPick) {
   B.fit = () => {
     if (!B.g || !W) return;
     const xs = Object.values(B.g.V).map(v => v.x), ys = Object.values(B.g.V).map(v => v.y);
-    const x0 = Math.min(...xs) - 1, x1 = Math.max(...xs) + 1, y0 = Math.min(...ys) - 1, y1 = Math.max(...ys) + 1;
+    const M = 1.45, x0 = Math.min(...xs) - M, x1 = Math.max(...xs) + M, y0 = Math.min(...ys) - M, y1 = Math.max(...ys) + M; // okraj pro přístavy
     B.cam.k = Math.min(W / (x1 - x0), H / (y1 - y0));
     B.cam.x = (x0 + x1) / 2; B.cam.y = (y0 + y1) / 2; B.minK = B.cam.k * 0.7;
     B.draw();
@@ -168,34 +168,36 @@ export function createBoard(cv, onPick) {
   function port(pt) {
     const g = B.g, e = g.E[pt.e], a = g.V[e.a], b = g.V[e.b], hx = B.v.map.hexes[e.hex[0]], c = hexXY(hx.q, hx.r);
     const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2, d = Math.hypot(mx - c.x, my - c.y), ux = (mx - c.x) / d, uy = (my - c.y) / d;
-    const px = mx + ux * 0.74, py = my + uy * 0.74;
-    // dvě mola od rohů hrany
+    const px = mx + ux * 0.86, py = my + uy * 0.86;
+    // dvě lávky od rohů hrany k přístavu
+    const jet = sprite('lavka');
     for (const v of [a, b]) {
-      const sx = v.x + (mx - v.x) * 0.25, sy = v.y + (my - v.y) * 0.25, ex = px + (v.x - mx) * 0.32, ey = py + (v.y - my) * 0.32;
+      const sx = v.x + (mx - v.x) * 0.25, sy = v.y + (my - v.y) * 0.25, ex = px + (v.x - mx) * 0.3, ey = py + (v.y - my) * 0.3;
       const ang = Math.atan2(ey - sy, ex - sx), len = Math.hypot(ex - sx, ey - sy);
       ctx.save(); ctx.translate(sx, sy); ctx.rotate(ang);
       ctx.shadowColor = 'rgba(0,0,0,.45)'; ctx.shadowBlur = 0.06 * B.cam.k * dpr; ctx.shadowOffsetY = 0.03 * B.cam.k * dpr;
-      ctx.fillStyle = '#6e4a26'; ctx.fillRect(0, -0.065, len, 0.13);
-      ctx.shadowColor = 'transparent';
-      ctx.strokeStyle = 'rgba(30,18,8,.65)'; ctx.lineWidth = 0.012;
-      for (let t = 0.07; t < len; t += 0.07) { ctx.beginPath(); ctx.moveTo(t, -0.065); ctx.lineTo(t, 0.065); ctx.stroke(); }
-      ctx.fillStyle = '#3b2612'; for (const t of [0.02, len - 0.04]) { ctx.beginPath(); ctx.arc(t, -0.075, 0.03, 0, 7); ctx.arc(t, 0.075, 0.03, 0, 7); ctx.fill(); }
+      if (jet) ctx.drawImage(jet, -0.02, -0.08, len + 0.04, 0.16);
+      else {
+        ctx.fillStyle = '#6e4a26'; ctx.fillRect(0, -0.065, len, 0.13);
+        ctx.shadowColor = 'transparent'; ctx.strokeStyle = 'rgba(30,18,8,.65)'; ctx.lineWidth = 0.012;
+        for (let t = 0.07; t < len; t += 0.07) { ctx.beginPath(); ctx.moveTo(t, -0.065); ctx.lineTo(t, 0.065); ctx.stroke(); }
+      }
       ctx.restore();
     }
-    // mosazná bója se žetonem
-    const r = 0.36;
-    ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.55)'; ctx.shadowBlur = 0.12 * B.cam.k * dpr; ctx.shadowOffsetY = 0.04 * B.cam.k * dpr;
-    ctx.beginPath(); ctx.arc(px, py, r, 0, 7); ctx.fillStyle = '#7a5520'; ctx.fill(); ctx.restore();
-    const gr = ctx.createLinearGradient(px, py - r, px, py + r); gr.addColorStop(0, '#f2d27a'); gr.addColorStop(0.5, '#b88a3a'); gr.addColorStop(1, '#7a5520');
-    ctx.beginPath(); ctx.arc(px, py, r, 0, 7); ctx.fillStyle = gr; ctx.fill();
-    const img = pt.type !== 'any' && sprite('res-' + pt.type);
-    if (img) ctx.drawImage(img, px - r * 0.9, py - r * 0.9, r * 1.8, r * 1.8);
-    else {
+    // kormidlo se žetonem suroviny (2:1) nebo kotvou (3:1)
+    const r = 0.36, wheel = sprite('kormidlo'), tok = sprite(pt.type === 'any' ? 'res-any' : 'res-' + pt.type);
+    if (wheel && tok) {
+      ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.55)'; ctx.shadowBlur = 0.1 * B.cam.k * dpr; ctx.shadowOffsetY = 0.04 * B.cam.k * dpr;
+      ctx.drawImage(wheel, px - r * 1.45, py - r * 1.45, r * 2.9, r * 2.9); ctx.restore();
+      ctx.drawImage(tok, px - r * 0.82, py - r * 0.82, r * 1.64, r * 1.64);
+    } else {
+      ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.55)'; ctx.shadowBlur = 0.12 * B.cam.k * dpr; ctx.shadowOffsetY = 0.04 * B.cam.k * dpr;
+      ctx.beginPath(); ctx.arc(px, py, r, 0, 7); ctx.fillStyle = '#7a5520'; ctx.fill(); ctx.restore();
       ctx.beginPath(); ctx.arc(px, py, r * 0.84, 0, 7); ctx.fillStyle = pt.type === 'any' ? '#1f4f6e' : RES_COLOR[pt.type]; ctx.fill();
       if (pt.type === 'any') anchor(px, py - 0.02, 0.2);
     }
     // štítek s poměrem pod bójí
-    const lx = px, ly = py + r * 0.98, w = 0.42, hgt = 0.2;
+    const lx = px, ly = py + r * 1.22, w = 0.42, hgt = 0.2;
     ctx.beginPath(); ctx.roundRect ? ctx.roundRect(lx - w / 2, ly - hgt / 2, w, hgt, 0.05) : ctx.rect(lx - w / 2, ly - hgt / 2, w, hgt);
     ctx.fillStyle = '#2b1d10'; ctx.fill(); ctx.strokeStyle = '#d8b25a'; ctx.lineWidth = 0.02; ctx.stroke();
     ctx.font = "700 0.155px Georgia, 'Noto Serif', serif"; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = '#f4e3b5';
@@ -211,7 +213,14 @@ export function createBoard(cv, onPick) {
   }
   // cesta: trám v barvě hráče s tmavým obrysem, světlou hranou a stínem
   function road(ax, ay, bx, by, p) {
-    const col = pc(p);
+    const col = pc(p), img = tinted('fig-cesta', col);
+    if (img) {
+      const len = Math.hypot(bx - ax, by - ay) + 0.06, w = 0.11;
+      ctx.save(); ctx.translate((ax + bx) / 2, (ay + by) / 2); ctx.rotate(Math.atan2(by - ay, bx - ax));
+      ctx.shadowColor = 'rgba(0,0,0,.6)'; ctx.shadowBlur = 0.07 * B.cam.k * dpr; ctx.shadowOffsetY = 0.03 * B.cam.k * dpr;
+      ctx.drawImage(img, -len / 2, -w / 2, len, w); ctx.restore();
+      return;
+    }
     ctx.save();
     ctx.lineCap = 'round';
     ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by);

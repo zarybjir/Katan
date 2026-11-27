@@ -1,6 +1,6 @@
 // Testy jádra, botů a sítě. Spuštění: node hra/tests/run.js [filtr]
 import { graph, corners } from '../js/core/hex.js';
-import { genMap, quality } from '../js/core/mapgen.js';
+import { genMap, quality, spiral } from '../js/core/mapgen.js';
 import { newGame, view, total, eventsFor } from '../js/core/state.js';
 import { apply, legal, roadSpots, settleSpots, rate } from '../js/core/rules.js';
 import { points, roadLen, updateBonus } from '../js/core/score.js';
@@ -10,7 +10,7 @@ import { createHost } from '../js/net/host.js';
 import { createClient } from '../js/net/client.js';
 import { memPair } from '../js/net/transport-mem.js';
 import { newer } from '../js/update.js';
-import { RES, PIECES, MAPSIZE, MAPS, COST, RULES, PROTO, bankSize, deckFor } from '../js/data.js';
+import { SPIRAL, RES, PIECES, MAPSIZE, MAPS, COST, RULES, PROTO, bankSize, deckFor } from '../js/data.js';
 
 const tests = [];
 const test = (name, fn) => tests.push({ name, fn });
@@ -98,6 +98,7 @@ test('mapa: 1000 seedů každého typu splní pravidla', () => {
     eq(new Set(m.hexes.map(h => h.q + ',' + h.r)).size, m.hexes.length, type + ': opakovaný dílek,');
     eq(m.hexes.length, type === 'sym' ? (n > 4 ? 31 : 19) : MAPSIZE[n]);
     eq(quality(m.hexes).hot, 0, type + ' seed ' + seed + ': 6 a 8 vedle sebe,');
+    eq(quality(m.hexes).twin, 0, type + ' seed ' + seed + ': stejná čísla vedle sebe,');
     ok(m.hexes[m.storm].t === 'waste', 'bouře mimo pustinu');
     for (const h of m.hexes) ok(h.t === 'waste' ? h.n === 0 : h.n >= 2 && h.n <= 12 && h.n !== 7, 'číslo dílku');
     const cnt = {}; for (const h of m.hexes) cnt[h.t] = (cnt[h.t] || 0) + 1;
@@ -154,6 +155,13 @@ test('mapa: přístavy 2:1 na rozhraní dílků, 3:1 na okraji', () => {
   }
   ok(seamOk / seamAll > 0.97, `2:1 na rozhraní jen ${seamOk}/${seamAll}`);
   ok(tipOk / tipAll > 0.85, `3:1 na okraji jen ${tipOk}/${tipAll}`); // rozestup přístavů má přednost
+});
+test('mapa: souměrný ostrov má čísla ve spirále', () => {
+  for (let seed = 1; seed <= 300; seed++) {
+    const m = genMap(seed, 2 + seed % 5, 'sym'), land = m.hexes.filter(h => h.t !== 'waste').length;
+    const hit = [...Array(12).keys()].some(k => JSON.stringify(spiral(m.hexes, k >> 1, k & 1 ? 1 : -1).filter(i => m.hexes[i].t !== 'waste').map(i => m.hexes[i].n)) === JSON.stringify(SPIRAL[land]));
+    ok(hit, 'seed ' + seed + ': čísla neodpovídají spirále');
+  }
 });
 test('mapa: stejný seed dá stejnou mapu', () => {
   eq(genMap(77, 4), genMap(77, 4));

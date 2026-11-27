@@ -41,7 +41,9 @@ Každou změnu poměřuj těmito body.
   Pevnina je vždy souvislá (lodě nejsou). Nový typ = záznam v `MAPS`, `MAP_TEXT`, `SHAPES` a test tvaru.
   Při zakládání hry je vidět náhled přesně té mapy, na které se bude hrát. Dílky: les (dřevo), skály (kámen),
   pole (obilí), pastvina (ovce), hliniště (cihly), pustina (nic). Každý dílek kromě pustiny má číslo
-  2–12 bez 7; generátor hlídá, aby nejčastější čísla nesousedila a suroviny nebyly v jednom shluku.
+  2–12 bez 7; 6 a 8 nesousedí a stejná čísla také ne (test na 1000 mapách každého typu). Souměrný
+  ostrov klade čísla ve spirále od okraje ke středu podle vlastních posloupností `SPIRAL` v `data.js`
+  (náhodný roh a směr, vybere se první, která splní pravidla); ostatní mapy náhodně s návratem.
   Přístavy: 2:1 pro každou z pěti surovin na hraně pobřeží, jejíž vrchol sousedí se dvěma dílky;
   3:1 (`PORTS_ANY`, 4) přednostně na hranách, kde oba vrcholy sousedí jen s jedním dílkem.
   Přístavy nesmí sousedit (ani společný, ani sousední vrchol): rozmisťují se rovnoměrně po nejdelším
@@ -223,7 +225,8 @@ převádí jen `ui/board.js`.
 - Hráče rozlišuje jen barva (značky zadavatel nechce). Paleta je `COLORS` (8 barev);
   barvu volí hostitel pro každé místo při zakládání, hráč ji může změnit v lobby zprávou `color`
   (jen před startem; barvu jiného člověka vzít nejde, s botem se prohodí). Ve stavu je `colors`.
-  Přístavy kreslí `port()` v `board.js`: molo, mosazná bója se žetonem suroviny nebo kotvou, štítek s poměrem.
+  Přístavy kreslí `port()` v `board.js`: lávky (`lavka.webp`), kormidlo (`kormidlo.webp`) se žetonem
+  suroviny nebo kotvou (`res-any.webp`), štítek s poměrem. Cesta je `fig-cesta.webp` obarvená na hráče.
   V UI se barva hráče bere vždy přes `pc(p)` (tečka v textu: `dot(p)`) z `dom.js`, nikdy `COLORS[p]`.
   Cesty jsou kreslené trámy v barvě hráče, čísla na dílcích pergamenové žetony bez lemu (`road`, `token` v `board.js`). Čísla na dílcích jsou bez teček (zadavatel
   je nechce); 6 a 8 jsou červené a větší.
