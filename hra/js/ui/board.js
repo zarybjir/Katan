@@ -167,11 +167,13 @@ export function createBoard(cv, onPick) {
     const pg = ctx.createRadialGradient(x - 0.08, y - 0.1, 0.02, x, y, r);
     pg.addColorStop(0, '#fbf3dc'); pg.addColorStop(1, '#ead9ae');
     ctx.save();
-    ctx.shadowColor = 'rgba(0,0,0,.35)'; ctx.shadowBlur = 0.1 * B.cam.k * dpr; ctx.shadowOffsetY = 0.03 * B.cam.k * dpr;
+    ctx.globalAlpha = 0.55; // poloprůhledný podklad, aby žeton nerušil krajinu
     ctx.beginPath(); ctx.arc(x, y, r * 0.9, 0, 7); ctx.fillStyle = pg; ctx.fill();
     ctx.restore();
+    ctx.save(); ctx.shadowColor = 'rgba(255,248,225,.9)'; ctx.shadowBlur = 0.06 * B.cam.k * dpr; // světlá záře kolem čísla pro čitelnost
     ctx.font = `700 ${hot ? 0.38 : 0.33}px Georgia, 'Noto Serif', 'Times New Roman', serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.fillStyle = ink; ctx.fillText(String(n), x, y + 0.01);
+    ctx.fillStyle = ink; ctx.fillText(String(n), x, y + 0.01); ctx.fillText(String(n), x, y + 0.01);
+    ctx.restore();
   }
   function text(t, x, y, size, color) {
     ctx.font = `700 ${size}px system-ui, sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
