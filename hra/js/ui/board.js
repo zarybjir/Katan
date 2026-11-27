@@ -94,10 +94,10 @@ export function createBoard(cv, onPick) {
       const c = hexXY(hx.q, hx.r);
       path(i); ctx.fillStyle = TERRAIN_COLOR[hx.t]; ctx.fill();
       const tx = texture(hx.t, hx.q, hx.r);
-      if (tx) { // výřez obrázku: posun a zrcadlení podle polohy dílku, aby stejné dílky nevypadaly stejně
-        const { img, h } = tx, W0 = img.naturalWidth, s = W0 * 0.72, ox = (h % 7) / 6 * (W0 - s), oy = ((h >> 3) % 7) / 6 * (W0 - s);
+      if (tx) { // téměř celý obrázek; malý posun a zrcadlení podle polohy dílku, aby stejné dílky nevypadaly stejně
+        const { img, h } = tx, W0 = img.naturalWidth, s = W0 * 0.96, ox = (h % 3) / 2 * (W0 - s), oy = ((h >> 3) % 3) / 2 * (W0 - s);
         ctx.save(); ctx.clip(); ctx.translate(c.x, c.y); if (h & 1) ctx.scale(-1, 1);
-        ctx.drawImage(img, ox, oy, s, s, -1.02, -1.02, 2.04, 2.04);
+        ctx.drawImage(img, ox, oy, s, s, -1.01, -1.01, 2.02, 2.02);
         ctx.restore();
       }
       ctx.strokeStyle = 'rgba(29,42,56,.7)'; ctx.lineWidth = 0.05; path(i); ctx.stroke();
