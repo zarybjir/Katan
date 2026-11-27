@@ -153,6 +153,7 @@ export function createHost(opt) {
     for (const c of H.conns) { c.conn.onclose = null; c.conn.close(); }
     H.conns.clear();
   };
+  H.resend = () => broadcast();
   H.pub = pub;
   return H;
 }

@@ -62,6 +62,9 @@ try {
   await p.evaluate(() => { const g = __so.S.host.g, h = g.players[__so.S.cur].hand; for (const r in h) { g.bank[r] -= 6 - h[r]; h[r] = 6; } __so.S.host.act(__so.S.cur, { t: 'bank', give: 'wood', get: 'brick' }); });
   await until(p, async () => (await view(p)).hand.brick === 7, 'směna přes hostitele');
   await p.screenshot({ path: join(out, 'hra-na-vysku.png') });
+  await p.click('#a-prices'); ok((await p.locator('.price').count()) === 4, 'ceník nemá čtyři položky');
+  ok((await p.locator('.price[data-kind=road]').textContent()).includes('Lze postavit'), 'ceník neukazuje, že cestu lze postavit');
+  await p.screenshot({ path: join(out, 'cenik.png') }); await p.mouse.click(5, 5);
   await p.click('#a-trade'); await p.click('.box .row .res[data-res=stone]:not([disabled])'); await p.locator('.box .row').nth(1).locator('.res[data-res=grain]').click(); await p.click('#bank-go');
   await until(p, async () => (await view(p)).hand.grain === 7, 'směna s bankou přes dialog');
   const roads = (await view(p)).roads;
@@ -72,6 +75,13 @@ try {
   await p.click('#a-buy');
   await p.click('#a-cards'); ok(await p.locator('.card').count() >= 1, 'koupená výprava není v seznamu'); await p.mouse.click(5, 5);
   const pts0 = await p.evaluate(() => __so.S.view().players[__so.S.cur].pts);
+  await p.evaluate(() => { const g = __so.S.host.g, h = g.players[__so.S.cur].hand; g.bank.brick += h.brick; h.brick = 0; __so.S.refresh(); });
+  await until(p, async () => (await view(p)).hand.brick === 0, 'odebrání cihel');
+  await p.click('#a-city'); await p.waitForSelector('.price');
+  ok((await p.locator('.price[data-kind=city]').textContent()).includes('Chybí: 2× cihly'), 'ceník neukazuje chybějící cihly');
+  await p.mouse.click(5, 5);
+  await p.evaluate(() => { const g = __so.S.host.g, h = g.players[__so.S.cur].hand; g.bank.brick -= 4; h.brick = 4; __so.S.refresh(); });
+  await until(p, async () => (await view(p)).hand.brick === 4, 'vrácení cihel');
   await p.click('#a-city'); v = await view(p);
   await tapSpot(p, 'v', v.legal.find(a => a.t === 'build' && a.kind === 'city').at); await p.click('#city-ok');
   await until(p, async () => (await p.evaluate(() => __so.S.view().players[__so.S.cur].pts)) === pts0 + 1, 'stavba města');

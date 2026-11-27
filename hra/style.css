@@ -66,3 +66,14 @@ label { display: flex; flex-direction: column; gap: 6px; color: var(--dim); font
   .chip { min-width: 84px; }
 }
 .preview { width: 100%; height: 230px; border-radius: 10px; background: radial-gradient(circle at 50% 40%, #2f7fa6, #174a6a 75%); touch-action: none; }
+
+/* ---------- ceník ---------- */
+.btn.act.off { opacity: .4; }
+#hint .btn.small { min-height: 36px; padding: 4px 12px; font-size: 13px; }
+.price { background: var(--panel2); border-radius: 10px; padding: 10px 12px; display: flex; flex-direction: column; gap: 6px; border-left: 4px solid transparent; }
+.price.can { border-left-color: var(--acc); }
+.price .line { min-height: 0; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip-res { background: var(--c); color: #fff; border-radius: 7px; padding: 3px 9px; font-size: 14px; font-weight: 600; text-shadow: 0 1px 2px rgba(0,0,0,.45); }
+.chip-res.lack { outline: 2px solid #ff8a7a; outline-offset: 1px; }
+.price .st { font-size: 14px; font-weight: 600; }

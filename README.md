@@ -16,6 +16,9 @@ získá cílový počet bodů. Android aplikace; server hry běží na zařízen
 - Odpojený nebo nečinný hráč je dočasně nahrazen botem a může se do hry vrátit.
 - Hostitel má rozehranou hru uloženou a může v ní pokračovat.
 
+- Ceník (tlačítko vedle nápovědy nad kartami) ukazuje, co lze koupit, za kolik, k čemu to je
+  a co přesně chybí. Klepnutí na nedostupnou stavbu ceník otevře také.
+
 ## Pravidla ve zkratce
 
 | Stavba | Cena |

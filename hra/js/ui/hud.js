@@ -3,7 +3,7 @@ import { h, clear, modal, closeModals, toast, SYM } from './dom.js';
 import { createBoard } from './board.js';
 import { resTile, tradeDialog, respondDialog, offerDialog, discardDialog, cardsDialog } from './trade.js';
 import { fmtRes } from './text.js';
-import { RES, RES_COLOR, COST, KIND_NAME, COLORS, RULES, BOT_LEVEL, CARDS, CARD_TEXT } from '../data.js';
+import { RES, RES_NAME, RES_COLOR, COST, KIND_NAME, KIND_TEXT, COLORS, RULES, BOT_LEVEL, CARDS, CARD_TEXT } from '../data.js';
 
 // S: { view(), seats, log, multi, pending, cur, act(a), accept(), leave(), netInfo() }
 export function createGame(root, S) {
@@ -85,7 +85,7 @@ export function createGame(root, S) {
     else if (mode) hint = `Výběr místa: ${KIND_NAME[mode]}`;
     else if (v.trade) hint = 'Probíhá nabídka obchodu.';
     else hint = 'Probíhá vlastní tah.';
-    clear(el.hint).append(h('span', { class: 'grow' }, hint));
+    clear(el.hint).append(h('span', { class: 'grow' }, hint), h('button', { class: 'btn small', id: 'a-prices', onclick: () => prices(v) }, 'Ceník'));
     if (v.rolled) el.hint.append(h('span', { class: 'dice' }, h('i', null, String(v.rolled[0])), h('i', null, String(v.rolled[1]))));
 
     // ---------- ruka ----------
@@ -95,12 +95,14 @@ export function createGame(root, S) {
     // ---------- tlačítka ----------
     clear(el.actions);
     const btn = (id, label, on, click, cls = '') => h('button', { class: 'btn act ' + cls, id: 'a-' + id, disabled: !on, onclick: click }, label);
+    // tlačítko, které při nedostupnosti nezamrzne, ale ukáže ceník s tím, co chybí
+    const soft = (id, label, on, click, cls = '') => h('button', { class: 'btn act ' + cls + (on ? '' : ' off'), id: 'a-' + id, onclick: on ? click : () => prices(S.view()) }, label);
     const cost = k => h('span', { class: 'cost' }, RES.flatMap(r => Array(COST[k][r] || 0).fill(0).map(() => h('i', { style: `background:${RES_COLOR[r]}` }))));
     if (L.some(a => a.t === 'roll')) el.actions.append(btn('roll', 'Hodit kostkami', true, () => act({ t: 'roll' }), 'wide'));
     else if (v.phase === 'main' && v.turn === me && !free && !v.trade) {
       for (const k of ['road', 'settle', 'city'])
-        el.actions.append(btn(k, [h('span', null, KIND_NAME[k][0].toUpperCase() + KIND_NAME[k].slice(1)), cost(k)], builds(k).length > 0, () => { mode = mode === k ? null : k; update(); }, mode === k ? 'on' : ''));
-      el.actions.append(btn('buy', [h('span', null, 'Výprava'), cost('card')], L.some(a => a.t === 'buy'), () => act({ t: 'buy' })),
+        el.actions.append(soft(k, [h('span', null, KIND_NAME[k][0].toUpperCase() + KIND_NAME[k].slice(1)), cost(k)], builds(k).length > 0, () => { mode = mode === k ? null : k; update(); }, mode === k ? 'on' : ''));
+      el.actions.append(soft('buy', [h('span', null, 'Výprava'), cost('card')], L.some(a => a.t === 'buy'), () => act({ t: 'buy' })),
         btn('cards', `Karty (${mine.cards.length + mine.fresh.length})`, mine.cards.length + mine.fresh.length > 0, () => cardsDialog(v, act)),
         btn('trade', 'Obchod', L.some(a => a.t === 'bank' || a.t === 'offer'), () => tradeDialog(v, act)),
         btn('end', 'Konec tahu', L.some(a => a.t === 'end'), () => act({ t: 'end' }), 'end'));
@@ -139,13 +141,39 @@ export function createGame(root, S) {
     const m = modal('Hra', h('div', { class: 'col' },
       info && h('div', { class: 'col' }, info.map(l => h('p', { class: 'dim' }, l))),
       S.away && S.away() && h('button', { class: 'btn', onclick: () => { m.close(); S.back(); } }, 'Převzít hru zpět od bota'),
-      h('button', { class: 'btn', onclick: () => { m.close(); rules(); } }, 'Pravidla a ceny'),
+      h('button', { class: 'btn', onclick: () => { m.close(); prices(S.view()); } }, 'Ceník'),
+      h('button', { class: 'btn', onclick: () => { m.close(); rules(); } }, 'Pravidla'),
       h('button', { class: 'btn', onclick: () => { m.close(); board.moved = false; board.fit(); } }, 'Vystředit mapu'),
       h('button', { class: 'btn ghost', id: 'leave', onclick: () => { m.close(); const c = modal('Opustit hru', h('div', { class: 'col' }, h('p', null, S.host ? 'Hra zůstane uložená a půjde v ní pokračovat. Připojení hráči budou odpojeni.' : 'Do hry se lze vrátit přes nabídku Připojit se.'),
         h('div', { class: 'row' }, h('button', { class: 'btn', id: 'leave-ok', onclick: () => { c.close(); S.leave(); } }, 'Opustit'), h('button', { class: 'btn ghost', onclick: () => c.close() }, 'Zpět')))); } }, 'Opustit hru')));
   }
+  // ceník: co lze koupit, cena, k čemu to je a co hráči chybí
+  function prices(v) {
+    const me = v.you, pl = me >= 0 ? v.players[me] : null, hand = pl && pl.hand, L = v.legal;
+    const mine = v.phase === 'main' && v.turn === me && !v.trade;
+    const row = k => {
+      const c = COST[k], can = k === 'card' ? L.some(a => a.t === 'buy') : L.some(a => a.t === 'build' && a.kind === k && !a.free);
+      const miss = hand ? RES.filter(r => (c[r] || 0) > hand[r]).map(r => `${c[r] - hand[r]}× ${RES_NAME[r]}`) : [];
+      const left = k === 'card' ? v.deckN : pl ? pl.left[k] : null;
+      let st;
+      if (!hand) st = '';
+      else if (can) st = k === 'card' ? 'Lze koupit.' : 'Lze postavit.';
+      else if (miss.length) st = 'Chybí: ' + miss.join(', ') + '.';
+      else if (left === 0) st = k === 'card' ? 'Balíček je prázdný.' : 'Nezbývá žádný dílek.';
+      else if (!mine) st = 'Nakupovat lze jen během vlastního tahu.';
+      else st = k === 'city' ? 'Není osada, kterou by šlo vylepšit.' : 'Není volné místo napojené na vlastní cestu.';
+      return h('div', { class: 'price' + (can ? ' can' : ''), 'data-kind': k },
+        h('div', { class: 'line' }, h('b', { class: 'grow' }, KIND_NAME[k][0].toUpperCase() + KIND_NAME[k].slice(1)),
+          left !== null && h('span', { class: 'dim' }, (k === 'card' ? 'v balíčku: ' : 'zbývá: ') + left)),
+        h('div', { class: 'chips' }, RES.filter(r => c[r]).map(r => h('span', { class: 'chip-res' + (hand && hand[r] < c[r] ? ' lack' : ''), style: `--c:${RES_COLOR[r]}` }, `${c[r]}× ${RES_NAME[r]}`))),
+        h('p', { class: 'dim' }, KIND_TEXT[k]),
+        st && h('p', { class: 'st' }, st));
+    };
+    modal('Ceník', h('div', { class: 'col' }, ['road', 'settle', 'city', 'card'].map(row),
+      h('p', { class: 'dim' }, `Chybějící suroviny lze získat obchodem: s bankou ${RULES.bankRate}:1, v přístavu ${RULES.portRate}:1 nebo ${RULES.portResRate}:1, nebo nabídkou ostatním hráčům.`)), { cls: 'prices' });
+  }
   function rules() {
-    modal('Pravidla a ceny', h('div', { class: 'col rules' },
+    modal('Pravidla', h('div', { class: 'col rules' },
       ['road', 'settle', 'city', 'card'].map(k => h('p', null, h('b', null, KIND_NAME[k] + ': '), fmtRes(COST[k]))),
       h('p', null, 'Hod kostkami určí číslo. Dílky s tímto číslem dají sousedním osadám jednu surovinu, městům dvě.'),
       h('p', null, `Osada je za 1 bod, město za 2. Nejdelší cesta (od ${RULES.longMin} úseků) a nejvíc zahraných hlídek (od ${RULES.guardMin}) dávají po ${RULES.longPts} bodech.`),

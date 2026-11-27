@@ -20,6 +20,12 @@ export const COST = {
   card: { grain: 1, sheep: 1, brick: 1 },
 };
 export const KIND_NAME = { road: 'cesta', settle: 'osada', city: 'město', card: 'výprava' };
+export const KIND_TEXT = {
+  road: 'Vede od vlastní stavby nebo cesty. Bez cesty nelze stavět dál. Nejdelší cesta dává bonus.',
+  settle: '1 bod. Dostává suroviny ze sousedních dílků. Nesmí stát hned vedle jiné stavby.',
+  city: '2 body. Vzniká z vlastní osady a dostává dvojnásobek surovin.',
+  card: 'Náhodná karta: hlídka, stavitelé, zásoby nebo objev (1 bod). Zahrát ji lze od dalšího tahu.',
+};
 export const PIECES = { road: 16, settle: 6, city: 4 };
 
 // ---------- mapa ----------
