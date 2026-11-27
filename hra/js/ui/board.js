@@ -73,7 +73,7 @@ export function createBoard(cv, onPick) {
   B.fit = () => {
     if (!B.g || !W) return;
     const xs = Object.values(B.g.V).map(v => v.x), ys = Object.values(B.g.V).map(v => v.y);
-    const M = B.v.map.ports.length ? 1.45 : 0.35, x0 = Math.min(...xs) - M, x1 = Math.max(...xs) + M, y0 = Math.min(...ys) - M, y1 = Math.max(...ys) + M; // okraj pro přístavy
+    const M = B.v.map.ports.length ? 1.45 : 1.1, x0 = Math.min(...xs) - M, x1 = Math.max(...xs) + M, y0 = Math.min(...ys) - M, y1 = Math.max(...ys) + M; // okraj pro přístavy
     B.cam.k = Math.min(W / (x1 - x0), H / (y1 - y0));
     B.cam.x = (x0 + x1) / 2; B.cam.y = (y0 + y1) / 2; B.minK = B.cam.k * 0.7;
     B.draw();
