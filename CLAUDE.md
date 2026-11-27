@@ -224,8 +224,8 @@ převádí jen `ui/board.js`.
   (jen před startem; barvu jiného člověka vzít nejde, s botem se prohodí). Ve stavu je `colors`.
   Přístavy kreslí `port()` v `board.js`: molo, mosazná bója se žetonem suroviny nebo kotvou, štítek s poměrem.
   V UI se barva hráče bere vždy přes `pc(p)` (tečka v textu: `dot(p)`) z `dom.js`, nikdy `COLORS[p]`.
-  Cesty jsou kreslené trámy v barvě hráče, čísla na dílcích mosazné žetony (`road`, `token` v `board.js`). Čísla na dílcích ukazují i četnost
-  (tečky nebo velikost písma).
+  Cesty jsou kreslené trámy v barvě hráče, čísla na dílcích mosazné žetony (`road`, `token` v `board.js`). Čísla na dílcích jsou bez teček (zadavatel
+  je nechce); 6 a 8 jsou červené a větší.
 - Canvas se škáluje podle `devicePixelRatio` (nejvýš 2). Grafika se předkreslí do offscreen
   canvasů; ve smyčce jen `drawImage`. Překresluje se při změně, ne trvale 60× za vteřinu.
 

@@ -149,7 +149,7 @@ export function createBoard(cv, onPick) {
       if (x !== undefined) { ctx.beginPath(); ctx.arc(x, y, 0.42, 0, 7); ctx.strokeStyle = 'rgba(255,255,255,.85)'; ctx.lineWidth = 0.05; ctx.setLineDash([0.12, 0.1]); ctx.stroke(); ctx.setLineDash([]); }
     }
   }
-  // žeton čísla: pergamenový kotouč s mosazným lemem, patkové číslo, tečky četnosti
+  // žeton čísla: pergamenový kotouč s mosazným lemem, patkové číslo; 6 a 8 (padají nejčastěji) červeně a větší
   function token(x, y, n) {
     const hot = n === 6 || n === 8, r = 0.33, ink = hot ? '#a3231b' : '#2e2214';
     ctx.save();
@@ -162,10 +162,8 @@ export function createBoard(cv, onPick) {
     const pg = ctx.createRadialGradient(x - 0.08, y - 0.1, 0.02, x, y, r * 0.86);
     pg.addColorStop(0, '#fbf3dc'); pg.addColorStop(1, '#e6d3a5');
     ctx.beginPath(); ctx.arc(x, y, r * 0.84, 0, 7); ctx.fillStyle = pg; ctx.fill();
-    ctx.font = `700 ${hot ? 0.34 : 0.3}px Georgia, 'Noto Serif', 'Times New Roman', serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.fillStyle = ink; ctx.fillText(String(n), x, y - 0.035);
-    const k = PIPS[n]; ctx.fillStyle = ink;
-    for (let j = 0; j < k; j++) { ctx.beginPath(); ctx.arc(x + (j - (k - 1) / 2) * 0.07, y + 0.19, 0.024, 0, 7); ctx.fill(); }
+    ctx.font = `700 ${hot ? 0.38 : 0.33}px Georgia, 'Noto Serif', 'Times New Roman', serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillStyle = ink; ctx.fillText(String(n), x, y + 0.01);
   }
   function text(t, x, y, size, color) {
     ctx.font = `700 ${size}px system-ui, sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
