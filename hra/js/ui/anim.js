@@ -12,6 +12,7 @@ export const ANIM_NAME = { dice: 'Hod kostkami', deal: 'Rozdávání surovin z d
 let fx = null;
 const layer = () => fx || (fx = document.body.appendChild(h('div', { id: 'fx' })));
 const wait = ms => new Promise(r => setTimeout(r, ms));
+export const FLY = 1300, GAP = 250; // délka letu suroviny a rozestup mezi surovinami (ms)
 
 // ---------- kostky ----------
 const PIPS = { 1: [5], 2: [1, 9], 3: [1, 5, 9], 4: [1, 3, 7, 9], 5: [1, 3, 5, 7, 9], 6: [1, 3, 4, 6, 7, 9] };
@@ -46,7 +47,7 @@ function fly(kind, from, to, delay) {
     { transform: 'translate(0,0) scale(.6)', opacity: 0 },
     { transform: 'translate(0,-14px) scale(1.15)', opacity: 1, offset: .2 },
     { transform: `translate(${dx}px,${dy}px) scale(.8)`, opacity: 1 },
-  ], { duration: 650, delay, easing: 'cubic-bezier(.4,0,.3,1)', fill: 'forwards' });
+  ], { duration: FLY, delay, easing: 'cubic-bezier(.4,0,.3,1)', fill: 'forwards' });
   an.onfinish = () => ic.remove();
   return an.finished.catch(() => {});
 }
@@ -62,9 +63,9 @@ export function deal(gains, srcOf, dst) {
   for (const { p, res } of gains) for (const r of Object.keys(res)) for (let i = 0; i < res[r]; i++) {
     const src = srcOf(p, r), to = dst(p, r);
     if (!to) continue;
-    const from = src[i % src.length], delay = 120 * k++;
+    const from = src[i % src.length], delay = GAP * k++;
     fly(r, from, center(to), delay);
-    pulse(to, delay + 650);
+    pulse(to, delay + FLY);
   }
 }
 
@@ -75,9 +76,9 @@ export function bankFlow(el, kinds, toBank, delay0 = 0) {
   if (!el || !bank || !kinds.length) return;
   const a = center(el), b = center(bank);
   kinds.forEach((k, i) => {
-    const d = delay0 + 110 * i;
+    const d = delay0 + GAP * i;
     fly(k, toBank ? a : b, toBank ? b : a, d);
-    pulse(toBank ? bank : el, d + 650);
+    pulse(toBank ? bank : el, d + FLY);
   });
 }
 export const expand = res => Object.keys(res || {}).flatMap(r => Array(res[r]).fill(r));
