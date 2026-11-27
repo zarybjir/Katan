@@ -149,19 +149,15 @@ export function createBoard(cv, onPick) {
       if (x !== undefined) { ctx.beginPath(); ctx.arc(x, y, 0.42, 0, 7); ctx.strokeStyle = 'rgba(255,255,255,.85)'; ctx.lineWidth = 0.05; ctx.setLineDash([0.12, 0.1]); ctx.stroke(); ctx.setLineDash([]); }
     }
   }
-  // žeton čísla: pergamenový kotouč s mosazným lemem, patkové číslo; 6 a 8 (padají nejčastěji) červeně a větší
+  // žeton čísla: pergamenový kotouč bez lemu, patkové číslo; 6 a 8 (padají nejčastěji) červeně a větší
   function token(x, y, n) {
     const hot = n === 6 || n === 8, r = 0.33, ink = hot ? '#a3231b' : '#2e2214';
+    const pg = ctx.createRadialGradient(x - 0.08, y - 0.1, 0.02, x, y, r);
+    pg.addColorStop(0, '#fbf3dc'); pg.addColorStop(1, '#ead9ae');
     ctx.save();
-    ctx.shadowColor = 'rgba(0,0,0,.55)'; ctx.shadowBlur = 0.12 * B.cam.k * dpr; ctx.shadowOffsetY = 0.04 * B.cam.k * dpr;
-    ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fillStyle = '#8a6526'; ctx.fill();
+    ctx.shadowColor = 'rgba(0,0,0,.35)'; ctx.shadowBlur = 0.1 * B.cam.k * dpr; ctx.shadowOffsetY = 0.03 * B.cam.k * dpr;
+    ctx.beginPath(); ctx.arc(x, y, r * 0.9, 0, 7); ctx.fillStyle = pg; ctx.fill();
     ctx.restore();
-    const gr = ctx.createLinearGradient(x, y - r, x, y + r);
-    gr.addColorStop(0, '#f2d27a'); gr.addColorStop(0.5, '#b88a3a'); gr.addColorStop(1, '#7a5520');
-    ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fillStyle = gr; ctx.fill();
-    const pg = ctx.createRadialGradient(x - 0.08, y - 0.1, 0.02, x, y, r * 0.86);
-    pg.addColorStop(0, '#fbf3dc'); pg.addColorStop(1, '#e6d3a5');
-    ctx.beginPath(); ctx.arc(x, y, r * 0.84, 0, 7); ctx.fillStyle = pg; ctx.fill();
     ctx.font = `700 ${hot ? 0.38 : 0.33}px Georgia, 'Noto Serif', 'Times New Roman', serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     ctx.fillStyle = ink; ctx.fillText(String(n), x, y + 0.01);
   }
