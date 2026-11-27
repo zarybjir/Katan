@@ -37,7 +37,9 @@ Každou změnu poměřuj těmito body.
 
 - **Mapa** se generuje ze seedu; velikost podle počtu hráčů. Typ mapy určuje tvar pevniny
   (`MAPS` v `data.js`, tvary v `SHAPES` v `mapgen.js`): souměrný ostrov (šestiúhelník 19 dílků,
-  pro 5–6 hráčů 31), ostrov, zátoky, atol, šíje, hřeben.
+  pro 5–6 hráčů 31) se spirálou čísel, souměrný ostrov s náhodnými čísly (`symrand`), ostrov,
+  zátoky, atol, šíje, hřeben. Počty krajin podle poměru `TERRAIN_SHARE` (les, pastvina, pole po 4,
+  hliniště a skály po 3; na 19 dílcích přesně 4/4/4/3/3 + pustina).
   Pevnina je vždy souvislá (lodě nejsou). Nový typ = záznam v `MAPS`, `MAP_TEXT`, `SHAPES` a test tvaru.
   Při zakládání hry je vidět náhled přesně té mapy, na které se bude hrát. Dílky: les (dřevo), skály (kámen),
   pole (obilí), pastvina (ovce), hliniště (cihly), pustina (nic). Každý dílek kromě pustiny má číslo

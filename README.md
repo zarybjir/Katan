@@ -6,8 +6,8 @@ získá cílový počet bodů. Android aplikace; server hry běží na zařízen
 
 ## Co hra umí
 
-- Mapa se pro každou hru generuje nově, velikost podle počtu hráčů. Šest typů map: souměrný
-  ostrov (pravidelný šestiúhelník), ostrov, zátoky, atol, šíje a hřeben; při zakládání hry je vidět náhled a mapu lze vyměnit za jinou.
+- Mapa se pro každou hru generuje nově, velikost podle počtu hráčů. Sedm typů map: souměrný
+  ostrov s čísly ve spirále, souměrný ostrov s náhodnými čísly, ostrov, zátoky, atol, šíje a hřeben; při zakládání hry je vidět náhled a mapu lze vyměnit za jinou.
 - Boti ve třech obtížnostech (lehký, střední, těžký), libovolná kombinace lidí a botů.
 - **Jedno zařízení:** více hráčů si zařízení předává, mezi tahy je obrazovka předání.
 - **Místní síť:** hostitel hru otevře, ostatní ji uvidí v seznamu nebo zadají adresu, kterou
@@ -30,6 +30,9 @@ získá cílový počet bodů. Android aplikace; server hry běží na zařízen
   změnit v lobby (barvy ostatních lidí jsou obsazené).
 
 ## Pravidla ve zkratce
+
+- Krajiny: les, pastvina a pole po 4, hliniště a skály po 3, jedna pustina (na větších mapách
+  ve stejném poměru). Stejná čísla ani 6 a 8 spolu nesousedí.
 
 | Stavba | Cena |
 |---|---|

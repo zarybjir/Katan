@@ -1,6 +1,6 @@
 // Tabulky hry. Čísla se ladí tady, ne v kódu.
 export const NAME = 'Osadníci';
-export const PROTO = 11;
+export const PROTO = 12;
 
 // ---------- suroviny a dílky ----------
 export const RES = ['wood', 'stone', 'grain', 'sheep', 'brick'];
@@ -31,9 +31,10 @@ export const PIECES = { road: 16, settle: 6, city: 4 };
 // ---------- mapa ----------
 export const MAPSIZE = { 2: 16, 3: 19, 4: 22, 5: 27, 6: 31 }; // počet dílků podle počtu hráčů
 // typy map (tvar pevniny); klíč se ukládá do nastavení
-export const MAPS = { sym: 'Souměrný ostrov', island: 'Ostrov', bays: 'Zátoky', atoll: 'Atol', isthmus: 'Šíje', ridge: 'Hřeben' };
+export const MAPS = { sym: 'Souměrný ostrov', symrand: 'Souměrný ostrov – náhodná čísla', island: 'Ostrov', bays: 'Zátoky', atoll: 'Atol', isthmus: 'Šíje', ridge: 'Hřeben' };
 export const MAP_TEXT = {
-  sym: 'Pravidelný šestiúhelník bez výběžků; krajiny a čísla jsou náhodné.',
+  sym: 'Pravidelný šestiúhelník; čísla ve spirále od okraje ke středu.',
+  symrand: 'Pravidelný šestiúhelník; čísla náhodně, stejná čísla ani 6 a 8 nesousedí.',
   island: 'Sevřený ostrov, krátké vzdálenosti.',
   bays: 'Členité pobřeží s výběžky, hodně přístavů.',
   atoll: 'Prstenec pevniny kolem laguny.',
@@ -48,6 +49,9 @@ export const SPIRAL = {
   18: [11, 4, 5, 12, 6, 4, 5, 8, 11, 9, 2, 10, 8, 3, 10, 3, 6, 9],
   29: [5, 9, 6, 9, 11, 8, 11, 11, 8, 6, 10, 12, 6, 10, 4, 5, 4, 9, 3, 5, 9, 3, 4, 3, 6, 10, 8, 2, 5],
 };
+// poměr krajin (podle pravidel deskové hry: les, pastvina, pole po 4, hliniště a skály po 3);
+// pro jinou velikost mapy se přepočítá a zaokrouhlí
+export const TERRAIN_SHARE = { forest: 4, pasture: 4, field: 4, claypit: 3, quarry: 3 };
 export const NUMS = [6, 8, 5, 9, 4, 10, 3, 11, 5, 9, 6, 8, 4, 10, 2, 12, 3, 11]; // pořadí přidělování čísel
 export const PIPS = { 2: 1, 3: 2, 4: 3, 5: 4, 6: 5, 8: 5, 9: 4, 10: 3, 11: 2, 12: 1 };
 

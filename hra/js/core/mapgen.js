@@ -1,7 +1,7 @@
 // Generování mapy ze seedu: tvar ostrova, dílky, čísla, přístavy.
 import { DIRS, hid, graph, hexXY } from './hex.js';
 import { next, shuffle } from './rng.js';
-import { MAPSIZE, NUMS, SPIRAL, RES, PORTS_ANY } from '../data.js';
+import { MAPSIZE, NUMS, SPIRAL, RES, PORTS_ANY, TERRAIN_SHARE } from '../data.js';
 
 // ---------- tvar ----------
 const cx = h => 2 * h.q + h.r; // vodorovná poloha na mřížce vrcholů
@@ -55,6 +55,7 @@ const SHAPES = {
     }
     return seedSet(out);
   },
+  symrand: (R, n) => SHAPES.sym(R, n), // stejný tvar, čísla náhodně
   ridge: (R, n) => grow(R, seedSet([[0, 0]]), n, 1.5, h => Math.abs(h.r) <= 1),
 };
 function shape(R, n, type) { return [...(SHAPES[type] || SHAPES.island)(R, n).values()]; }
@@ -84,8 +85,13 @@ export function genMap(seed, players, type = 'island') {
   const g = graph(hexes);
   // dílky: pustiny + rovnoměrně pět druhů
   const waste = Math.max(1, Math.round(n / 18));
-  const kinds = shuffle(R, ['forest', 'quarry', 'field', 'pasture', 'claypit']);
-  const base = []; for (let i = 0; i < n - waste; i++) base.push(kinds[i % 5]);
+  // počty krajin podle poměru TERRAIN_SHARE, zbytek po zaokrouhlení dostanou největší zlomky
+  const land0 = n - waste, tot = Object.values(TERRAIN_SHARE).reduce((x, y) => x + y, 0);
+  const want = Object.entries(TERRAIN_SHARE).map(([t, w]) => ({ t, x: land0 * w / tot }));
+  want.forEach(o => { o.k = Math.floor(o.x); });
+  let left = land0 - want.reduce((x, o) => x + o.k, 0);
+  for (const o of shuffle(R, want.slice()).sort((p, q) => (q.x - q.k) - (p.x - p.k))) if (left > 0) { o.k++; left--; }
+  const base = []; for (const o of want) for (let i = 0; i < o.k; i++) base.push(o.t);
   for (let i = 0; i < waste; i++) base.push('waste');
   let best = null, bs = 1e9;
   for (let k = 0; k < 40 && bs > 2; k++) {

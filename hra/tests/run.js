@@ -10,7 +10,7 @@ import { createHost } from '../js/net/host.js';
 import { createClient } from '../js/net/client.js';
 import { memPair } from '../js/net/transport-mem.js';
 import { newer } from '../js/update.js';
-import { SPIRAL, RES, PIECES, MAPSIZE, MAPS, COST, RULES, PROTO, bankSize, deckFor } from '../js/data.js';
+import { SPIRAL, TERRAIN_SHARE, RES, PIECES, MAPSIZE, MAPS, COST, RULES, PROTO, bankSize, deckFor } from '../js/data.js';
 
 const tests = [];
 const test = (name, fn) => tests.push({ name, fn });
@@ -96,14 +96,15 @@ test('mapa: 1000 seedů každého typu splní pravidla', () => {
   for (const type of Object.keys(MAPS)) for (let seed = 1; seed <= 1000; seed++) {
     const n = 2 + seed % 5, m = genMap(seed, n, type), g = graph(m.hexes);
     eq(new Set(m.hexes.map(h => h.q + ',' + h.r)).size, m.hexes.length, type + ': opakovaný dílek,');
-    eq(m.hexes.length, type === 'sym' ? (n > 4 ? 31 : 19) : MAPSIZE[n]);
+    eq(m.hexes.length, type.startsWith('sym') ? (n > 4 ? 31 : 19) : MAPSIZE[n]);
     eq(quality(m.hexes).hot, 0, type + ' seed ' + seed + ': 6 a 8 vedle sebe,');
     eq(quality(m.hexes).twin, 0, type + ' seed ' + seed + ': stejná čísla vedle sebe,');
     ok(m.hexes[m.storm].t === 'waste', 'bouře mimo pustinu');
     for (const h of m.hexes) ok(h.t === 'waste' ? h.n === 0 : h.n >= 2 && h.n <= 12 && h.n !== 7, 'číslo dílku');
     const cnt = {}; for (const h of m.hexes) cnt[h.t] = (cnt[h.t] || 0) + 1;
-    const vals = ['forest', 'quarry', 'field', 'pasture', 'claypit'].map(t => cnt[t] || 0);
-    ok(Math.max(...vals) - Math.min(...vals) <= 1, 'nerovnoměrné dílky');
+    const land = m.hexes.filter(h => h.t !== 'waste').length;
+    for (const [t, w] of Object.entries(TERRAIN_SHARE)) ok(Math.abs((cnt[t] || 0) - land * w / 18) < 1, `${type} seed ${seed}: počet ${t} ${cnt[t]} neodpovídá poměru`);
+    if (land === 18) eq(['forest', 'pasture', 'field', 'claypit', 'quarry'].map(t => cnt[t]), [4, 4, 4, 3, 3], 'počty krajin na 19 dílcích:');
     for (const r of RES) eq(m.ports.filter(p => p.type === r).length, 1, `${type} seed ${seed}: přístav ${r}`);
     eq(m.ports.filter(p => p.type === 'any').length, 4, `${type} seed ${seed}: přístavy 3:1`);
     const pv = m.ports.map(p => [g.E[p.e].a, g.E[p.e].b]);
