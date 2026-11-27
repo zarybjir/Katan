@@ -197,3 +197,42 @@ input:focus, select:focus { outline: 2px solid var(--acc2); outline-offset: 1px;
 .btn.act { background: linear-gradient(180deg, rgba(255,230,180,.16), rgba(0,0,0,.18)), var(--wood-tex), #4a3523; background-size: auto, 600px 160px, auto; }
 .banner { background: linear-gradient(180deg, rgba(255,220,160,.12), rgba(0,0,0,.2)), var(--wood-tex), #3a2818; background-size: auto, 600px 160px, auto; }
 .box, .screen { background: var(--parch-tex), var(--parch); background-size: 300px 300px, auto; }
+
+/* =========================================================================
+   Malovaná grafika (gfx/): dřevo, mosaz, rámeček, moře, pozadí nabídky.
+   Přebíjí kreslené náhrady výše.
+   ========================================================================= */
+#game { background: radial-gradient(ellipse at 50% 42%, rgba(120,200,230,.10), rgba(4,20,32,.55) 85%), url("gfx/more.jpg") center / 420px repeat, #12405a; }
+#screen { background: linear-gradient(rgba(8,24,36,.15), rgba(8,24,36,.45)), url("gfx/pozadi-menu.jpg") center / cover no-repeat, #0f3a52; }
+#players, #bar, .banner { background: linear-gradient(180deg, rgba(255,225,170,.08), rgba(0,0,0,.28)), url("gfx/drevo-listy.jpg") center / 560px auto repeat, #3a2818; }
+#pass.show { background: linear-gradient(rgba(8,24,36,.3), rgba(8,24,36,.6)), url("gfx/pozadi-menu.jpg") center / cover no-repeat; }
+/* hráčské štítky a vlastní pruh: světlejší dubové dřevo, výrazná barva hráče */
+.chip, #hand { background: linear-gradient(90deg, color-mix(in srgb, var(--c, #000) 38%, transparent) 0%, transparent 65%), linear-gradient(rgba(20,12,5,.55), rgba(20,12,5,.65)), url("gfx/drevo-dub.jpg") center / 420px auto, #4b3725; }
+.chip { border: 1px solid rgba(226,178,76,.25); border-left: 6px solid var(--c); }
+.chip.turn { border: 2px solid var(--acc); border-left: 6px solid var(--c); box-shadow: 0 0 12px rgba(226,178,76,.45), inset 0 0 0 1px rgba(255,255,255,.08); }
+.chip .nm { color: #fff; text-shadow: 0 1px 2px #000; }
+#hand { border-left: 6px solid var(--c); }
+/* tlačítka: malované desky; okraje desky se nenatahují */
+.btn.act { background: none; border: 14px solid transparent; border-image: url("gfx/btn-wood.webp") 42% 9% fill / 14px 18px stretch; box-shadow: none; padding: 0 2px; color: #f4ead3; text-shadow: 0 1px 2px #000; }
+.btn.act.wide, .btn.act.end, .screen .btn:not(.ghost):not(.small), .box .btn:not(.ghost):not(.small), #pass .btn { background: none; border: 14px solid transparent; border-image: url("gfx/btn-brass.webp") 40% 9% fill / 14px 18px stretch; box-shadow: none; padding: 0 4px; color: #2b1d0e; text-shadow: 0 1px 0 rgba(255,240,200,.6); }
+.btn.act.on { outline: 2px solid var(--acc); outline-offset: -6px; }
+.btn.act.off, .btn.act:disabled { filter: grayscale(.6) brightness(.7); opacity: .75; }
+/* mosazný rámeček kolem dialogů a hlášek */
+.box { border: 12px solid transparent; border-image: url("gfx/ramecek.webp") 22 / 12px stretch; box-shadow: 0 14px 40px rgba(0,0,0,.55); background-clip: padding-box; }
+.banner { border: 10px solid transparent; border-image: url("gfx/ramecek.webp") 22 / 10px stretch; background-clip: padding-box; }
+/* ikonky surovin jako malované žetony */
+.ico.img { background: none; box-shadow: none; }
+.ico.img img { width: 100%; height: 100%; display: block; filter: drop-shadow(0 1px 2px rgba(0,0,0,.5)); }
+#bank { background: none; border: 0; width: 56px; height: 56px; }
+.fly.img { box-shadow: none; }
+/* karty výprav */
+.card-art { width: 64px; height: 96px; object-fit: cover; border-radius: 6px; border: 2px solid #8c6a3c; flex: none; }
+.card-show { position: absolute; left: 50%; top: 42%; transform: translate(-50%,-50%); width: min(220px, 56vw); padding: 10px; border: 10px solid transparent; border-image: url("gfx/ramecek.webp") 22 / 10px stretch; background: #2a1d10; background-clip: padding-box; text-align: center; color: var(--ink); font: 700 17px/1.3 var(--serif); box-shadow: 0 14px 40px rgba(0,0,0,.6); }
+.card-show img { width: 100%; display: block; border-radius: 4px; margin-bottom: 6px; }
+.btn.act { border-width: 12px 12px; border-image-width: 12px 14px; padding: 0; }
+.btn.act.wide, .btn.act.end { border-image-width: 12px 14px; }
+#hand.turn { border: 2px solid var(--acc); border-left: 6px solid var(--c); }
+.screen:has(#m-new) { margin-top: 34vh; } /* hlavní nabídka: nahoře je vidět obrázek souostroví */
+.screen { border: 12px solid transparent; border-image: url("gfx/ramecek.webp") 22 / 12px stretch; background-clip: padding-box; box-shadow: 0 14px 40px rgba(0,0,0,.55); }
+.btn.act { white-space: nowrap; font-size: 14px; }
+.card .btn.small { background: none; border: 12px solid transparent; border-image: url("gfx/btn-brass.webp") 40% 9% fill / 12px 16px stretch; padding: 0 6px; color: #2b1d0e; }

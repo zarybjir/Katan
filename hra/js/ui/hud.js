@@ -2,7 +2,7 @@
 import { h, clear, modal, closeModals, toast, SYM } from './dom.js';
 import { createBoard } from './board.js';
 import { icon } from './icons.js';
-import { dice, deal, bankFlow, between, banner, expand, sources, animDialog, FLY, GAP } from './anim.js';
+import { dice, deal, bankFlow, between, banner, cardShow, expand, sources, animDialog, FLY, GAP } from './anim.js';
 import { sfx, snd } from './sound.js';
 import { resTile, tradeDialog, respondDialog, offerDialog, discardDialog, cardsDialog } from './trade.js';
 import { fmtRes } from './text.js';
@@ -255,11 +255,11 @@ export function createGame(root, S) {
       }
       else if (e.e === 'offer' && e.p !== v.you) { sfx.offer(); say(`Nabídka obchodu: ${nm(e.p)}`); }
       else if (e.e === 'win') { sfx.win(); say(`Vítězí ${nm(e.p)}`); }
-      else if (e.e === 'play') { sfx.card(); if (e.card === 'supply') fromBank = true; if (e.card === 'guard') say(e.p === v.you ? 'Přesun bouře' : `Hlídka: ${nm(e.p)}`); }
+      else if (e.e === 'play') { sfx.card(); if (e.card === 'supply') fromBank = true; if (a.banner !== false) cardShow(e.card, `${CARDS[e.card]}: ${nm(e.p)}`); if (e.card === 'guard' && e.p === v.you) say('Přesun bouře'); }
       else if (e.e === 'build') { sfx.build(e.kind); if (e.paid) flow(target(e.p), expand(COST[e.kind]), true); }
       else if (e.e === 'gain' && Object.keys(e.res).length) { if (fromBank) flow(target(e.p), expand(e.res), false); else gains.push(e); }
       else if (e.e === 'discard') flow(target(e.p), e.res ? expand(e.res) : Array(e.n).fill('cards'), true);
-      else if (e.e === 'buy') { sfx.card(); flow(target(e.p), expand(COST.card), true); }
+      else if (e.e === 'buy') { sfx.card(); flow(target(e.p), expand(COST.card), true); if (e.card && a.banner !== false) setTimeout(() => cardShow(e.card, 'Nová výprava: ' + CARDS[e.card]), 600); }
       else if (e.e === 'bank') { flow(target(e.p, e.give), Array(e.rate).fill(e.give), true); flow(target(e.p, e.get), [e.get], false, GAP * e.rate + FLY); }
     }
     const wait = sum && a.dice ? 1100 : 0;

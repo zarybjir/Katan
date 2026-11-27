@@ -97,7 +97,7 @@ export function cardsDialog(v, act) {
   if (!kinds.length) body.append(h('p', { class: 'dim' }, 'Žádné karty výprav.'));
   for (const c of kinds) {
     const can = L.some(a => a.t === 'play' && a.card === c);
-    body.append(h('div', { class: 'card' },
+    body.append(h('div', { class: 'card' }, h('img', { class: 'card-art', src: `gfx/karta-${c}.jpg`, alt: '' }),
       h('div', { class: 'grow' }, h('b', null, `${CARDS[c]} ${(have[c] || 0) + (fresh[c] || 0)}×`), h('p', { class: 'dim' }, CARD_TEXT[c] + (fresh[c] ? ' Koupená karta jde zahrát od dalšího tahu.' : ''))),
       c !== 'point' && h('button', { class: 'btn small', 'data-card': c, disabled: !can, onclick: () => {
         m.close();

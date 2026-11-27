@@ -92,6 +92,14 @@ export function between(a, b, kinds, delay0 = 0, ding) {
   kinds.forEach((k, i) => { const d = delay0 + GAP * i; fly(k, p, q, d); pulse(b, d + FLY, ding && (() => ding(k))); });
 }
 
+// ---------- odhalení karty výpravy ----------
+export function cardShow(card, title) {
+  const el = h('div', { class: 'card-show' }, h('img', { src: `gfx/karta-${card}.jpg`, alt: '' }), h('div', null, title));
+  (document.getElementById('bn') || document.body.appendChild(h('div', { id: 'bn' }))).append(el);
+  el.animate([{ opacity: 0, transform: 'translate(-50%,-50%) scale(.6) rotateY(80deg)' }, { opacity: 1, transform: 'translate(-50%,-50%) scale(1) rotateY(0)', offset: .15 }, { opacity: 1, transform: 'translate(-50%,-50%) scale(1)', offset: .85 }, { opacity: 0, transform: 'translate(-50%,-50%) scale(.9)' }], { duration: 2400, fill: 'forwards' })
+    .finished.catch(() => {}).then(() => el.remove());
+}
+
 // ---------- hlášky uprostřed obrazovky ----------
 // zobrazí se na 2 s; další hláška počká, ve frontě zůstanou nejvýš dvě
 const queue = [];

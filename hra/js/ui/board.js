@@ -3,6 +3,12 @@ import { graph, hexXY } from '../core/hex.js';
 import { TERRAIN_COLOR, TERRAIN_GFX, RES_COLOR, PIPS, COLORS } from '../data.js';
 
 // ---------- obrázky dílků ----------
+// samostatné obrázky (bouře); načtou se jednou, do té doby se kreslí náhradní tvar
+function sprite(name) {
+  let img = IMG[name];
+  if (!img) { img = IMG[name] = new Image(); img.onload = () => { for (const B of waiting) B.draw(); }; img.src = 'gfx/' + name + '.webp'; }
+  return img.complete && img.naturalWidth ? img : null;
+}
 // Načítají se jednou pro celou aplikaci; dokud nejsou načtené, dílek se kreslí barvou a značkou.
 const IMG = {}, waiting = new Set();
 function texture(t, q, r) {
@@ -113,7 +119,10 @@ export function createBoard(cv, onPick) {
       if (B.targets && B.targets.h && B.targets.h.includes(i)) { path(i); ctx.fillStyle = 'rgba(255,255,255,.28)'; ctx.fill(); ctx.strokeStyle = '#fff'; ctx.lineWidth = 0.08; ctx.stroke(); }
     });
     // bouře
-    if (v.storm >= 0) { const hx = v.map.hexes[v.storm], c = hexXY(hx.q, hx.r); cloud(c.x, c.y + 0.05); }
+    if (v.storm >= 0) {
+      const hx = v.map.hexes[v.storm], c = hexXY(hx.q, hx.r), st = sprite('boure');
+      if (st) ctx.drawImage(st, c.x - 0.62, c.y - 0.75, 1.24, 1.24); else cloud(c.x, c.y + 0.05);
+    }
     // cesty
     for (const e of Object.keys(v.roads)) {
       const ed = g.E[e], a = g.V[ed.a], b = g.V[ed.b];

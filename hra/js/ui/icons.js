@@ -16,9 +16,17 @@ const P = {
 const BG = { ...RES_COLOR, bank: '#8a6d3b', guard: '#2d5a8a', cards: '#4f6378', special: '#7a5bc4', points: '#c9962c' };
 
 // ikonka jako HTML prvek; kind = surovina nebo cards / special / points
+// suroviny a banka mají malované obrázky v gfx/, ostatní ukazatele zůstávají jako SVG
+const IMG = { wood: 'res-wood', stone: 'res-stone', grain: 'res-grain', sheep: 'res-sheep', brick: 'res-brick', bank: 'banka' };
 export function icon(kind, size = 22) {
   const s = document.createElement('span');
   s.className = 'ico';
+  if (IMG[kind]) {
+    s.classList.add('img');
+    s.style.cssText = `width:${size}px;height:${size}px`;
+    s.innerHTML = `<img src="gfx/${IMG[kind]}.webp" alt="" draggable="false">`;
+    return s;
+  }
   s.style.cssText = `background:${BG[kind]};width:${size}px;height:${size}px`;
   s.innerHTML = `<svg viewBox="0 0 24 24" width="${Math.round(size * 0.78)}" height="${Math.round(size * 0.78)}" fill="#fff">${P[kind]}</svg>`;
   return s;
