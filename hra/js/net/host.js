@@ -117,6 +117,7 @@ export function createHost(opt) {
   H.act = (pid, a) => {
     const r = apply(H.g, pid, a);
     if (!r.ok) return r;
+    H.slow = r.ev.some(e => e.e === 'roll'); // po hodu počkat, až doběhnou kostky a rozdávání
     H.seq++; H.lastAct = now(); save(); broadcast(r.ev); H.kick();
     return r;
   };
@@ -132,6 +133,7 @@ export function createHost(opt) {
       if (!a) continue;
       const r = apply(H.g, i, a);
       if (!r.ok) throw new Error('bot: ' + r.err + ' ' + JSON.stringify(a));
+      H.slow = r.ev.some(e => e.e === 'roll');
       H.seq++; H.lastAct = now(); save(); broadcast(r.ev);
       return true;
     }
@@ -139,7 +141,8 @@ export function createHost(opt) {
   }
   H.kick = () => {
     if (H.botDelay < 0 || H.timer || H.closed) return; // záporné zpoždění: boty krokuje volající (testy)
-    H.timer = setTimeout(() => { H.timer = null; if (step()) H.kick(); }, H.botDelay);
+    const d = H.slow && H.botDelay > 0 ? Math.max(H.botDelay, NET.botAfterRoll * H.botDelay / NET.botDelay) : H.botDelay; H.slow = false;
+    H.timer = setTimeout(() => { H.timer = null; if (step()) H.kick(); }, d);
   };
   H.pump = (max = 1e6) => { let n = 0; while (n < max && step()) n++; return n; };
 

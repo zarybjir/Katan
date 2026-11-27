@@ -23,8 +23,9 @@ Každou změnu poměřuj těmito body.
    body). Dostane jen to, co smí vidět – cizí karty v ruce k němu vůbec nedorazí.
 3. **Hra se nesmí zaseknout.** Odpojený hráč, zavřená aplikace, bot bez tahu – vždy existuje cesta
    dál (časový limit tahu, bot převezme hráče, hráč se může vrátit).
-4. **Čekání na tah je krátké.** Boti hrají do 1–2 s, animace se dají přeskočit klepnutím, hod
-   a výnos surovin proběhnou najednou. Obchodní nabídka nezdržuje hru déle než pár vteřin.
+4. **Tempo je sledovatelné, ale nezdržuje.** Zadavateli bylo všechno moc rychlé: bot dělá akci
+   po `NET.botDelay` (1,6 s), po hodu čeká `NET.botAfterRoll` (3,4 s), až doběhnou kostky
+   a rozdávání. Kostky lze přeskočit klepnutím. Obchodní nabídka nezdržuje hru déle než pár vteřin.
 5. **Stav je čitelný na telefonu.** Je vidět, kdo je na tahu, co se právě stalo (kdo co dostal)
    a co můžu udělat. Místa, kde lze stavět, se zvýrazní; neplatná akce jde poznat předem, ne až
    z chybové hlášky.

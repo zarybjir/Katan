@@ -12,7 +12,8 @@ export const ANIM_NAME = { dice: 'Hod kostkami', deal: 'Rozdávání surovin z d
 let fx = null;
 const layer = () => fx || (fx = document.body.appendChild(h('div', { id: 'fx' })));
 const wait = ms => new Promise(r => setTimeout(r, ms));
-export const FLY = 1900, GAP = 380; // délka letu suroviny a rozestup mezi surovinami (ms)
+export const FLY = 2400, GAP = 500;
+export const DICE_ROLL = 1000, DICE_SHOW = 2100; // kostky se točí 1 s, výsledek je vidět do 2,1 s // délka letu suroviny a rozestup mezi surovinami (ms)
 
 // ---------- kostky ----------
 const PIPS = { 1: [5], 2: [1, 9], 3: [1, 5, 9], 4: [1, 3, 7, 9], 5: [1, 3, 5, 7, 9], 6: [1, 3, 4, 6, 7, 9] };
@@ -31,8 +32,8 @@ export function dice(d) {
   setTimeout(() => {
     clearInterval(t); face(a, d[0]); face(b, d[1]);
     box.classList.add('stop'); box.lastChild.textContent = String(d[0] + d[1]);
-  }, 650);
-  setTimeout(() => { box.classList.add('out'); setTimeout(end, 200); }, 1200);
+  }, DICE_ROLL);
+  setTimeout(() => { box.classList.add('out'); setTimeout(end, 250); }, DICE_SHOW);
 }
 
 // ---------- přelet ikonky ----------

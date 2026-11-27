@@ -2,7 +2,7 @@
 import { h, clear, modal, closeModals, toast, pc, dot, setColors } from './dom.js';
 import { createBoard } from './board.js';
 import { icon } from './icons.js';
-import { dice, deal, bankFlow, between, banner, cardShow, expand, sources, animDialog, FLY, GAP } from './anim.js';
+import { dice, deal, bankFlow, between, banner, cardShow, expand, sources, animDialog, FLY, GAP, DICE_ROLL } from './anim.js';
 import { sfx, snd } from './sound.js';
 import { resTile, tradeDialog, respondDialog, offerDialog, discardDialog, cardsDialog } from './trade.js';
 import { fmtRes } from './text.js';
@@ -229,7 +229,7 @@ export function createGame(root, S) {
     const coin = () => sfx.coin(), gainS = r => sfx.gain(r);
     const nm = p => (v.players[p] ? v.players[p].name : '');
     const say = t => { if (a.banner !== false) banner(t); };
-    const later = t => setTimeout(() => say(t), a.dice ? 1100 : 0); // až po dohození kostek
+    const later = t => setTimeout(() => say(t), a.dice ? DICE_ROLL + 300 : 0); // až po dohození kostek
     const gains = [];
     // zvuk se ozve při doletu suroviny; když je animace vypnutá, hned
     const flow = (el, kinds, toBank, delay = 0) => {
@@ -239,7 +239,7 @@ export function createGame(root, S) {
     for (const e of ev) {
       if (e.e === 'roll') { sum = e.d[0] + e.d[1]; if (a.dice) dice(e.d); sfx.dice(); }
       else if (e.e === 'seven') {
-        setTimeout(() => sfx.storm(), a.dice ? 700 : 0);
+        setTimeout(() => sfx.storm(), a.dice ? DICE_ROLL : 0);
         later(e.discard && e.discard[v.you] ? `Bouře: odhození ${e.discard[v.you]} karet` : e.p === v.you ? 'Přesun bouře' : `Bouře: přesun – ${nm(e.p)}`);
       }
       else if (e.e === 'turn' && v.phase !== 'setup') { if (e.p === v.you) sfx.turn(); later(`Na tahu: ${nm(e.p)}`); }
@@ -264,7 +264,7 @@ export function createGame(root, S) {
       else if (e.e === 'buy') { sfx.card(); flow(target(e.p), expand(COST.card), true); if (e.card && a.banner !== false) setTimeout(() => cardShow(e.card, 'Nová výprava: ' + CARDS[e.card]), 600); }
       else if (e.e === 'bank') { flow(target(e.p, e.give), Array(e.rate).fill(e.give), true); flow(target(e.p, e.get), [e.get], false, GAP * e.rate + FLY); }
     }
-    const wait = sum && a.dice ? 1100 : 0;
+    const wait = sum && a.dice ? DICE_ROLL + 300 : 0;
     if (gains.length && a.deal) setTimeout(() => deal(gains, (p, r) => sources(S.view(), board, sum, p, r), target, gainS), wait);
     else if (gains.length) setTimeout(() => expand(Object.assign({}, ...gains.map(g => g.res))).slice(0, 6).forEach((r, i) => setTimeout(() => gainS(r), 120 * i)), wait);
   };
