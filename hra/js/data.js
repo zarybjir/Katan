@@ -1,0 +1,61 @@
+// Tabulky hry. Čísla se ladí tady, ne v kódu.
+export const NAME = 'Souostroví';
+export const PROTO = 1;
+
+// ---------- suroviny a dílky ----------
+export const RES = ['wood', 'stone', 'grain', 'fish', 'iron'];
+export const RES_NAME = { wood: 'dřevo', stone: 'kámen', grain: 'obilí', fish: 'ryby', iron: 'železo' };
+export const RES_COLOR = { wood: '#2f7d4a', stone: '#b08a62', grain: '#e2b93b', fish: '#3f9bd1', iron: '#7c8594' };
+export const TERRAIN = { forest: 'wood', quarry: 'stone', field: 'grain', fishery: 'fish', mine: 'iron', waste: null };
+export const TERRAIN_NAME = { forest: 'les', quarry: 'lom', field: 'pole', fishery: 'loviště', mine: 'důl', waste: 'pustina' };
+export const TERRAIN_COLOR = { forest: '#3c8f55', quarry: '#c39a6e', field: '#ecc94f', fishery: '#58b3e0', mine: '#8d96a6', waste: '#d9cfb4' };
+
+// ---------- stavby ----------
+export const COST = {
+  road: { wood: 1, stone: 1 },
+  settle: { wood: 1, stone: 1, grain: 1, fish: 1 },
+  city: { grain: 2, iron: 2, fish: 1 },
+  card: { grain: 1, fish: 1, iron: 1 },
+};
+export const KIND_NAME = { road: 'cesta', settle: 'osada', city: 'město', card: 'výprava' };
+export const PIECES = { road: 16, settle: 6, city: 4 };
+
+// ---------- mapa ----------
+export const MAPSIZE = { 2: 16, 3: 19, 4: 22, 5: 27, 6: 31 }; // počet dílků podle počtu hráčů
+export const NUMS = [6, 8, 5, 9, 4, 10, 3, 11, 5, 9, 6, 8, 4, 10, 2, 12, 3, 11]; // pořadí přidělování čísel
+export const PIPS = { 2: 1, 3: 2, 4: 3, 5: 4, 6: 5, 8: 5, 9: 4, 10: 3, 11: 2, 12: 1 };
+
+// ---------- pravidla ----------
+export const RULES = {
+  target: 10,        // výchozí cílový počet bodů
+  discardOver: 8,    // při bouři odhazuje, kdo má víc karet
+  bankRate: 4, portRate: 3, portResRate: 2,
+  longMin: 5, longPts: 2,     // nejdelší cesta
+  guardMin: 3, guardPts: 2,   // nejvíc zahraných hlídek
+  maxOffers: 3,      // nabídek obchodu za tah
+};
+export const bankSize = n => 14 + 3 * n; // karet každé suroviny v bance
+export const CARDS = { guard: 'hlídka', roads: 'stavitelé', supply: 'zásoby', point: 'objev' };
+export const CARD_TEXT = {
+  guard: 'Přesune bouři a vezme kartu sousedovi.',
+  roads: 'Dvě cesty zdarma.',
+  supply: 'Dvě suroviny z banky podle výběru.',
+  point: 'Jeden vítězný bod. Nezahrává se.',
+};
+export const deckFor = n => { const k = n > 4 ? 1.4 : 1; return { guard: Math.round(11 * k), roads: Math.round(3 * k), supply: Math.round(3 * k), point: Math.round(4 * k) }; };
+
+// ---------- hráči a boti ----------
+export const COLORS = ['#d6423b', '#2b6fd6', '#f2f2f2', '#e88a1a', '#7a3fbf', '#1f9e8f'];
+export const COLOR_NAME = ['červená', 'modrá', 'bílá', 'oranžová', 'fialová', 'tyrkysová'];
+export const BOT_NAMES = ['Alba', 'Bruno', 'Cyril', 'Dora', 'Emil', 'Flora'];
+export const BOT_LEVEL = { easy: 'lehký', mid: 'střední', hard: 'těžký' };
+// váhy rozhodování botů: noise = náhodný šum v ohodnocení, trade = obchoduje, block = cílí bouří na vedoucího
+export const BOT = {
+  easy: { noise: 0.6, trade: false, block: false, plan: false },
+  mid: { noise: 0.15, trade: true, block: false, plan: true },
+  hard: { noise: 0.03, trade: true, block: true, plan: true },
+};
+
+// ---------- síť ----------
+export const NET = { maxMsg: 16000, maxRate: 30, turnLimit: 120, botDelay: 900, lanPort: 47600 };
+export const ICE = [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:stun.cloudflare.com:3478' }]; // sem patří i TURN relé

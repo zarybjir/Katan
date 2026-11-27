@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Jednobarevný šestiúhelník: ikona oznámení a jednobarevná varianta ikony aplikace. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M54,28 L76.5,41 L76.5,67 L54,80 L31.5,67 L31.5,41 Z" />
+</vector>

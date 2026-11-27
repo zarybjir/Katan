@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Popředí adaptivní ikony: ostrov jako šestiúhelník (písek, uvnitř zeleň). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:fillColor="#E9D8A6"
+        android:pathData="M54,28 L76.5,41 L76.5,67 L54,80 L31.5,67 L31.5,41 Z" />
+    <path
+        android:fillColor="#4C956C"
+        android:pathData="M54,35 L70.45,44.5 L70.45,63.5 L54,73 L37.55,63.5 L37.55,44.5 Z" />
+</vector>

@@ -1,0 +1,82 @@
+# Sestavení APK na GitHubu. Bez nastavených secrets vznikne debug APK (podepsaná
+# náhodným klíčem běžce – přes starší verzi ji nejde nainstalovat jako aktualizaci).
+# Se secrets vznikne podepsaná release APK.
+#
+# Secrets (Settings > Secrets and variables > Actions):
+#   KATAN_KEYSTORE_B64       base64 souboru .jks  (base64 -w0 release.jks)
+#   KATAN_KEYSTORE_PASSWORD
+#   KATAN_KEY_ALIAS
+#   KATAN_KEY_PASSWORD
+#
+# Tag "v0.1" navíc vytvoří GitHub Release s APK.
+name: Build APK
+
+on:
+  push:
+    branches: [main, "ccr-**"]
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      KS_B64: ${{ secrets.KATAN_KEYSTORE_B64 }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Testy hry
+        run: |
+          if [ -f hra/tests/run.js ]; then node hra/tests/run.js; else echo "hra/tests/run.js chybí, testy se přeskakují"; fi
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Keystore
+        if: env.KS_B64 != ''
+        run: |
+          echo "$KS_B64" | base64 -d > "$RUNNER_TEMP/release.jks"
+          echo "KATAN_KEYSTORE=$RUNNER_TEMP/release.jks" >> "$GITHUB_ENV"
+
+      - name: Build
+        env:
+          KATAN_KEYSTORE_PASSWORD: ${{ secrets.KATAN_KEYSTORE_PASSWORD }}
+          KATAN_KEY_ALIAS: ${{ secrets.KATAN_KEY_ALIAS }}
+          KATAN_KEY_PASSWORD: ${{ secrets.KATAN_KEY_PASSWORD }}
+        run: |
+          chmod +x gradlew
+          TASK=assembleDebug
+          if [ -n "${KATAN_KEYSTORE:-}" ]; then TASK=assembleRelease; fi
+          set +e
+          ./gradlew --no-daemon --console=plain "$TASK" > build.log 2>&1
+          rc=$?
+          set -e
+          cat build.log
+          if [ $rc -ne 0 ]; then
+            # Skutečná chyba jako anotace, aby byla vidět bez otevírání celého logu.
+            msg=$(grep -E "^e: |error:|What went wrong|Could not|> |FAILURE|Caused by" build.log | head -60 | sed 's/%/%25/g' | awk '{printf "%s%%0A", $0}')
+            echo "::error title=Gradle build failed::${msg}"
+            exit $rc
+          fi
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: souostrovi-apk
+          path: app/build/outputs/apk/**/*.apk
+
+      - name: Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: app/build/outputs/apk/**/*.apk
