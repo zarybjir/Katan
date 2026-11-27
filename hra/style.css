@@ -202,7 +202,7 @@ input:focus, select:focus { outline: 2px solid var(--acc2); outline-offset: 1px;
    Malovaná grafika (gfx/): dřevo, mosaz, rámeček, moře, pozadí nabídky.
    Přebíjí kreslené náhrady výše.
    ========================================================================= */
-#game { background: radial-gradient(ellipse at 50% 42%, rgba(120,200,230,.10), rgba(4,20,32,.55) 85%), url("gfx/more.jpg") center / 420px repeat, #12405a; }
+#game { background: linear-gradient(rgba(18,54,72,.62), rgba(18,54,72,.62)), url("gfx/more.jpg") center / cover no-repeat, #163f55; } /* moře tlumené, bez opakování dlaždice */
 #screen { background: linear-gradient(rgba(8,24,36,.15), rgba(8,24,36,.45)), url("gfx/pozadi-menu.jpg") center / cover no-repeat, #0f3a52; }
 #players, #bar, .banner { background: linear-gradient(180deg, rgba(255,225,170,.08), rgba(0,0,0,.28)), url("gfx/drevo-listy.jpg") center / 560px auto repeat, #3a2818; }
 #pass.show { background: linear-gradient(rgba(8,24,36,.3), rgba(8,24,36,.6)), url("gfx/pozadi-menu.jpg") center / cover no-repeat; }

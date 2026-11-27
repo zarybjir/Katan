@@ -102,7 +102,7 @@ export function createBoard(cv, onPick) {
     // dílky
     v.map.hexes.forEach((hx, i) => {
       const c = hexXY(hx.q, hx.r);
-      path(i); ctx.fillStyle = TERRAIN_COLOR[hx.t]; ctx.fill();
+      path(i); ctx.fillStyle = TERRAIN_COLOR[hx.t] || '#d8c79c'; ctx.fill(); // 'blank' = náhled tvaru
       const tx = texture(hx.t, hx.q, hx.r);
       if (tx) { // téměř celý obrázek; malý posun a zrcadlení podle polohy dílku, aby stejné dílky nevypadaly stejně
         const { img, h } = tx, W0 = img.naturalWidth, s = W0 * 0.96, ox = (h % 3) / 2 * (W0 - s), oy = ((h >> 3) % 3) / 2 * (W0 - s);
@@ -111,7 +111,7 @@ export function createBoard(cv, onPick) {
         ctx.restore();
       }
       ctx.strokeStyle = 'rgba(29,42,56,.7)'; ctx.lineWidth = 0.05; path(i); ctx.stroke();
-      if (!tx) glyph(hx.t, c.x, c.y - 0.42);
+      if (!tx && TERRAIN_COLOR[hx.t]) glyph(hx.t, c.x, c.y - 0.42);
       if (hx.n) token(c.x, c.y + 0.18, hx.n);
       if (B.targets && B.targets.h && B.targets.h.includes(i)) { path(i); ctx.fillStyle = 'rgba(255,255,255,.28)'; ctx.fill(); ctx.strokeStyle = '#fff'; ctx.lineWidth = 0.08; ctx.stroke(); }
     });
