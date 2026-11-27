@@ -85,4 +85,4 @@ jobs:
           V=$(sed -n 's/.*versionName = "\(.*\)".*/\1/p' app/build.gradle.kts)
           cp "$(ls app/build/outputs/apk/release/*.apk | head -1)" souostrovi.apk
           if gh release view "v$V" >/dev/null 2>&1; then echo "Vydání v$V už existuje"; exit 0; fi
-          gh release create "v$V" souostrovi.apk --target "$GITHUB_SHA" --title "Souostroví $V" --notes "$(git log -1 --format=%s)"
+          gh release create "v$V" souostrovi.apk --target "$GITHUB_SHA" --title "Osadníci $V" --notes "$(git log -1 --format=%s)"

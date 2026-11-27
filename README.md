@@ -1,4 +1,4 @@
-# Souostroví
+# Osadníci
 
 Tahová strategie pro 2–6 hráčů na mapě ze šestiúhelníků. Hod kostkami přináší suroviny,
 za ně se staví cesty, osady a města, obchoduje se s bankou i mezi hráči. Vyhrává, kdo první

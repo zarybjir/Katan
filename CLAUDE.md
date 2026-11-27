@@ -1,11 +1,11 @@
-# Souostroví – pokyny pro Claude
+# Osadníci – pokyny pro Claude
 
 Tahová strategie pro 2–6 hráčů na mapě ze šestiúhelníků: hod kostkami přináší suroviny, hráči
 staví cesty, osady a města, obchodují a soupeří o vítězné body. Android aplikace (APK) s hrou
 na jednom zařízení, po místní síti i přes internet, s boty. **Server hry běží na zařízení, které
 hru založilo** – žádný vlastní herní server neexistuje.
 
-„Souostroví“ je pracovní název (repo se jmenuje Katan); dá se změnit jedním řádkem v `data.js`
+Název hry je „Osadníci“ (dříve Souostroví; repo se jmenuje Katan); mění se v `NAME` v `data.js`
 a v `strings.xml`.
 
 Hra je vlastní dílo v žánru „osidlování hexové mapy, suroviny z kostek, obchod“. Mechaniky žánru

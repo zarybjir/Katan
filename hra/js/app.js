@@ -136,7 +136,7 @@ function hostGame(cfg, restore) {
 function openNet(s, H) {
   const n = s.net = { lan: null, lanErr: null, rtc: 'wait', tabs: false };
   const on = c => H.attach(c), redraw = () => { if (s.lobby && !s.G) drawLobby(s); };
-  if (lanAvailable()) { try { n.lan = lanListen(settings.name || 'Souostroví', on); s.stops.push(n.lan.stop); } catch (e) { n.lanErr = e.message; } }
+  if (lanAvailable()) { try { n.lan = lanListen(settings.name || 'Osadníci', on); s.stops.push(n.lan.stop); } catch (e) { n.lanErr = e.message; } }
   else { try { const t = tabsListen(H.code, on); n.tabs = true; s.stops.push(t.stop); } catch {} }
   rtcListen(H.code, on).then(r => { if (s.left) return r.stop(); n.rtc = 'ok'; s.stops.push(r.stop); redraw(); }, e => { n.rtc = e.message; redraw(); });
 }

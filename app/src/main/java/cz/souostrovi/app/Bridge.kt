@@ -201,7 +201,7 @@ class Bridge(private val act: Activity, private val web: WebView) {
 
     // Jméno služby smí mít nejvýš 63 bajtů v UTF-8.
     private fun cutName(name: String): String {
-        var n = name.trim().ifEmpty { "Souostroví" }
+        var n = name.trim().ifEmpty { "Osadníci" }
         while (n.toByteArray().size > 63) n = n.dropLast(1)
         return n
     }

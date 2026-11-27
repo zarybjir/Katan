@@ -1,5 +1,5 @@
 // Tabulky hry. Čísla se ladí tady, ne v kódu.
-export const NAME = 'Souostroví';
+export const NAME = 'Osadníci';
 export const PROTO = 7;
 
 // ---------- suroviny a dílky ----------

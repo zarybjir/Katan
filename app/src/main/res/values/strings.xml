@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Souostroví</string>
+    <string name="app_name">Osadníci</string>
     <string name="host_channel">Hostování hry</string>
-    <string name="host_title">Souostroví – hostování hry</string>
+    <string name="host_title">Osadníci – hostování hry</string>
     <string name="host_text">Hra běží na tomto zařízení. Klepnutím se vrátíte do hry.</string>
 </resources>
