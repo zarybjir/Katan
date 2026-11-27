@@ -3,6 +3,7 @@ import { h, clear, modal, closeModals, toast, SYM } from './dom.js';
 import { createBoard } from './board.js';
 import { icon } from './icons.js';
 import { dice, deal, bankFlow, expand, sources, animDialog, FLY, GAP } from './anim.js';
+import { sfx, snd } from './sound.js';
 import { resTile, tradeDialog, respondDialog, offerDialog, discardDialog, cardsDialog } from './trade.js';
 import { fmtRes } from './text.js';
 import { RES, RES_NAME, RES_COLOR, COST, TERRAIN, KIND_NAME, KIND_TEXT, COLORS, RULES, BOT_LEVEL, CARDS, CARD_TEXT } from '../data.js';
@@ -158,7 +159,7 @@ export function createGame(root, S) {
       S.away && S.away() && h('button', { class: 'btn', onclick: () => { m.close(); S.back(); } }, 'Převzít hru zpět od bota'),
       h('button', { class: 'btn', onclick: () => { m.close(); prices(S.view()); } }, 'Ceník'),
       h('button', { class: 'btn', onclick: () => { m.close(); rules(); } }, 'Pravidla'),
-      h('button', { class: 'btn', id: 'g-anim', onclick: () => { m.close(); animDialog(S.anim, S.saveAnim); } }, 'Animace'),
+      h('button', { class: 'btn', id: 'g-anim', onclick: () => { m.close(); animDialog(S.anim, S.saveAnim); } }, 'Animace a zvuky'),
       h('button', { class: 'btn', onclick: () => { m.close(); board.moved = false; board.fit(); } }, 'Vystředit mapu'),
       h('button', { class: 'btn ghost', id: 'leave', onclick: () => { m.close(); const c = modal('Opustit hru', h('div', { class: 'col' }, h('p', null, S.host ? 'Hra zůstane uložená a půjde v ní pokračovat. Připojení hráči budou odpojeni.' : 'Do hry se lze vrátit přes nabídku Připojit se.'),
         h('div', { class: 'row' }, h('button', { class: 'btn', id: 'leave-ok', onclick: () => { c.close(); S.leave(); } }, 'Opustit'), h('button', { class: 'btn ghost', onclick: () => c.close() }, 'Zpět')))); } }, 'Opustit hru'),
@@ -213,18 +214,31 @@ export function createGame(root, S) {
     if (!v || !ev.length) return;
     const target = (p, r) => p === v.you ? (r ? document.querySelector(`#hand .have[data-res=${r}]`) : document.getElementById('hand')) : document.querySelector(`.chip[data-p="${p}"]`);
     let sum = 0, fromBank = false;
+    snd.on = a.sound !== false;
+    const coin = () => sfx.coin(), gainS = r => sfx.gain(r);
     const gains = [];
+    // zvuk se ozve při doletu suroviny; když je animace vypnutá, hned
+    const flow = (el, kinds, toBank, delay = 0) => {
+      if (a.burn) bankFlow(el, kinds, toBank, delay, toBank ? coin : gainS);
+      else kinds.forEach((k, i) => setTimeout(() => (toBank ? coin() : gainS(k)), delay + 120 * i));
+    };
     for (const e of ev) {
-      if (e.e === 'roll') { sum = e.d[0] + e.d[1]; if (a.dice) dice(e.d); }
-      else if (e.e === 'play' && e.card === 'supply') fromBank = true;
-      else if (e.e === 'gain' && Object.keys(e.res).length) { if (fromBank) { if (a.burn) bankFlow(target(e.p), expand(e.res), false); } else gains.push(e); }
-      else if (!a.burn) continue;
-      else if (e.e === 'discard') bankFlow(target(e.p), e.res ? expand(e.res) : Array(e.n).fill('cards'), true);
-      else if (e.e === 'build' && e.paid) bankFlow(target(e.p), expand(COST[e.kind]), true);
-      else if (e.e === 'buy') bankFlow(target(e.p), expand(COST.card), true);
-      else if (e.e === 'bank') { bankFlow(target(e.p, e.give), Array(e.rate).fill(e.give), true); bankFlow(target(e.p, e.get), [e.get], false, GAP * e.rate + FLY); }
+      if (e.e === 'roll') { sum = e.d[0] + e.d[1]; if (a.dice) dice(e.d); sfx.dice(); }
+      else if (e.e === 'seven') setTimeout(() => sfx.storm(), a.dice ? 700 : 0);
+      else if (e.e === 'turn' && e.p === v.you && v.phase !== 'setup') sfx.turn();
+      else if (e.e === 'steal') sfx.steal();
+      else if (e.e === 'offer' && e.p !== v.you) sfx.offer();
+      else if (e.e === 'win') sfx.win();
+      else if (e.e === 'play') { sfx.card(); if (e.card === 'supply') fromBank = true; }
+      else if (e.e === 'build') { sfx.build(e.kind); if (e.paid) flow(target(e.p), expand(COST[e.kind]), true); }
+      else if (e.e === 'gain' && Object.keys(e.res).length) { if (fromBank) flow(target(e.p), expand(e.res), false); else gains.push(e); }
+      else if (e.e === 'discard') flow(target(e.p), e.res ? expand(e.res) : Array(e.n).fill('cards'), true);
+      else if (e.e === 'buy') { sfx.card(); flow(target(e.p), expand(COST.card), true); }
+      else if (e.e === 'bank') { flow(target(e.p, e.give), Array(e.rate).fill(e.give), true); flow(target(e.p, e.get), [e.get], false, GAP * e.rate + FLY); }
     }
-    if (gains.length && a.deal) setTimeout(() => deal(gains, (p, r) => sources(S.view(), board, sum, p, r), target), sum && a.dice ? 1100 : 0);
+    const wait = sum && a.dice ? 1100 : 0;
+    if (gains.length && a.deal) setTimeout(() => deal(gains, (p, r) => sources(S.view(), board, sum, p, r), target, gainS), wait);
+    else if (gains.length) setTimeout(() => expand(Object.assign({}, ...gains.map(g => g.res))).slice(0, 6).forEach((r, i) => setTimeout(() => gainS(r), 120 * i)), wait);
   };
   G.toast = toast;
   return G;

@@ -21,7 +21,9 @@ získá cílový počet bodů. Android aplikace; server hry běží na zařízen
 
 - Animace hodu kostkami, rozdávání surovin z dílků a surovin letících do banky (platby,
   odhození, směna) a z banky; každou lze vypnout
-  v nabídce Animace (hlavní nabídka i menu ☰ ve hře). Kostky se přeskočí klepnutím.
+  v nabídce Animace a zvuky (hlavní nabídka i menu ☰ ve hře). Kostky se přeskočí klepnutím.
+- Zvuky: hod kostkami, příchod surovin, platby do banky, stavby, bouře, krádež, nabídka obchodu,
+  začátek vlastního tahu a vítězství. Vypínají se tamtéž.
 
 ## Pravidla ve zkratce
 

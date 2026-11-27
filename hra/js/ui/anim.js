@@ -5,9 +5,9 @@ import { icon } from './icons.js';
 import { graph } from '../core/hex.js';
 import { TERRAIN } from '../data.js';
 
-export const ANIM_DEF = { dice: true, deal: true, burn: true };
+export const ANIM_DEF = { dice: true, deal: true, burn: true, sound: true };
 // klíč burn zůstává kvůli uloženému nastavení; dnes znamená suroviny letící do banky a z ní
-export const ANIM_NAME = { dice: 'Hod kostkami', deal: 'Rozdávání surovin z dílků', burn: 'Platby a odhození do banky' };
+export const ANIM_NAME = { dice: 'Hod kostkami', deal: 'Rozdávání surovin z dílků', burn: 'Platby a odhození do banky', sound: 'Zvuky' };
 
 let fx = null;
 const layer = () => fx || (fx = document.body.appendChild(h('div', { id: 'fx' })));
@@ -52,14 +52,15 @@ function fly(kind, from, to, delay) {
   an.onfinish = () => ic.remove();
   return an.finished.catch(() => {});
 }
-function pulse(el, delay) {
+function pulse(el, delay, ding) {
   if (!el) return;
+  setTimeout(() => ding && ding(), delay);
   setTimeout(() => el.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.25)' }, { transform: 'scale(1)' }], { duration: 250 }), delay);
 }
 
 // ---------- rozdávání ----------
 // srcOf(p, r) → body na obrazovce (dílky, které surovinu daly), dst(p, r) → prvek, kam karta letí
-export function deal(gains, srcOf, dst) {
+export function deal(gains, srcOf, dst, ding) {
   let k = 0;
   for (const { p, res } of gains) for (const r of Object.keys(res)) for (let i = 0; i < res[r]; i++) {
     const to = dst(p, r);
@@ -68,20 +69,20 @@ export function deal(gains, srcOf, dst) {
     if (!src.length) continue;
     const from = src[i % src.length], delay = GAP * k++;
     fly(r, from, center(to), delay);
-    pulse(to, delay + FLY);
+    pulse(to, delay + FLY, ding && (() => ding(r)));
   }
 }
 
 // ---------- banka ----------
 // kinds: seznam surovin (nebo 'cards' u skrytých karet); toBank = z hráče do banky, jinak z banky k hráči
-export function bankFlow(el, kinds, toBank, delay0 = 0) {
+export function bankFlow(el, kinds, toBank, delay0 = 0, ding) {
   const bank = document.getElementById('bank');
   if (!live(el) || !live(bank) || !kinds.length) return;
   const a = center(el), b = center(bank);
   kinds.forEach((k, i) => {
     const d = delay0 + GAP * i;
     fly(k, toBank ? a : b, toBank ? b : a, d);
-    pulse(toBank ? bank : el, d + FLY);
+    pulse(toBank ? bank : el, d + FLY, ding && (() => ding(k)));
   });
 }
 export const expand = res => Object.keys(res || {}).flatMap(r => Array(res[r]).fill(r));
@@ -109,5 +110,5 @@ export function animDialog(set, save) {
     const cb = h('input', { type: 'checkbox', 'data-anim': k, checked: set[k] !== false, onchange: () => { set[k] = cb.checked; save(); } });
     return h('label', { class: 'toggle' }, cb, h('span', null, ANIM_NAME[k]));
   });
-  modal('Animace', h('div', { class: 'col' }, rows, h('p', { class: 'dim' }, 'Animace jsou jen pro přehled; hra pokračuje i během nich. Kostky lze přeskočit klepnutím.')));
+  modal('Animace a zvuky', h('div', { class: 'col' }, rows, h('p', { class: 'dim' }, 'Animace jsou jen pro přehled; hra pokračuje i během nich. Kostky lze přeskočit klepnutím.')));
 }

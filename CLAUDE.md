@@ -163,7 +163,9 @@ prohlížeč, WebView i Node v testech.
 - `hra/lib/peerjs.min.js` – jediná cizí knihovna (MIT), načítá se až při hře přes internet. Nečti ji.
 - `hra/gfx/` – obrázky dílků (`<krajina>-<varianta>.jpg`, 640×640, JPEG kvalita 80; seznam
   variant je `TERRAIN_GFX` v `data.js`). Dílek bez obrázku se kreslí barvou a značkou.
-  Originály od zadavatele se zmenšují, do repa jdou jen zmenšené. `hra/sounds/` – zatím prázdné.
+  Originály od zadavatele se zmenšují, do repa jdou jen zmenšené. Zvuky nejsou soubory: skládá je
+  `hra/js/ui/sound.js` přes WebAudio (`sfx.dice()`, `sfx.gain(r)` …), spouští je `G.animate`
+  podle událostí; vypínají se v nastavení `so-set.anim.sound`.
   `hra/tests/` – testy, `hra/tests/out/` – snímky z testu (necommitují se).
 - `app/` – Android obal (Kotlin). Hra je běžná aplikace na celou obrazovku: žádný adresní
   řádek, žádné otevírání v prohlížeči, běh bez internetu. WebView je jen vykreslovací plocha.
