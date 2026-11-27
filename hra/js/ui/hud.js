@@ -61,7 +61,7 @@ export function createGame(root, S) {
     const tag = (s, i) => s.kind === 'bot' ? ' ·bot' : s.away ? ' ·bot' : s.online === false ? ' ·odpojeno' : '';
     const waits = i => v.phase !== 'end' && (i === v.turn || !!(v.discard && v.discard[i]));
     const stat = (kind, n, title) => h('span', { class: 'stat', title }, icon(kind, 18), h('b', null, String(n)));
-    const stats = (p, i) => [stat('cards', p.handN, 'karty surovin'), stat('special', p.cardN, 'výpravy'), stat('points', p.pts, 'body'),
+    const stats = (p, i) => [stat('cards', p.handN, 'karty surovin'), stat('special', p.cardN, 'výpravy'), stat('guard', p.guards, 'zahrané hlídky'), stat('points', p.pts, 'body'),
       v.long === i && h('span', { class: 'bonus', title: 'nejdelší cesta' }, '⟿'), v.guard === i && h('span', { class: 'bonus', title: 'nejvíc hlídek' }, '⛨')];
     clear(el.players);
     v.players.forEach((p, i) => {

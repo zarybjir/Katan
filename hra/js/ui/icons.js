@@ -10,9 +10,10 @@ const P = {
   cards: '<rect x="5" y="4" width="11" height="15" rx="2" opacity=".55"/><rect x="8" y="6" width="11" height="15" rx="2"/>',
   special: '<rect x="6" y="3" width="12" height="18" rx="2"/><path d="M12 7.5l1.3 2.8 3 .3-2.3 2 .7 3-2.7-1.6-2.7 1.6.7-3-2.3-2 3-.3z" fill="#5b3f99"/>',
   bank: '<path d="M12 3l9 5H3z"/><rect x="4" y="9.5" width="16" height="1.6"/><rect x="5.5" y="12" width="2.2" height="6"/><rect x="10.9" y="12" width="2.2" height="6"/><rect x="16.3" y="12" width="2.2" height="6"/><rect x="3" y="19" width="18" height="2"/>',
+  guard: '<path d="M12 2.5l7.5 3v5.6c0 4.8-3.2 8.6-7.5 10.4-4.3-1.8-7.5-5.6-7.5-10.4V5.5z"/><path d="M12 6v12M8 10h8" stroke="#2d5a8a" stroke-width="2" fill="none"/>',
   points: '<path d="M12 3l2.7 5.6 6.1.8-4.5 4.2 1.1 6.1L12 16.8l-5.4 2.9 1.1-6.1L3.2 9.4l6.1-.8z"/>',
 };
-const BG = { ...RES_COLOR, bank: '#8a6d3b', cards: '#4f6378', special: '#7a5bc4', points: '#c9962c' };
+const BG = { ...RES_COLOR, bank: '#8a6d3b', guard: '#2d5a8a', cards: '#4f6378', special: '#7a5bc4', points: '#c9962c' };
 
 // ikonka jako HTML prvek; kind = surovina nebo cards / special / points
 export function icon(kind, size = 22) {
