@@ -1,6 +1,22 @@
 // Kreslení mapy na canvas, posun a zoom, výběr místa dotykem.
 import { graph, hexXY } from '../core/hex.js';
-import { TERRAIN_COLOR, RES_COLOR, PIPS, COLORS } from '../data.js';
+import { TERRAIN_COLOR, TERRAIN_GFX, RES_COLOR, PIPS, COLORS } from '../data.js';
+
+// ---------- obrázky dílků ----------
+// Načítají se jednou pro celou aplikaci; dokud nejsou načtené, dílek se kreslí barvou a značkou.
+const IMG = {}, waiting = new Set();
+function texture(t, q, r) {
+  const list = TERRAIN_GFX[t];
+  if (!list || !list.length) return null;
+  const h = Math.abs(q * 73856093 ^ r * 19349663), name = list[h % list.length];
+  let img = IMG[name];
+  if (!img) {
+    img = IMG[name] = new Image();
+    img.onload = () => { for (const B of waiting) B.draw(); };
+    img.src = 'gfx/' + name + '.jpg';
+  }
+  return img.complete && img.naturalWidth ? { img, h } : null;
+}
 import { SYM } from './dom.js';
 
 const INK = '#1d2a38';
@@ -8,6 +24,7 @@ const INK = '#1d2a38';
 export function createBoard(cv, onPick) {
   const ctx = cv.getContext('2d');
   const B = { v: null, g: null, targets: null, cam: { x: 0, y: 0, k: 40 }, fitted: false, mark: null };
+  waiting.add(B);
   let dpr = 1, W = 0, H = 0, raf = 0;
 
   B.resize = () => {
@@ -76,10 +93,17 @@ export function createBoard(cv, onPick) {
     v.map.hexes.forEach((hx, i) => {
       const c = hexXY(hx.q, hx.r);
       path(i); ctx.fillStyle = TERRAIN_COLOR[hx.t]; ctx.fill();
-      ctx.strokeStyle = 'rgba(29,42,56,.55)'; ctx.lineWidth = 0.05; ctx.stroke();
-      glyph(hx.t, c.x, c.y - 0.42);
+      const tx = texture(hx.t, hx.q, hx.r);
+      if (tx) { // výřez obrázku: posun a zrcadlení podle polohy dílku, aby stejné dílky nevypadaly stejně
+        const { img, h } = tx, W0 = img.naturalWidth, s = W0 * 0.72, ox = (h % 7) / 6 * (W0 - s), oy = ((h >> 3) % 7) / 6 * (W0 - s);
+        ctx.save(); ctx.clip(); ctx.translate(c.x, c.y); if (h & 1) ctx.scale(-1, 1);
+        ctx.drawImage(img, ox, oy, s, s, -1.02, -1.02, 2.04, 2.04);
+        ctx.restore();
+      }
+      ctx.strokeStyle = 'rgba(29,42,56,.7)'; ctx.lineWidth = 0.05; path(i); ctx.stroke();
+      if (!tx) glyph(hx.t, c.x, c.y - 0.42);
       if (hx.n) {
-        ctx.beginPath(); ctx.arc(c.x, c.y + 0.2, 0.33, 0, 7); ctx.fillStyle = '#f7f1dd'; ctx.fill();
+        ctx.beginPath(); ctx.arc(c.x, c.y + 0.2, 0.35, 0, 7); ctx.fillStyle = '#f7f1dd'; ctx.shadowColor = 'rgba(0,0,0,.45)'; ctx.shadowBlur = 0.12 * k; ctx.fill(); ctx.shadowBlur = 0;
         ctx.strokeStyle = INK; ctx.lineWidth = 0.04; ctx.stroke();
         const hot = hx.n === 6 || hx.n === 8;
         text(String(hx.n), c.x, c.y + 0.15, hot ? 0.36 : 0.3, hot ? '#c22b22' : INK);
