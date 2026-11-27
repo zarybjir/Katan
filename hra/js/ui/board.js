@@ -216,16 +216,16 @@ export function createBoard(cv, onPick) {
     ctx.lineCap = 'round';
     ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by);
     ctx.shadowColor = 'rgba(0,0,0,.55)'; ctx.shadowBlur = 0.09 * B.cam.k * dpr; ctx.shadowOffsetY = 0.035 * B.cam.k * dpr;
-    ctx.strokeStyle = '#1b130b'; ctx.lineWidth = 0.2; ctx.stroke();
+    ctx.strokeStyle = '#1b130b'; ctx.lineWidth = 0.13; ctx.stroke();
     ctx.shadowColor = 'transparent';
-    ctx.strokeStyle = col; ctx.lineWidth = 0.14; ctx.stroke();
+    ctx.strokeStyle = col; ctx.lineWidth = 0.085; ctx.stroke();
     // světlá horní hrana a tmavší spodní, aby trám působil plasticky
-    const nx = -(by - ay), ny = bx - ax, l = Math.hypot(nx, ny) || 1, ox = nx / l * 0.035, oy = ny / l * 0.035;
+    const nx = -(by - ay), ny = bx - ax, l = Math.hypot(nx, ny) || 1, ox = nx / l * 0.02, oy = ny / l * 0.02;
     const up = oy < 0 ? 1 : -1;
     ctx.beginPath(); ctx.moveTo(ax + ox * up, ay + oy * up); ctx.lineTo(bx + ox * up, by + oy * up);
-    ctx.strokeStyle = 'rgba(255,255,255,.35)'; ctx.lineWidth = 0.035; ctx.stroke();
+    ctx.strokeStyle = 'rgba(255,255,255,.35)'; ctx.lineWidth = 0.022; ctx.stroke();
     ctx.beginPath(); ctx.moveTo(ax - ox * up, ay - oy * up); ctx.lineTo(bx - ox * up, by - oy * up);
-    ctx.strokeStyle = 'rgba(0,0,0,.25)'; ctx.lineWidth = 0.035; ctx.stroke();
+    ctx.strokeStyle = 'rgba(0,0,0,.25)'; ctx.lineWidth = 0.022; ctx.stroke();
     ctx.restore();
   }
   function house(x, y, p, city) {
