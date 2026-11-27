@@ -38,7 +38,7 @@ Každou změnu poměřuj těmito body.
 - **Mapa** se generuje ze seedu; velikost podle počtu hráčů. Typ mapy určuje tvar pevniny
   (`MAPS` v `data.js`, tvary v `SHAPES` v `mapgen.js`): ostrov, zátoky, atol, šíje, hřeben.
   Pevnina je vždy souvislá (lodě nejsou). Nový typ = záznam v `MAPS`, `MAP_TEXT`, `SHAPES` a test tvaru.
-  Při zakládání hry je vidět náhled přesně té mapy, na které se bude hrát. Dílky: les (dřevo), lom (kámen),
+  Při zakládání hry je vidět náhled přesně té mapy, na které se bude hrát. Dílky: les (dřevo), skály (kámen),
   pole (obilí), pastvina (ovce), hliniště (cihly), pustina (nic). Každý dílek kromě pustiny má číslo
   2–12 bez 7; generátor hlídá, aby nejčastější čísla nesousedila a suroviny nebyly v jednom shluku.
 - **Tah:** hod dvěma kostkami → dílky s tím číslem dají surovinu sousedním osadám (1) a městům (2)
