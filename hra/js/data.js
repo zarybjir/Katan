@@ -57,5 +57,5 @@ export const BOT = {
 };
 
 // ---------- síť ----------
-export const NET = { maxMsg: 16000, maxRate: 30, turnLimit: 120, botDelay: 900, lanPort: 47600 };
+export const NET = { maxMsg: 16000, maxRate: 30, turnLimit: 120, botDelay: 900, lanPort: 47600, ping: 5, dead: 16 };
 export const ICE = [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:stun.cloudflare.com:3478' }]; // sem patří i TURN relé

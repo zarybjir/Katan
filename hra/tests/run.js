@@ -406,6 +406,7 @@ test('determinismus: stejný seed a akce dají stejný stav', () => {
 });
 
 // ---------- síť ----------
+const all = [];
 function room(seats, extra = {}) {
   let t = 1e6; const saved = [];
   const H = createHost({ seats, seed: 21, code: 'TEST', botDelay: -1, now: () => t, save: x => saved.push(x), ...extra });
@@ -414,6 +415,7 @@ function room(seats, extra = {}) {
     const C = createClient(a, hello, { onLobby: m => log.lobby.push(m), onView: m => log.view.push(m), onError: m => log.err.push(m), onClose: () => { log.closed = true; } });
     H.attach(b, { local });
     if (hello) C.conn.send(JSON.stringify({ t: 'hello', ...hello, proto: hello.proto ?? PROTO }));
+    all.push(C);
     return { C, log, raw: a, last: () => log.view[log.view.length - 1] };
   };
   return { H, join, saved, now: () => t, time: d => { t += d * 1000; } };
@@ -485,6 +487,17 @@ test('síť: odpojení, převzetí botem, návrat', () => {
   hostPlays();
   if (r.H.g.phase !== 'end' && legal(r.H.g, 1).length) { r.time(40); r.H.tick(); r.time(200); r.H.tick(); eq(r.H.seats[1].away, true); }
 });
+test('síť: spojení bez zpráv hostitel ukončí', () => {
+  const r = room([{ kind: 'local', name: 'Host' }, { kind: 'open' }]);
+  r.join(null, true); const c = r.join({ name: 'Pavel', token: 'tokenpavel1' });
+  r.H.start();
+  r.time(10); c.raw.send('{"t":"ping"}'); r.time(10); r.H.tick();
+  ok(r.H.seats[1].conn && !c.log.closed, 'živé spojení bylo ukončeno');
+  r.time(20); r.H.tick();
+  ok(!r.H.seats[1].conn && c.log.closed, 'mrtvé spojení zůstalo otevřené');
+  eq(r.H.conns.size, 1);
+  c.C.close();
+});
 test('síť: celá hra přes hostitele a uložení', () => {
   const r = room([{ kind: 'local', name: 'A' }, { kind: 'local', name: 'B' }, { kind: 'open' }, { kind: 'bot', level: 'hard' }, { kind: 'open' }]);
   const loc = r.join(null, true), c = r.join({ name: 'Pavel', token: 'tokenpavel1' });
@@ -529,5 +542,6 @@ for (const t of tests) {
   try { t.fn(); console.log(`ok    ${t.name} (${Date.now() - t0} ms)`); }
   catch (e) { fail++; console.log(`CHYBA ${t.name}\n      ${e.message}\n${(e.stack || '').split('\n').slice(1, 4).join('\n')}`); }
 }
+for (const c of all) c.close();
 console.log(fail ? `\n${fail} testů selhalo` : '\nvše v pořádku');
 process.exit(fail ? 1 : 0);

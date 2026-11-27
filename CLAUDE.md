@@ -103,8 +103,8 @@ Jedno rozhraní (`connect`, `send`, `onMessage`, `onClose`), čtyři implementac
 | `rtc` | internet | WebRTC datový kanál přímo mezi zařízeními |
 
 - **Místní síť:** hostitel spustí v aplikaci WebSocket server (Kotlin), ohlásí hru přes NSD
-  (mDNS) a ukáže adresu a QR kód. Klient hru najde v seznamu nebo zadá adresu. Funguje bez
-  internetu.
+  (mDNS) a ukáže adresu. Klient hru najde v seznamu nebo zadá adresu. Funguje bez internetu.
+  QR kód zatím není.
 - **Internet:** telefon za mobilním operátorem nebo domácím routerem nepřijme příchozí spojení,
   takže WebSocket server přes internet nestačí. Proto WebRTC: data jdou přímo mezi zařízeními
   a hostitel zůstává serverem hry. K navázání spojení je ale potřeba krátká výměna adres
@@ -121,6 +121,8 @@ Jedno rozhraní (`connect`, `send`, `onMessage`, `onClose`), čtyři implementac
   `ping`. Hostitel → klient: `lobby`, `view` (pohled + události + pořadové číslo), `error`, `pong`.
   Verze protokolu je konstanta `PROTO`; při neshodě hostitel spojení odmítne s hláškou
   „rozdílná verze aplikace“.
+- **Hlídání spojení:** klient posílá `ping` každých `NET.ping` s; kdo `NET.dead` s nic neslyší,
+  spojení zavře (klient i hostitel). WebRTC samo výpadek hlásí pozdě nebo vůbec.
 - **Návrat do hry:** klient si pamatuje token; po opětovném připojení dostane celý aktuální
   pohled. Po vypršení limitu převezme odpojeného hráče bot, hráč si ho může vzít zpět.
 - **Hostitel odejde = hra stojí.** Hostitel stav po každé akci ukládá a hru umí znovu otevřít;
@@ -146,9 +148,13 @@ prohlížeč, WebView i Node v testech.
 - `hra/js/net/` – `host.js` (místnost, hráči, tokeny, limity, ukládání), `client.js`,
   `proto.js` (tvary zpráv a jejich kontrola), `transport-*.js` (viz Přenos).
 - `hra/js/ui/` – `board.js` (kreslení mapy na canvas, výběr místa dotykem, posun a zoom),
-  `hud.js` (ruka, tlačítka akcí, deník), `trade.js`, `lobby.js`, `menu.js`, `anim.js`.
-- `hra/js/app.js` – start, přepínání obrazovek, ukládání nastavení.
-- `hra/gfx/`, `hra/sounds/` – grafika a zvuky. `hra/tests/` – testy.
+  `hud.js` (herní obrazovka: hráči, ruka, tlačítka akcí, deník), `trade.js` (dialogy obchodu,
+  odhození a výprav), `menu.js` (nabídka, založení hry, připojení, lobby), `text.js` (věty do
+  deníku), `dom.js` (`h()`, dialogy, značky hráčů). Animace zatím nejsou (`anim.js` až s nimi).
+- `hra/js/app.js` – start, přepínání obrazovek, relace hostitele a klienta, ukládání nastavení.
+- `hra/lib/peerjs.min.js` – jediná cizí knihovna (MIT), načítá se až při hře přes internet. Nečti ji.
+- `hra/gfx/`, `hra/sounds/` – grafika a zvuky (zatím prázdné, mapa se kreslí kódem).
+  `hra/tests/` – testy, `hra/tests/out/` – snímky z testu (necommitují se).
 - `app/` – Android obal (Kotlin). Hra je běžná aplikace na celou obrazovku: žádný adresní
   řádek, žádné otevírání v prohlížeči, běh bez internetu. WebView je jen vykreslovací plocha.
   - `MainActivity.kt` – WebView načítá hru přes `WebViewAssetLoader` ze stálého https originu
@@ -159,9 +165,10 @@ prohlížeč, WebView i Node v testech.
     zpětná volání `onOpen/onMessage/onClose`, NSD ohlášení a hledání, místní IP adresa.
   - Hostování běží ve foreground službě s oznámením, jinak Android server po zhasnutí
     obrazovky ukončí.
-  - Klient se k `ws://` adrese v místní síti připojuje ze stránky s https originem – ve WebView
-    je k tomu potřeba povolit smíšený obsah a nešifrovaný provoz; když to nepůjde, klientské
-    spojení se vede také přes `Bridge`.
+  - Klient se k `ws://` adrese v místní síti připojuje přes `Bridge` (`wsConnect`), ne přes
+    WebSocket stránky – ta má https origin a nešifrované spojení by prohlížeč mohl odmítnout.
+  - Smlouva mostu (názvy metod a zpětných volání `AndroidCb`) je popsaná v `Bridge.kt`
+    a používá ji jen `net/transport-lan.js` a `app.js`. Měnit vždy obě strany najednou.
 - `.github/workflows/build.yml` – sestavení APK na GitHubu (v tomto prostředí není Android SDK).
 
 Souřadnice mapy: axiální `(q, r)` pro dílky; vrchol a hrana mají **jednoznačné id** odvozené
@@ -191,15 +198,16 @@ převádí jen `ui/board.js`.
 
 ## Ukládání (localStorage)
 
-Klíče `so-set` (nastavení, jméno hráče), `so-host` (rozehraná hra hostitele: celý stav + hráči
-a tokeny), `so-join` (poslední hra klienta: kód a token pro návrat). Uložený stav má pole `v`;
+Klíče `so-set` (nastavení: jméno, token zařízení, poslední adresa nebo kód hry, poslední rozvržení
+míst) a `so-host` (rozehraná hra hostitele: celý stav + hráči a tokeny). Uložený stav má pole `v`;
 při změně formátu doplň chybějící pole výchozí hodnotou, nebo starou hru zahoď se sdělením.
 Přístup vždy v `try/catch`.
 
 ## Spuštění a ověření
 
 - `python3 -m http.server 8080 -d hra` a otevřít `http://127.0.0.1:8080/`. Víc hráčů se zkouší
-  ve více záložkách přes přenos `tabs`.
+  ve více záložkách přes přenos `tabs` (kód hry z lobby). Parametr `?fast` zrychlí boty.
+  `window.__so.S` je běžící relace (stav, hostitel, mapa) – používají ji testy.
 - **Po změně v `core/`, `bot/`, `net/` nebo `data.js` spusť `node hra/tests/run.js`**
   (bez prohlížeče, bez npm):
   - geometrie: počty vrcholů a hran, sousednosti, jednoznačnost id,
@@ -215,7 +223,11 @@ Přístup vždy v `try/catch`.
   s boty, odehraje pár tahů, ve dvou záložkách ověří hru přes `tabs`, hlídá chyby v konzoli
   a pořídí snímek na výšku i na šířku). Na snímek se podívej.
 - Android část (`LanServer`, `Bridge`, služba) tady spustit nejde – ověřuje se sestavením
-  na GitHubu a ručně na zařízení. Proto v ní má být co nejméně logiky.
+  a ručně na zařízení. Proto v ní má být co nejméně logiky. Sestavení: `./gradlew assembleDebug`
+  (Android SDK se dá doinstalovat do `/opt/android-sdk`, cesta patří do `local.properties`).
+- Přenos `rtc` jde ověřit ve dvou oddělených kontextech prohlížeče proti místnímu serveru PeerJS
+  (`npm i peer` mimo repo, `window.__signal = {host, port, path, secure}` před načtením hry).
+  Veřejný broker a průchod přes NAT se dají ověřit jen na skutečných zařízeních.
 - **Když opravíš chybu nebo přidáš pravidlo, přidej k tomu test.**
 
 ## Pořadí prací

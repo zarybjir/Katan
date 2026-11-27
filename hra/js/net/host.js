@@ -41,7 +41,7 @@ export function createHost(opt) {
 
   // ---------- spojení ----------
   H.attach = (conn, o = {}) => {
-    const c = { conn, local: !!o.local, hello: false, win: 0, n: 0 };
+    const c = { conn, local: !!o.local, hello: false, win: 0, n: 0, seen: now() };
     H.conns.add(c);
     conn.onmsg = text => handle(c, text);
     conn.onclose = () => {
@@ -56,6 +56,7 @@ export function createHost(opt) {
 
   function handle(c, text) {
     if (H.closed) return;
+    c.seen = now();
     const m = parse(text);
     const sec = Math.floor(now() / 1000);
     if (c.win !== sec) { c.win = sec; c.n = 0; }
@@ -135,6 +136,8 @@ export function createHost(opt) {
 
   // Hlídání nečinnosti vzdálených hráčů; volat zhruba jednou za vteřinu.
   H.tick = () => {
+    // klient posílá ping; spojení bez zpráv po dobu NET.dead je mrtvé
+    for (const c of [...H.conns]) if (!c.local && now() - c.seen > NET.dead * 1000) { const f = c.conn.onclose; c.conn.onclose = null; c.conn.close(); f && f(); }
     if (!H.g || H.g.phase === 'end') return;
     const idle = (now() - H.lastAct) / 1000;
     let ch = false;
