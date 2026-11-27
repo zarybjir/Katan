@@ -105,8 +105,9 @@ test('mapa: 1000 seedů každého typu splní pravidla', () => {
     ok(Math.max(...vals) - Math.min(...vals) <= 1, 'nerovnoměrné dílky');
     for (const r of RES) eq(m.ports.filter(p => p.type === r).length, 1, `${type} seed ${seed}: přístav ${r}`);
     eq(m.ports.filter(p => p.type === 'any').length, 4, `${type} seed ${seed}: přístavy 3:1`);
-    const pv = m.ports.flatMap(p => [g.E[p.e].a, g.E[p.e].b]);
-    ok(new Set(pv).size === pv.length, 'přístavy sdílejí vrchol');
+    const pv = m.ports.map(p => [g.E[p.e].a, g.E[p.e].b]);
+    for (let i = 0; i < pv.length; i++) for (let j = i + 1; j < pv.length; j++)
+      ok(!pv[i].some(a => pv[j].some(b => a === b || g.V[a].adj.includes(b))), `${type} seed ${seed}: přístavy sousedí`);
     for (const p of m.ports) ok(g.E[p.e].hex.length === 1, 'přístav mimo pobřeží');
     const seen = new Set([0]), q = [0]; // souvislost
     while (q.length) for (const j of g.hadj[q.pop()]) if (!seen.has(j)) { seen.add(j); q.push(j); }
@@ -152,7 +153,7 @@ test('mapa: přístavy 2:1 na rozhraní dílků, 3:1 na okraji', () => {
     }
   }
   ok(seamOk / seamAll > 0.97, `2:1 na rozhraní jen ${seamOk}/${seamAll}`);
-  ok(tipOk / tipAll > 0.9, `3:1 na okraji jen ${tipOk}/${tipAll}`);
+  ok(tipOk / tipAll > 0.85, `3:1 na okraji jen ${tipOk}/${tipAll}`); // rozestup přístavů má přednost
 });
 test('mapa: stejný seed dá stejnou mapu', () => {
   eq(genMap(77, 4), genMap(77, 4));

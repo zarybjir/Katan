@@ -100,18 +100,43 @@ export function genMap(seed, players, type = 'island') {
   const coast = shuffle(R, Object.values(g.E).filter(e => e.hex.length === 1).map(e => e.id).sort());
   const seam = coast.filter(e => [g.E[e].a, g.E[e].b].some(v => g.V[v].hex.length > 1));
   const tip = coast.filter(e => !seam.includes(e));
-  const used = new Set(), ports = [];
-  const place = (list, type, gap) => {
-    for (const e of list) {
-      const { a, b } = g.E[e];
-      if ([a, b].some(v => used.has(v) || (gap && g.V[v].adj.some(w => used.has(w))))) continue;
-      used.add(a); used.add(b); ports.push({ e, type }); return true;
+  // Přístavy nesmí sousedit: rozmístí se rovnoměrně po obvodu ostrova (vnější pobřeží jako cyklus
+  // hran). Ze všech posunů se vybere ten, kde nejvíc 3:1 leží na okraji a 2:1 na rozhraní dílků.
+  const isSeam = new Set(seam);
+  // pobřeží jako cykly hran (vnější obvod, případně laguna uvnitř); přístavy jdou na nejdelší cyklus
+  let cyc = []; {
+    const at = new Map(); // vrchol → hrany pobřeží
+    for (const e of coast) for (const v of [g.E[e].a, g.E[e].b]) (at.get(v) || at.set(v, []).get(v)).push(e);
+    const seen = new Set();
+    for (const s0 of coast.slice().sort()) {
+      if (seen.has(s0)) continue;
+      const c = []; let e = s0, v = g.E[s0].b;
+      do { c.push(e); seen.add(e); const nx = at.get(v).find(x => x !== e && !seen.has(x)) || at.get(v).find(x => x !== e); v = g.E[nx].a === v ? g.E[nx].b : g.E[nx].a; e = nx; } while (e !== s0 && c.length <= coast.length);
+      if (c.length > cyc.length) cyc = c;
     }
-    return false;
+  }
+  const n9 = PORTS_ANY + RES.length, L = cyc.length;
+  let ports = [], top = -Infinity;
+  const tryPos = pos => {
+    const tips = pos.filter(e => !isSeam.has(e)), seams = pos.filter(e => isSeam.has(e));
+    const anyE = tips.slice(0, PORTS_ANY).concat(seams.slice(0, Math.max(0, PORTS_ANY - tips.length)));
+    const rest = pos.filter(e => !anyE.includes(e));
+    // dva přístavy nesmí mít společný ani sousední vrchol (ani přes pevninu, třeba přes úzkou zátoku)
+    const vs = pos.map(e => [g.E[e].a, g.E[e].b]);
+    let touch = 0;
+    for (let i = 0; i < n9; i++) for (let j = i + 1; j < n9; j++) if (vs[i].some(a => vs[j].some(b => a === b || g.V[a].adj.includes(b)))) touch++;
+    const score = anyE.filter(e => !isSeam.has(e)).length + rest.filter(e => isSeam.has(e)).length - 100 * touch;
+    if (score > top) {
+      top = score;
+      const res = shuffle(R, RES.slice());
+      ports = anyE.map(e => ({ e, type: 'any' })).concat(rest.map((e, i) => ({ e, type: res[i] })));
+    }
   };
-  const put = (first, second, type) => place(first, type, true) || place(second, type, true) || place(coast, type, false);
-  // napřed 3:1, protože hran na samotném okraji je méně
-  for (let i = 0; i < PORTS_ANY; i++) put(tip, seam, 'any');
-  for (const r of shuffle(R, RES.slice())) put(seam, tip, r);
+  for (const o of shuffle(R, [...Array(L).keys()])) tryPos([...Array(n9).keys()].map(i => cyc[Math.floor(o + i * L / n9) % L]));
+  // zvláštní tvary (úzké zátoky): když se přístavy pořád dotýkají, zkusí se drobné posuny
+  for (let k = 0; k < 400 && top < 0; k++) {
+    const o = Math.floor(next(R) * L);
+    tryPos([...Array(n9).keys()].map(i => cyc[(Math.floor(o + i * L / n9) + Math.floor(next(R) * 3) - 1 + L) % L]));
+  }
   return { hexes, ports, storm: hexes.findIndex(h => h.t === 'waste') };
 }

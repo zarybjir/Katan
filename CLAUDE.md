@@ -43,8 +43,9 @@ Každou změnu poměřuj těmito body.
   pole (obilí), pastvina (ovce), hliniště (cihly), pustina (nic). Každý dílek kromě pustiny má číslo
   2–12 bez 7; generátor hlídá, aby nejčastější čísla nesousedila a suroviny nebyly v jednom shluku.
   Přístavy: 2:1 pro každou z pěti surovin na hraně pobřeží, jejíž vrchol sousedí se dvěma dílky;
-  3:1 (`PORTS_ANY`, 4) na hranách, kde oba vrcholy sousedí jen s jedním dílkem; umisťují se
-  první, protože takových hran je málo.
+  3:1 (`PORTS_ANY`, 4) přednostně na hranách, kde oba vrcholy sousedí jen s jedním dílkem.
+  Přístavy nesmí sousedit (ani společný, ani sousední vrchol): rozmisťují se rovnoměrně po nejdelším
+  cyklu pobřeží a ze všech posunů se vybere nejlepší; test to hlídá na 1000 mapách každého typu.
 - **Tah:** hod dvěma kostkami → dílky s tím číslem dají surovinu sousedním osadám (1) a městům (2)
   → obchod a stavba v libovolném pořadí → konec tahu.
 - **Stavby:** cesta na hraně, osada na vrcholu (ne vedle jiné osady, napojená na vlastní cestu),
