@@ -1,6 +1,6 @@
 // Tabulky hry. Čísla se ladí tady, ne v kódu.
 export const NAME = 'Osadníci';
-export const PROTO = 7;
+export const PROTO = 8;
 
 // ---------- suroviny a dílky ----------
 export const RES = ['wood', 'stone', 'grain', 'sheep', 'brick'];
@@ -64,8 +64,10 @@ export const CARD_TEXT = {
 export const deckFor = n => { const k = n > 4 ? 1.4 : 1; return { guard: Math.round(11 * k), roads: Math.round(3 * k), supply: Math.round(3 * k), point: Math.round(4 * k) }; };
 
 // ---------- hráči a boti ----------
-export const COLORS = ['#d6423b', '#2b6fd6', '#f2f2f2', '#e88a1a', '#7a3fbf', '#1f9e8f'];
-export const COLOR_NAME = ['červená', 'modrá', 'bílá', 'oranžová', 'fialová', 'tyrkysová'];
+// paleta barev hráčů; hráč si barvu vybírá při zakládání hry (index do palety je v stavu hry `colors`)
+export const COLORS = ['#d6423b', '#2b6fd6', '#f2f2f2', '#e88a1a', '#7a3fbf', '#1f9e8f', '#3a3a3a', '#e0609e'];
+export const COLOR_NAME = ['červená', 'modrá', 'bílá', 'oranžová', 'fialová', 'tyrkysová', 'černá', 'růžová'];
+export const COLOR_LIGHT = [false, false, true, false, false, false, false, false]; // světlá barva = tmavé písmo
 export const BOT_NAMES = ['Alba', 'Bruno', 'Cyril', 'Dora', 'Emil', 'Flora'];
 export const BOT_LEVEL = { easy: 'lehký', mid: 'střední', hard: 'těžký' };
 // váhy rozhodování botů: noise = náhodný šum v ohodnocení, trade = obchoduje, block = cílí bouří na vedoucího

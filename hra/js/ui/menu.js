@@ -1,6 +1,6 @@
 // Obrazovky mimo hru: nabídka, založení hry, připojení, lobby.
-import { h, clear, SYM } from './dom.js';
-import { NAME, COLORS, BOT_LEVEL, RULES, MAPS, MAP_TEXT } from '../data.js';
+import { h, clear, SYMS } from './dom.js';
+import { NAME, COLORS, COLOR_NAME, BOT_LEVEL, RULES, MAPS, MAP_TEXT } from '../data.js';
 import { genMap } from '../core/mapgen.js';
 import { createBoard } from './board.js';
 
@@ -31,6 +31,10 @@ export function showSetup(root, A, onStart, onBack) {
   const draw = () => {
     while (cfg.seats.length < cfg.n) cfg.seats.push({ k: cfg.seats.length ? 'bot:mid' : 'local', name: '' });
     const seats = cfg.seats.slice(0, cfg.n);
+    // každé místo má jinou barvu; chybějící nebo zdvojenou doplní první volná
+    const used = new Set();
+    seats.forEach(s => { if (!Number.isInteger(s.c) || s.c < 0 || s.c >= COLORS.length || used.has(s.c)) s.c = -1; else used.add(s.c); });
+    seats.forEach(s => { if (s.c < 0) { s.c = COLORS.findIndex((_, k) => !used.has(k)); used.add(s.c); } });
     let locals = 0;
     screen(root, h('h2', null, 'Nová hra'),
       h('label', null, 'Počet hráčů', h('div', { class: 'row' }, [2, 3, 4, 5, 6].map(n => h('button', { class: 'btn small' + (cfg.n === n ? ' on' : ''), 'data-n': n, onclick: () => { cfg.n = n; draw(); } }, String(n))))),
@@ -39,14 +43,17 @@ export function showSetup(root, A, onStart, onBack) {
         const first = s.k === 'local' && locals++ === 0;
         const sel = h('select', { 'data-seat': i, onchange: () => { s.k = sel.value; draw(); } }, KINDS.map(([k, t]) => h('option', { value: k, selected: s.k === k }, t)));
         const nm = s.k === 'local' && h('input', { maxlength: 16, value: s.name || (first ? A.settings.name : ''), placeholder: 'Jméno', oninput: () => { s.name = nm.value; } });
-        return h('div', { class: 'seat' }, h('span', { class: 'sym', style: `color:${COLORS[i]}` }, SYM[i]), h('div', { class: 'col grow' }, sel, nm));
+        // výběr barvy: barva jiného místa se s ním prohodí
+        const pick = h('div', { class: 'colors' }, COLORS.map((c, k) => h('button', { class: 'cdot' + (s.c === k ? ' on' : ''), style: `--c:${c}`, title: COLOR_NAME[k], 'data-color': k, 'aria-label': COLOR_NAME[k],
+          onclick: e => { e.preventDefault(); const o = seats.find(x => x !== s && x.c === k); if (o) o.c = s.c; s.c = k; draw(); } }, SYMS[k])));
+        return h('div', { class: 'seat' }, h('span', { class: 'sym', style: `color:${COLORS[s.c]}` }, SYMS[s.c]), h('div', { class: 'col grow' }, sel, nm, pick));
       }),
       h('label', null, 'Cílový počet bodů', h('div', { class: 'row' }, [8, 10, 12].map(n => h('button', { class: 'btn small' + (cfg.target === n ? ' on' : ''), onclick: () => { cfg.target = n; draw(); } }, String(n))))),
       seats.some(s => s.k === 'open') && h('p', { class: 'dim' }, 'Hra se otevře pro připojení. Neobsazená místa po spuštění převezmou boti.'),
       h('button', { class: 'btn', id: 's-go', onclick: () => {
         A.settings.setup = cfg; A.saveSettings();
         let l = 0;
-        onStart({ target: cfg.target, map: type, seed, seats: seats.map((s, i) => s.k.startsWith('bot') ? { kind: 'bot', level: s.k.slice(4) } : s.k === 'open' ? { kind: 'open' } : { kind: 'local', name: (s.name || (l++ === 0 ? A.settings.name : '')).trim() || 'Hráč ' + (i + 1) }) });
+        onStart({ target: cfg.target, map: type, seed, seats: seats.map((s, i) => ({ color: s.c, ...(s.k.startsWith('bot') ? { kind: 'bot', level: s.k.slice(4) } : s.k === 'open' ? { kind: 'open' } : { kind: 'local', name: (s.name || (l++ === 0 ? A.settings.name : '')).trim() || 'Hráč ' + (i + 1) }) })) });
       } }, 'Pokračovat'),
       h('button', { class: 'btn ghost', onclick: onBack }, 'Zpět'));
   };
@@ -85,7 +92,7 @@ export function showJoin(root, A, onJoin, onBack) {
 export function showLobby(root, m, o) {
   screen(root, h('h2', null, o.host ? 'Hra čeká na hráče' : 'Čekání na spuštění hry'),
     o.net && h('div', { class: 'net', id: 'net' }, o.net.map(l => h('p', null, l))),
-    m.seats.map((s, i) => h('div', { class: 'seat' }, h('span', { class: 'sym', style: `color:${COLORS[i]}` }, SYM[i]),
+    m.seats.map((s, i) => h('div', { class: 'seat' }, h('span', { class: 'sym', style: `color:${COLORS[s.color ?? i]}` }, SYMS[s.color ?? i]),
       h('span', { class: 'grow' }, s.kind === 'bot' ? `${s.name} (bot, ${BOT_LEVEL[s.level]})` : s.kind === 'open' ? (s.taken ? s.name : 'volné místo') : s.name),
       m.you.includes(i) && h('span', { class: 'dim' }, 'toto zařízení'), s.kind === 'open' && s.taken && h('span', { class: 'dim' }, 'připojeno'))),
     h('p', { class: 'dim' }, `Mapa: ${MAPS[m.map] || MAPS.island}, cíl: ${m.target} bodů`),

@@ -8,12 +8,12 @@ import { RES, PIECES, RULES, bankSize, deckFor } from '../data.js';
 export const emptyRes = () => Object.fromEntries(RES.map(r => [r, 0]));
 export const total = h => RES.reduce((a, r) => a + (h[r] || 0), 0);
 
-// opts: { seed, names: [...], target, map }
+// opts: { seed, names: [...], target, map, colors: [index palety pro každého hráče] }
 export function newGame(opts) {
   const n = opts.names.length, seed = opts.seed | 0;
   const map = genMap(seed, n, opts.map);
   const s = {
-    v: 1, rng: (seed ^ 0x5bd1e995) | 0, target: opts.target || RULES.target,
+    v: 1, rng: (seed ^ 0x5bd1e995) | 0, target: opts.target || RULES.target, colors: opts.colors || opts.names.map((_, i) => i),
     map: { hexes: map.hexes, ports: map.ports }, storm: map.storm,
     players: opts.names.map(name => ({ name, hand: emptyRes(), cards: [], fresh: [], guards: 0, left: { ...PIECES } })),
     roads: {}, bld: {}, bank: Object.fromEntries(RES.map(r => [r, bankSize(n)])), deck: [],

@@ -37,7 +37,7 @@ function texture(t, q, r) {
   }
   return img.complete && img.naturalWidth ? { img, h } : null;
 }
-import { SYM } from './dom.js';
+import { pc, ps, plight } from './dom.js';
 
 const INK = '#1d2a38';
 
@@ -141,7 +141,7 @@ export function createBoard(cv, onPick) {
     for (const e of Object.keys(v.roads)) {
       const ed = g.E[e], a = g.V[ed.a], b = g.V[ed.b];
       const ax = a.x + (b.x - a.x) * 0.16, ay = a.y + (b.y - a.y) * 0.16, bx = b.x + (a.x - b.x) * 0.16, by = b.y + (a.y - b.y) * 0.16;
-      const rd = tinted('fig-cesta', COLORS[v.roads[e]]);
+      const rd = tinted('fig-cesta', pc(v.roads[e]));
       if (rd) { // prkna podél hrany
         ctx.save(); ctx.translate((a.x + b.x) / 2, (a.y + b.y) / 2); ctx.rotate(Math.atan2(b.y - a.y, b.x - a.x));
         ctx.shadowColor = 'rgba(0,0,0,.55)'; ctx.shadowBlur = 0.08 * k; ctx.shadowOffsetY = 0.03 * k;
@@ -150,7 +150,7 @@ export function createBoard(cv, onPick) {
       }
       ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by);
       ctx.strokeStyle = INK; ctx.lineWidth = 0.21; ctx.stroke();
-      ctx.strokeStyle = COLORS[v.roads[e]]; ctx.lineWidth = 0.13; ctx.stroke();
+      ctx.strokeStyle = pc(v.roads[e]); ctx.lineWidth = 0.13; ctx.stroke();
     }
     // nabídka hran
     if (B.targets && B.targets.e) for (const e of B.targets.e) {
@@ -180,14 +180,14 @@ export function createBoard(cv, onPick) {
     ctx.fillStyle = color; ctx.fillText(t, x, y);
   }
   function house(x, y, p, city) {
-    const fig = tinted(city ? 'fig-mesto' : 'fig-osada', COLORS[p]);
+    const fig = tinted(city ? 'fig-mesto' : 'fig-osada', pc(p));
     if (fig) {
       const s = city ? 0.95 : 0.7;
       ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.6)'; ctx.shadowBlur = 0.1 * B.cam.k * dpr; ctx.shadowOffsetY = 0.04 * B.cam.k * dpr;
       ctx.drawImage(fig, x - s / 2, y - s * 0.62, s, s); ctx.restore();
       // značka hráče (rozlišení i bez barev)
-      ctx.beginPath(); ctx.arc(x + s * 0.32, y + s * 0.28, 0.13, 0, 7); ctx.fillStyle = COLORS[p]; ctx.fill(); ctx.strokeStyle = INK; ctx.lineWidth = 0.03; ctx.stroke();
-      text(SYM[p], x + s * 0.32, y + s * 0.29, 0.15, p === 2 ? INK : '#fff');
+      ctx.beginPath(); ctx.arc(x + s * 0.32, y + s * 0.28, 0.13, 0, 7); ctx.fillStyle = pc(p); ctx.fill(); ctx.strokeStyle = INK; ctx.lineWidth = 0.03; ctx.stroke();
+      text(ps(p), x + s * 0.32, y + s * 0.29, 0.15, plight(p) ? INK : '#fff');
       return;
     }
     const s = city ? 0.3 : 0.21;
@@ -195,8 +195,8 @@ export function createBoard(cv, onPick) {
     if (city) { ctx.moveTo(x - s, y + s * 0.8); ctx.lineTo(x - s, y - s * 0.2); ctx.lineTo(x - s * 0.1, y - s * 0.2); ctx.lineTo(x - s * 0.1, y - s * 0.7); ctx.lineTo(x + s * 0.45, y - s * 1.25); ctx.lineTo(x + s, y - s * 0.7); ctx.lineTo(x + s, y + s * 0.8); }
     else { ctx.moveTo(x - s, y + s * 0.85); ctx.lineTo(x - s, y - s * 0.15); ctx.lineTo(x, y - s * 1.05); ctx.lineTo(x + s, y - s * 0.15); ctx.lineTo(x + s, y + s * 0.85); }
     ctx.closePath();
-    ctx.fillStyle = COLORS[p]; ctx.fill(); ctx.strokeStyle = INK; ctx.lineWidth = 0.055; ctx.stroke();
-    text(SYM[p], x + (city ? s * 0.05 : 0), y + s * 0.3, s * 0.95, p === 2 ? INK : 'rgba(255,255,255,.92)');
+    ctx.fillStyle = pc(p); ctx.fill(); ctx.strokeStyle = INK; ctx.lineWidth = 0.055; ctx.stroke();
+    text(ps(p), x + (city ? s * 0.05 : 0), y + s * 0.3, s * 0.95, plight(p) ? INK : 'rgba(255,255,255,.92)');
   }
   function cloud(x, y) {
     ctx.fillStyle = 'rgba(40,48,66,.92)'; ctx.strokeStyle = '#11161f'; ctx.lineWidth = 0.04;

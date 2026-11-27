@@ -236,3 +236,6 @@ input:focus, select:focus { outline: 2px solid var(--acc2); outline-offset: 1px;
 .screen { border: 12px solid transparent; border-image: url("gfx/ramecek.webp") 22 / 12px stretch; background-clip: padding-box; box-shadow: 0 14px 40px rgba(0,0,0,.55); }
 .btn.act { white-space: nowrap; font-size: 14px; }
 .card .btn.small { background: none; border: 12px solid transparent; border-image: url("gfx/btn-brass.webp") 40% 9% fill / 12px 16px stretch; padding: 0 6px; color: #2b1d0e; }
+.colors { display: flex; flex-wrap: wrap; gap: 6px; }
+.cdot { width: 40px; height: 40px; min-height: 0; border-radius: 50%; border: 2px solid rgba(60,40,20,.35); background: var(--c); color: rgba(255,255,255,.9); font-size: 15px; padding: 0; text-shadow: 0 0 2px #000; }
+.cdot.on { outline: 3px solid #2b1d0e; outline-offset: 2px; transform: scale(1.08); }

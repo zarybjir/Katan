@@ -12,7 +12,16 @@ export function h(tag, a, ...kids) {
   return e;
 }
 export const clear = e => { while (e.firstChild) e.firstChild.remove(); return e; };
-export const SYM = ['●', '■', '▲', '◆', '✚', '★']; // značka hráče (rozlišení i bez barev)
+export const SYMS = ['●', '■', '▲', '◆', '✚', '★', '✖', '♥']; // značka ke každé barvě palety (rozlišení i bez barev)
+import { COLORS, COLOR_LIGHT } from '../data.js';
+// barvy hráčů v běžící hře: index hráče → index palety (nastavuje herní obrazovka z pohledu)
+let MAP = [];
+export const setColors = list => { MAP = Array.isArray(list) ? list : []; };
+const ix = p => (MAP[p] ?? p) % COLORS.length;
+export const pc = p => COLORS[ix(p)];
+export const ps = p => SYMS[ix(p)];
+export const plight = p => COLOR_LIGHT[ix(p)];
+
 
 // modální okno; vrací funkci pro zavření
 let stack = [];

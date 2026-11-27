@@ -22,9 +22,9 @@ export function createHost(opt) {
   } else H.seats = opt.seats.map((s, i) => seat(s, i));
 
   function seat(s, i) {
-    return { kind: s.kind, level: s.level || 'mid', name: s.kind === 'bot' ? BOT_NAMES[i % BOT_NAMES.length] : s.kind === 'local' ? cleanName(s.name) : '', token: null, conn: null, away: false };
+    return { kind: s.kind, color: Number.isInteger(s.color) ? s.color : i, level: s.level || 'mid', name: s.kind === 'bot' ? BOT_NAMES[i % BOT_NAMES.length] : s.kind === 'local' ? cleanName(s.name) : '', token: null, conn: null, away: false };
   }
-  const pub = () => H.seats.map(s => ({ kind: s.kind, name: s.name, level: s.level, taken: s.kind !== 'open' || !!s.token, online: s.kind !== 'open' || !!s.conn, away: s.away }));
+  const pub = () => H.seats.map(s => ({ kind: s.kind, color: s.color, name: s.name, level: s.level, taken: s.kind !== 'open' || !!s.token, online: s.kind !== 'open' || !!s.conn, away: s.away }));
   const save = () => { if (opt.save && H.g) opt.save(JSON.stringify({ v: 1, g: H.g, seq: H.seq, code: H.code, target: H.target, map: H.map, R: H.R, seed: H.seed, seats: H.seats.map(({ conn, ...s }) => s) })); };
 
   // ---------- rozesílání ----------
@@ -99,8 +99,8 @@ export function createHost(opt) {
   };
   H.start = () => {
     if (H.g) return;
-    H.seats.forEach((s, i) => { if (s.kind === 'open' && !s.token) Object.assign(s, seat({ kind: 'bot', level: 'mid' }, i)); });
-    H.g = newGame({ seed: H.seed, names: H.seats.map(s => s.name), target: H.target, map: H.map });
+    H.seats.forEach((s, i) => { if (s.kind === 'open' && !s.token) Object.assign(s, seat({ kind: 'bot', level: 'mid', color: s.color }, i)); });
+    H.g = newGame({ seed: H.seed, names: H.seats.map(s => s.name), colors: H.seats.map((s, i) => s.color ?? i), target: H.target, map: H.map });
     H.lastAct = now(); H.seq = 1; save(); broadcast(); H.kick();
   };
 

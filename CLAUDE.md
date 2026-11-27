@@ -219,7 +219,9 @@ převádí jen `ui/board.js`.
   než jak jsou nakreslené.
 - Stavba: vybrat typ → zvýrazní se dovolená místa → klepnutí umístí. Drahé nebo nevratné akce
   (město, odhození karet) se potvrzují, ostatní ne.
-- Barvy hráčů se liší i tvarem nebo vzorem (barvoslepost). Čísla na dílcích ukazují i četnost
+- Barvy hráčů se liší i tvarem nebo vzorem (barvoslepost). Paleta je `COLORS`/`SYMS` (8 barev);
+  barvu volí hostitel pro každé místo při zakládání, ve stavu je `colors` (index palety pro hráče).
+  V UI se barva hráče bere vždy přes `pc(p)`, značka přes `ps(p)` z `dom.js`, nikdy `COLORS[p]`. Čísla na dílcích ukazují i četnost
   (tečky nebo velikost písma).
 - Canvas se škáluje podle `devicePixelRatio` (nejvýš 2). Grafika se předkreslí do offscreen
   canvasů; ve smyčce jen `drawImage`. Překresluje se při změně, ne trvale 60× za vteřinu.
