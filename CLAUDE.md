@@ -229,6 +229,8 @@ převádí jen `ui/board.js`.
 - Hráče rozlišuje jen barva (značky zadavatel nechce). Paleta je `COLORS` (8 barev);
   barvu volí hostitel pro každé místo při zakládání, hráč ji může změnit v lobby zprávou `color`
   (jen před startem; barvu jiného člověka vzít nejde, s botem se prohodí). Ve stavu je `colors`.
+  Stavby jsou větší s tmavým obrysem a výrazným stínem, krajiny jsou mírně ztlumené, aby stavby
+  vynikly; poslední stavba se kolečkem nevyznačuje.
   Přístavy kreslí `port()` v `board.js`: lávky (`lavka.webp`), kormidlo (`kormidlo.webp`) se žetonem
   suroviny nebo kotvou (`res-any.webp`), štítek s poměrem. Cesta je `fig-cesta.webp` obarvená na hráče.
   V UI se barva hráče bere vždy přes `pc(p)` (tečka v textu: `dot(p)`) z `dom.js`, nikdy `COLORS[p]`.

@@ -109,6 +109,7 @@ export function createBoard(cv, onPick) {
         ctx.save(); ctx.clip(); ctx.translate(c.x, c.y); if (h & 1) ctx.scale(-1, 1);
         ctx.drawImage(img, ox, oy, s, s, -1.01, -1.01, 2.02, 2.02);
         ctx.restore();
+        path(i); ctx.fillStyle = 'rgba(20,16,10,.16)'; ctx.fill(); // ztlumení krajiny, aby stavby vynikly
       }
       ctx.strokeStyle = 'rgba(29,42,56,.7)'; ctx.lineWidth = 0.05; path(i); ctx.stroke();
       if (!tx && TERRAIN_COLOR[hx.t]) glyph(hx.t, c.x, c.y - 0.42);
@@ -143,11 +144,6 @@ export function createBoard(cv, onPick) {
       ctx.strokeStyle = v.bld[id] ? '#fff' : INK; ctx.lineWidth = v.bld[id] ? 0.08 : 0.05; ctx.stroke();
     }
     // značka poslední stavby
-    if (B.mark) {
-      const m = B.mark; let x, y;
-      if (g.V[m]) { x = g.V[m].x; y = g.V[m].y; } else if (g.E[m]) { x = (g.V[g.E[m].a].x + g.V[g.E[m].b].x) / 2; y = (g.V[g.E[m].a].y + g.V[g.E[m].b].y) / 2; }
-      if (x !== undefined) { ctx.beginPath(); ctx.arc(x, y, 0.42, 0, 7); ctx.strokeStyle = 'rgba(255,255,255,.85)'; ctx.lineWidth = 0.05; ctx.setLineDash([0.12, 0.1]); ctx.stroke(); ctx.setLineDash([]); }
-    }
   }
   // žeton čísla: pergamenový kotouč bez lemu, patkové číslo; 6 a 8 (padají nejčastěji) červeně a větší
   function token(x, y, n) {
@@ -240,9 +236,12 @@ export function createBoard(cv, onPick) {
   function house(x, y, p, city) {
     const fig = tinted(city ? 'fig-mesto' : 'fig-osada', pc(p));
     if (fig) {
-      const s = city ? 0.95 : 0.7;
-      ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.6)'; ctx.shadowBlur = 0.1 * B.cam.k * dpr; ctx.shadowOffsetY = 0.04 * B.cam.k * dpr;
-      ctx.drawImage(fig, x - s / 2, y - s * 0.62, s, s); ctx.restore();
+      const s = city ? 1.12 : 0.86, ol = tinted(city ? 'fig-mesto' : 'fig-osada', '#120c06'), o = 0.028;
+      const X = x - s / 2, Y = y - s * 0.62;
+      ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.75)'; ctx.shadowBlur = 0.14 * B.cam.k * dpr; ctx.shadowOffsetY = 0.06 * B.cam.k * dpr;
+      if (ol) for (const [dx, dy] of [[o, 0], [-o, 0], [0, o], [0, -o], [o, o], [-o, o], [o, -o], [-o, -o]]) ctx.drawImage(ol, X + dx, Y + dy, s, s); // tmavý obrys
+      ctx.restore();
+      ctx.drawImage(fig, X, Y, s, s);
       return;
     }
     const s = city ? 0.3 : 0.21;
