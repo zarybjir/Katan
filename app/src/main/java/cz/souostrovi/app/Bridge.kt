@@ -370,6 +370,21 @@ class Bridge(private val act: Activity, private val web: WebView) {
         }
     }
 
+    // ---------- aktualizace ----------
+    private val updater = Updater(act) { kind, data -> js("onUpdate", "${JSONObject.quote(kind)},${JSONObject.quote(data)}") }
+
+    @JavascriptInterface
+    fun versionCode(): Int = try {
+        @Suppress("DEPRECATION")
+        act.packageManager.getPackageInfo(act.packageName, 0).versionCode
+    } catch (e: Exception) {
+        0
+    }
+
+    // Stáhne APK z vydání na GitHubu a otevře instalátor; průběh jde do AndroidCb.onUpdate(druh, data).
+    @JavascriptInterface
+    fun updateInstall(url: String) = updater.install(url)
+
     @JavascriptInterface
     fun version(): String = try {
         act.packageManager.getPackageInfo(act.packageName, 0).versionName ?: ""

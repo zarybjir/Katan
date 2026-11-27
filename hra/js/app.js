@@ -9,6 +9,7 @@ import { rtcListen, rtcConnect } from './net/transport-rtc.js';
 import { showMenu, showSetup, showJoin, showLobby } from './ui/menu.js';
 import { createGame } from './ui/hud.js';
 import { describe } from './ui/text.js';
+import { checkUpdate } from './update.js';
 import { h, clear, modal, toast, topModal, closeModals } from './ui/dom.js';
 
 const $screen = document.getElementById('screen'), $game = document.getElementById('game');
@@ -30,6 +31,7 @@ const A = {
   get hasSaved() { const s = store.get('so-host'); return !!(s && s.g && s.g.phase !== 'end' && s.g.bank && 'sheep' in s.g.bank); }, // hry ze starší verze se zahazují
   newGame: () => showSetup($screen, A, hostGame, menu),
   join: joinScreen,
+  update: () => checkUpdate(true),
   resume: () => { const r = store.get('so-host'); if (r) hostGame(null, r); },
 };
 
@@ -84,7 +86,7 @@ function session(conn, hello, host) {
       }
       if (!queued) { queued = true; queueMicrotask(refresh); }
     },
-    onError: m => { toast(m.msg); if (['proto', 'full', 'started', 'token'].includes(m.code)) s.fatal = true; },
+    onError: m => { toast(m.msg); if (m.code === 'proto') checkUpdate(false); if (['proto', 'full', 'started', 'token'].includes(m.code)) s.fatal = true; },
     onClose: () => {
       if (s.left) return;
       if (s.fatal || !s.G) { s.leave(); return; }
@@ -159,3 +161,4 @@ globalThis.onAndroidBack = () => {
 };
 globalThis.__so = { get S() { return S; } }; // pro testy v prohlížeči
 menu();
+if (android) setTimeout(() => { if (!S) checkUpdate(false); }, 1500); // nová verze se nabídne jen mimo hru

@@ -14,6 +14,7 @@ export function showMenu(root, A) {
     h('button', { class: 'btn', id: 'm-new', onclick: A.newGame }, 'Nová hra'),
     h('button', { class: 'btn', id: 'm-join', onclick: A.join }, 'Připojit se'),
     A.hasSaved && h('button', { class: 'btn ghost', id: 'm-resume', onclick: A.resume }, 'Pokračovat v uložené hře'),
+    A.lan && h('button', { class: 'btn ghost', id: 'm-update', onclick: A.update }, 'Zkontrolovat aktualizace'),
     h('p', { class: 'dim small' }, A.version ? 'verze ' + A.version : ''));
 }
 

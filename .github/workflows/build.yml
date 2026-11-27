@@ -8,7 +8,7 @@
 #   KATAN_KEY_ALIAS
 #   KATAN_KEY_PASSWORD
 #
-# Tag "v0.1" navíc vytvoří GitHub Release s APK.
+# Se secrets se navíc každá nová verze (versionName) zveřejní jako vydání pro aktualizace z aplikace.
 name: Build APK
 
 on:
@@ -75,8 +75,14 @@ jobs:
           name: souostrovi-apk
           path: app/build/outputs/apk/**/*.apk
 
-      - name: Release
-        if: startsWith(github.ref, 'refs/tags/v')
-        uses: softprops/action-gh-release@v2
-        with:
-          files: app/build/outputs/apk/**/*.apk
+      # Podepsaná verze se při každé nové versionName zveřejní jako vydání v<verze> se souborem
+      # souostrovi.apk. Z něj si ji stáhne aplikace (Zkontrolovat aktualizace). Existující vydání se nemění.
+      - name: Vydání
+        if: env.KATAN_KEYSTORE != '' && github.event_name == 'push'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          V=$(sed -n 's/.*versionName = "\(.*\)".*/\1/p' app/build.gradle.kts)
+          cp "$(ls app/build/outputs/apk/release/*.apk | head -1)" souostrovi.apk
+          if gh release view "v$V" >/dev/null 2>&1; then echo "Vydání v$V už existuje"; exit 0; fi
+          gh release create "v$V" souostrovi.apk --target "$GITHUB_SHA" --title "Souostroví $V" --notes "$(git log -1 --format=%s)"

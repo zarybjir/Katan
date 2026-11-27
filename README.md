@@ -34,14 +34,24 @@ získá cílový počet bodů. Android aplikace; server hry běží na zařízen
 - Směna s bankou 4:1, v přístavu 3:1 nebo 2:1 za vyznačenou surovinu.
 - Nejdelší cesta (od 5 úseků) a nejvíc zahraných hlídek (od 3) dávají po 2 bodech.
 
-## Instalace
+## Instalace a aktualizace
 
-APK se sestaví na GitHubu po každém pushi: záložka **Actions** → poslední běh → **Artifacts**
-→ `souostrovi-apk`. Tag `v0.1.0` navíc vytvoří Release s APK.
+Každá nová verze se po nahrání na GitHub sama sestaví, podepíše stálým klíčem a zveřejní
+v sekci **Releases** jako `souostrovi.apk`. První instalace je ruční: stáhnout APK a otevřít ho.
 
-Bez nastavených secrets vznikne debug APK podepsaná náhodným klíčem; další verzi pak nejde
-nainstalovat přes starou. Pro aktualizace nastav v Settings → Secrets and variables → Actions:
-`KATAN_KEYSTORE_B64`, `KATAN_KEYSTORE_PASSWORD`, `KATAN_KEY_ALIAS`, `KATAN_KEY_PASSWORD`.
+Další verze se instalují z aplikace: po spuštění se nová verze nabídne sama, nebo ji lze
+zkontrolovat v nabídce tlačítkem **Zkontrolovat aktualizace**. Aplikace APK stáhne a otevře
+systémovou instalaci; tu je potřeba potvrdit. Při první aktualizaci se Android jednou zeptá,
+jestli aplikace smí instalovat aplikace. Postup i rozehraná hra zůstanou zachované.
+
+Podmínky:
+- repozitář musí být veřejný (aplikace čte vydání bez přihlášení),
+- v Settings → Secrets and variables → Actions musí být podpisový klíč:
+  `KATAN_KEYSTORE_B64`, `KATAN_KEYSTORE_PASSWORD`, `KATAN_KEY_ALIAS`, `KATAN_KEY_PASSWORD`.
+  Klíč se nesmí ztratit ani změnit – jinak další verze nepůjde nainstalovat přes starou.
+  Do repozitáře se nikdy nenahrává.
+
+Bez secrets vznikne jen debug APK (artefakt sestavení), které aktualizovat nejde.
 
 ## Hra přes internet – omezení
 

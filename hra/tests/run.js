@@ -9,6 +9,7 @@ import { botAct } from '../js/bot/bot.js';
 import { createHost } from '../js/net/host.js';
 import { createClient } from '../js/net/client.js';
 import { memPair } from '../js/net/transport-mem.js';
+import { newer } from '../js/update.js';
 import { RES, PIECES, MAPSIZE, MAPS, COST, RULES, PROTO, bankSize, deckFor } from '../js/data.js';
 
 const tests = [];
@@ -576,6 +577,11 @@ test('síť: celá hra přes hostitele a uložení', () => {
     }
   }
   eq(H.g.phase, 'end', 'po ' + n + ' krocích, seq ' + H.seq + ':'); ok(restored, 'obnova neproběhla');
+});
+
+test('aktualizace: porovnání verzí', () => {
+  for (const [a, b, e] of [['0.10', '0.9', true], ['v0.12', '0.11', true], ['0.11', '0.11', false], ['0.9', '0.10', false], ['1.0', '0.99', true], ['0.11.1', '0.11', true], ['0.11', '0.11.0', false]])
+    eq(newer(a, b), e, `${a} proti ${b}:`);
 });
 
 // ---------- běh ----------

@@ -174,7 +174,14 @@ prohlížeč, WebView i Node v testech.
     WebSocket stránky – ta má https origin a nešifrované spojení by prohlížeč mohl odmítnout.
   - Smlouva mostu (názvy metod a zpětných volání `AndroidCb`) je popsaná v `Bridge.kt`
     a používá ji jen `net/transport-lan.js` a `app.js`. Měnit vždy obě strany najednou.
-- `.github/workflows/build.yml` – sestavení APK na GitHubu (v tomto prostředí není Android SDK).
+  - `Updater.kt` – aktualizace z aplikace: stáhne APK z vydání na GitHubu (jen adresy
+    `github.com/zarybjir/Katan/releases/download/`) a otevře systémový instalátor přes
+    `FileProvider`. Most: `version()`, `versionCode()`, `updateInstall(url)`, zpětné volání
+    `AndroidCb.onUpdate(druh, data)`. Kontrolu nové verze dělá `hra/js/update.js` (GitHub API).
+- `.github/workflows/build.yml` – sestavení APK na GitHubu. Se secrets `KATAN_*` podepíše
+  release APK stálým klíčem a při nové `versionName` vytvoří vydání `v<verze>` se souborem
+  `souostrovi.apk`. **Každá změna viditelná pro hráče = zvýšit verzi**, jinak se nevydá.
+  Podpisový klíč nikdy necommitovat (`*.jks` je v `.gitignore`); repo je veřejné.
 
 Souřadnice mapy: axiální `(q, r)` pro dílky; vrchol a hrana mají **jednoznačné id** odvozené
 z dílku a směru (každý vrchol i hrana právě jedno id, i když sousedí s více dílky). Na pixely

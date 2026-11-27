@@ -11,8 +11,8 @@ android {
         applicationId = "cz.souostrovi.app"
         minSdk = 26
         targetSdk = 34
-        versionCode = 11
-        versionName = "0.11"
+        versionCode = 12
+        versionName = "0.12"
     }
 
     // Podepisování release buildu: hodnoty z proměnných prostředí (GitHub Actions).
@@ -87,5 +87,6 @@ androidComponents {
 
 dependencies {
     implementation("androidx.webkit:webkit:1.11.0")
+    implementation("androidx.core:core:1.12.0")
     implementation("org.java-websocket:Java-WebSocket:1.6.0")
 }
