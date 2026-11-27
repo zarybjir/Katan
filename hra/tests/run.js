@@ -267,7 +267,7 @@ test('výpravy: koupě, zahrání až další tah, jedna za tah', () => {
   setHand(s, 0, {});
   bad(s, 0, { t: 'buy' });
   s.deck = ['supply', 'guard', 'roads', 'point', 'guard'];
-  setHand(s, 0, { grain: 5, sheep: 5, brick: 5 });
+  setHand(s, 0, { grain: 5, sheep: 5, stone: 5 });
   must(s, 0, { t: 'buy' });
   eq(s.players[0].fresh, ['guard']);
   bad(s, 0, { t: 'play', card: 'guard' });
