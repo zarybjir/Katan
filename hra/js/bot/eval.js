@@ -1,6 +1,6 @@
 // Ohodnocení pozic pro boty. Pracuje nad pohledem hráče (ne nad stavem).
 import { graph } from '../core/hex.js';
-import { RES, TERRAIN, PIPS, COST } from '../data.js';
+import { RES, TERRAIN, PIPS, COST, BOT_BIAS } from '../data.js';
 
 // váhy surovin podle vzácnosti na mapě
 export function resWeights(v, plan) {
@@ -72,6 +72,6 @@ export function goal(v, p, hasSettleSpot, hasCitySpot, hasRoadSpot) {
   if (!hasSettleSpot && hasRoadSpot && me.left.road > 0 && me.left.settle > 0) opts.push('road');
   if (v.deckN > 0) opts.push('card');
   let best = null, bm = 99;
-  for (const k of opts) { const m = missing(me.hand, COST[k]); if (m < bm) { bm = m; best = k; } }
+  for (const k of opts) { const m = missing(me.hand, COST[k]) - BOT_BIAS[k]; if (m < bm) { bm = m; best = k; } }
   return best;
 }

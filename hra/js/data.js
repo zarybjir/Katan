@@ -65,6 +65,10 @@ export const BOT = {
   hard: { noise: 0.03, trade: true, block: true, plan: true },
 };
 
+// přednost cílů bota: o kolik chybějících karet smí být stavba dál než levnější možnost
+export const BOT_BIAS = { city: 1.5, settle: 1.5, road: 0.5, card: 0 };
+export const BOT_OFFER = 0.6; // šance, že bot v tahu podá nabídku, když mu chybí jedna surovina
+
 // ---------- síť ----------
 export const NET = { maxMsg: 16000, maxRate: 30, turnLimit: 120, botDelay: 900, lanPort: 47600, ping: 5, dead: 16 };
 export const ICE = [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:stun.cloudflare.com:3478' }]; // sem patří i TURN relé

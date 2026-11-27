@@ -222,6 +222,9 @@ Přístup vždy v `try/catch`.
   - `view`: v pohledu hráče nejsou cizí karty ani stav generátoru náhody,
   - síť přes přenos `mem`: připojení, odpojení a návrat, akce za cizího hráče je odmítnuta,
     poškozená zpráva hostitele neshodí.
+- Po změně čísel v `data.js` nebo rozhodování botů spusť `node hra/tests/sim.js 3 hard` (počet
+  hráčů, obtížnost, volitelně typ mapy): vypíše délku her, výhry podle pořadí, podíl tahů bez
+  stavby, počty staveb, obchodů a nabídek. Porovnej s hodnotami před změnou.
 - Po změně rozhraní spusť i `node hra/tests/browser.js` (Playwright s Chromiem: založí hru
   s boty, odehraje pár tahů, ve dvou záložkách ověří hru přes `tabs`, hlídá chyby v konzoli
   a pořídí snímek na výšku i na šířku). Na snímek se podívej.

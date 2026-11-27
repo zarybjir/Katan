@@ -1,7 +1,7 @@
 // Bot: (pohled, obtížnost, rnd) → akce. Vybírá jen z pohled.legal, nevidí cizí karty.
 // Vrací null jen tehdy, když čeká na odpovědi na vlastní nabídku obchodu.
 import { graph } from '../core/hex.js';
-import { RES, TERRAIN, PIPS, COST, BOT } from '../data.js';
+import { RES, TERRAIN, PIPS, COST, BOT, BOT_OFFER } from '../data.js';
 import { resWeights, myRes, vertexScore, openSpots, roadScore, missing, goal } from './eval.js';
 
 export function botAct(v, level, rnd) {
@@ -39,7 +39,10 @@ export function botAct(v, level, rnd) {
     if (!g) return { t: 'respond', ok: false };
     const cost = COST[g], after = { ...hand };
     for (const r of RES) after[r] += (tr.give[r] || 0) - (tr.want[r] || 0);
-    return { t: 'respond', ok: missing(after, cost) < missing(hand, cost) };
+    const d = missing(hand, cost) - missing(after, cost), tot = o => RES.reduce((a, r) => a + (o[r] || 0), 0);
+    // přijme, co přiblíží cíl; nebo férovou výměnu přebytků, která cíli neuškodí
+    const spare = RES.every(r => !tr.want[r] || hand[r] - tr.want[r] >= (cost[r] || 0));
+    return { t: 'respond', ok: d > 0 || (d === 0 && spare && tot(tr.give) >= tot(tr.want)) };
   }
   // ---------- úvodní rozmístění ----------
   if (v.phase === 'setup') {
@@ -91,7 +94,7 @@ export function botAct(v, level, rnd) {
     const cost = COST[g];
     const tr = L.filter(a => a.t === 'bank' && hand[a.give] - a.rate >= (cost[a.give] || 0) && hand[a.get] < (cost[a.get] || 0));
     if (tr.length) return bestOf(tr, a => -a.rate);
-    if (cfg.trade && v.offers === 0 && L.some(a => a.t === 'offer') && missing(hand, cost) <= 2) {
+    if (cfg.trade && v.offers === 0 && L.some(a => a.t === 'offer') && missing(hand, cost) === 1 && rnd() < BOT_OFFER) {
       const want = RES.find(r => hand[r] < (cost[r] || 0));
       const give = bestOf(RES.filter(r => hand[r] > (cost[r] || 0)), r => hand[r] - (cost[r] || 0));
       if (want && give) return { t: 'offer', give: { [give]: 1 }, want: { [want]: 1 } };
