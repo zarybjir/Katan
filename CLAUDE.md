@@ -108,10 +108,13 @@ Jedno rozhraní (`connect`, `send`, `onMessage`, `onClose`), čtyři implementac
 - **Internet:** telefon za mobilním operátorem nebo domácím routerem nepřijme příchozí spojení,
   takže WebSocket server přes internet nestačí. Proto WebRTC: data jdou přímo mezi zařízeními
   a hostitel zůstává serverem hry. K navázání spojení je ale potřeba krátká výměna adres
-  (signalizace) přes veřejnou službu – **otevřené rozhodnutí**, výchozí návrh: veřejný
-  signalizační broker PeerJS + veřejné STUN servery, kód hry = id hostitele. Herní data přes ně
-  nejdou. Na části mobilních sítí (symetrický NAT) se přímé spojení nenaváže; bez placeného
-  TURN relé to nejde obejít a aplikace to má hráči říct srozumitelně.
+  (signalizace) přes veřejnou službu: veřejný signalizační broker PeerJS + veřejné STUN servery,
+  kód hry = id hostitele. Herní data přes ně nejdou.
+- **Hra musí jít i mezi různými sítěmi** (požadavek zadavatele). Na části mobilních sítí
+  (symetrický NAT) se přímé spojení nenaváže; pro ně je záložní cesta přes TURN relé. Adresa
+  a přístup k relé jsou v `data.js` (`ICE`), aby šla služba vyměnit bez zásahu do kódu. Zprávy
+  hry jsou malé (jednotky kB na tah), takže stačí bezplatný tarif. Když se nepovede ani to,
+  aplikace to hráči řekne srozumitelně.
 - **Jedno zařízení (předávání):** mezi tahy lidí je obrazovka „předej zařízení hráči X“, aby
   nebyly vidět cizí karty.
 - **Zprávy** jsou JSON s polem `t`. Klient → hostitel: `hello` (jméno, token, verze), `action`,
@@ -146,7 +149,8 @@ prohlížeč, WebView i Node v testech.
   `hud.js` (ruka, tlačítka akcí, deník), `trade.js`, `lobby.js`, `menu.js`, `anim.js`.
 - `hra/js/app.js` – start, přepínání obrazovek, ukládání nastavení.
 - `hra/gfx/`, `hra/sounds/` – grafika a zvuky. `hra/tests/` – testy.
-- `app/` – Android obal (Kotlin):
+- `app/` – Android obal (Kotlin). Hra je běžná aplikace na celou obrazovku: žádný adresní
+  řádek, žádné otevírání v prohlížeči, běh bez internetu. WebView je jen vykreslovací plocha.
   - `MainActivity.kt` – WebView načítá hru přes `WebViewAssetLoader` ze stálého https originu
     (aby přežilo `localStorage`), drží obrazovku zapnutou během hry.
   - `LanServer.kt` – WebSocket server (knihovna `org.java-websocket`), jen přeposílá text mezi
@@ -223,7 +227,7 @@ Přístup vždy v `try/catch`.
 4. Hostitel a klient, lobby, přenos `tabs`; hra na jednom zařízení s předáváním.
 5. Obchod mezi hráči, výpravy, nejdelší cesta, další obtížnosti botů.
 6. Android obal: WebView, `LanServer`, NSD, QR kód, foreground služba, sestavení APK.
-7. Internet přes WebRTC (po rozhodnutí o signalizaci).
+7. Internet přes WebRTC včetně záložního relé.
 8. Grafika, zvuky, animace, ladění čísel simulací.
 
 ## Vydání verze
