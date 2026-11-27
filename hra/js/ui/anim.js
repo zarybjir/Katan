@@ -37,6 +37,7 @@ export function dice(d) {
 
 // ---------- přelet ikonky ----------
 const center = el => { const r = el.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; };
+const live = el => el && el.isConnected; // obrazovka se mezitím mohla změnit (konec hry, odchod)
 function fly(kind, from, to, delay) {
   const ic = icon(kind, 30);
   ic.classList.add('fly');
@@ -61,8 +62,10 @@ function pulse(el, delay) {
 export function deal(gains, srcOf, dst) {
   let k = 0;
   for (const { p, res } of gains) for (const r of Object.keys(res)) for (let i = 0; i < res[r]; i++) {
-    const src = srcOf(p, r), to = dst(p, r);
-    if (!to) continue;
+    const to = dst(p, r);
+    if (!live(to)) continue;
+    const src = srcOf(p, r);
+    if (!src.length) continue;
     const from = src[i % src.length], delay = GAP * k++;
     fly(r, from, center(to), delay);
     pulse(to, delay + FLY);
@@ -73,7 +76,7 @@ export function deal(gains, srcOf, dst) {
 // kinds: seznam surovin (nebo 'cards' u skrytých karet); toBank = z hráče do banky, jinak z banky k hráči
 export function bankFlow(el, kinds, toBank, delay0 = 0) {
   const bank = document.getElementById('bank');
-  if (!el || !bank || !kinds.length) return;
+  if (!live(el) || !live(bank) || !kinds.length) return;
   const a = center(el), b = center(bank);
   kinds.forEach((k, i) => {
     const d = delay0 + GAP * i;
@@ -95,7 +98,8 @@ export function sources(v, board, sum, p, r) {
     const last = Object.keys(v.bld).filter(id => v.bld[id].p === p).pop();
     if (last) g.V[last].hex.forEach(i => { if (TERRAIN[v.map.hexes[i].t] === r) out.push(board.px('h', i)); });
   }
-  if (!out.length) { const r2 = document.getElementById('board').getBoundingClientRect(); out.push({ x: r2.left + r2.width / 2, y: r2.top + r2.height / 2 }); }
+  const bd = document.getElementById('board');
+  if (!out.length && bd) { const r2 = bd.getBoundingClientRect(); out.push({ x: r2.left + r2.width / 2, y: r2.top + r2.height / 2 }); }
   return out;
 }
 
