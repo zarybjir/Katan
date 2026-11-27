@@ -12,7 +12,7 @@ export const ANIM_NAME = { dice: 'Hod kostkami', deal: 'Rozdávání surovin z d
 let fx = null;
 const layer = () => fx || (fx = document.body.appendChild(h('div', { id: 'fx' })));
 const wait = ms => new Promise(r => setTimeout(r, ms));
-export const FLY = 2400, GAP = 500;
+export const FLY = 3600, GAP = 700; // délka letu suroviny a rozestup mezi surovinami (ms)
 export const DICE_ROLL = 1000, DICE_SHOW = 2100; // kostky se točí 1 s, výsledek je vidět do 2,1 s // délka letu suroviny a rozestup mezi surovinami (ms)
 
 // ---------- kostky ----------
@@ -47,9 +47,9 @@ function fly(kind, from, to, delay) {
   const dx = to.x - from.x, dy = to.y - from.y;
   const an = ic.animate([
     { transform: 'translate(0,0) scale(.6)', opacity: 0 },
-    { transform: 'translate(0,-14px) scale(1.15)', opacity: 1, offset: .2 },
+    { transform: 'translate(0,-14px) scale(1.15)', opacity: 1, offset: .12 },
     { transform: `translate(${dx}px,${dy}px) scale(.8)`, opacity: 1 },
-  ], { duration: FLY, delay, easing: 'cubic-bezier(.4,0,.3,1)', fill: 'forwards' });
+  ], { duration: FLY, delay, easing: 'ease-in-out', fill: 'forwards' });
   an.onfinish = () => ic.remove();
   return an.finished.catch(() => {});
 }
