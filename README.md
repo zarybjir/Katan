@@ -21,9 +21,9 @@ získá cílový počet bodů. Android aplikace; server hry běží na zařízen
 | Stavba | Cena |
 |---|---|
 | cesta | dřevo, kámen |
-| osada (1 bod) | dřevo, kámen, obilí, ryby |
-| město (2 body) | 2 obilí, 2 železo, ryby |
-| výprava (karta) | obilí, ryby, železo |
+| osada (1 bod) | dřevo, kámen, obilí, ovce |
+| město (2 body) | 2 obilí, 2 cihly, ovce |
+| výprava (karta) | obilí, ovce, cihly |
 
 - Osada nesmí stát hned vedle jiné stavby a musí navazovat na vlastní cestu.
 - Součet 7 přivolá bouři: kdo má víc než 8 karet, polovinu odhodí; hráč na tahu bouři přesune

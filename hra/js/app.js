@@ -27,7 +27,7 @@ saveSettings();
 let S = null; // běžící relace (hostitel nebo klient)
 const A = {
   settings, saveSettings, lan: lanAvailable(), version: android ? android.version() : '',
-  get hasSaved() { const s = store.get('so-host'); return !!(s && s.g && s.g.phase !== 'end'); },
+  get hasSaved() { const s = store.get('so-host'); return !!(s && s.g && s.g.phase !== 'end' && s.g.bank && 'sheep' in s.g.bank); }, // hry ze starší verze se zahazují
   newGame: () => showSetup($screen, A, hostGame, menu),
   join: joinScreen,
   resume: () => { const r = store.get('so-host'); if (r) hostGame(null, r); },

@@ -39,7 +39,7 @@ Každou změnu poměřuj těmito body.
   (`MAPS` v `data.js`, tvary v `SHAPES` v `mapgen.js`): ostrov, zátoky, atol, šíje, hřeben.
   Pevnina je vždy souvislá (lodě nejsou). Nový typ = záznam v `MAPS`, `MAP_TEXT`, `SHAPES` a test tvaru.
   Při zakládání hry je vidět náhled přesně té mapy, na které se bude hrát. Dílky: les (dřevo), lom (kámen),
-  pole (obilí), loviště (ryby), důl (železo), pustina (nic). Každý dílek kromě pustiny má číslo
+  pole (obilí), pastvina (ovce), hliniště (cihly), pustina (nic). Každý dílek kromě pustiny má číslo
   2–12 bez 7; generátor hlídá, aby nejčastější čísla nesousedila a suroviny nebyly v jednom shluku.
 - **Tah:** hod dvěma kostkami → dílky s tím číslem dají surovinu sousedním osadám (1) a městům (2)
   → obchod a stavba v libovolném pořadí → konec tahu.

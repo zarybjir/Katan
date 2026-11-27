@@ -147,10 +147,10 @@ export function createBoard(cv, onPick) {
     ctx.lineWidth = 0.035; ctx.strokeStyle = 'rgba(29,42,56,.6)';
     const tri = (cx, cy, w, hh, col) => { ctx.beginPath(); ctx.moveTo(cx - w, cy + hh); ctx.lineTo(cx, cy - hh); ctx.lineTo(cx + w, cy + hh); ctx.closePath(); ctx.fillStyle = col; ctx.fill(); ctx.stroke(); };
     if (t === 'forest') { tri(x - 0.22, y + 0.04, 0.15, 0.2, '#1f6b3a'); tri(x + 0.22, y + 0.04, 0.15, 0.2, '#1f6b3a'); tri(x, y - 0.02, 0.18, 0.26, '#2a7d47'); }
-    else if (t === 'mine') { tri(x - 0.14, y, 0.26, 0.22, '#6d7686'); tri(x + 0.18, y + 0.05, 0.2, 0.17, '#59616f'); ctx.beginPath(); ctx.arc(x - 0.14, y + 0.22, 0.08, Math.PI, 0); ctx.fillStyle = INK; ctx.fill(); }
-    else if (t === 'quarry') { ctx.fillStyle = '#9c7650'; for (const [dx, dy] of [[-0.24, 0.04], [0.02, 0.04], [-0.11, -0.14]]) { ctx.beginPath(); ctx.rect(x + dx, y + dy, 0.24, 0.16); ctx.fill(); ctx.stroke(); } }
+    else if (t === 'claypit') { ctx.fillStyle = '#9c3f25'; for (const [dx, dy] of [[-0.25, 0.06], [0.01, 0.06], [-0.12, -0.08], [0.14, -0.08]]) { ctx.beginPath(); ctx.rect(x + dx, y + dy, 0.24, 0.12); ctx.fill(); ctx.stroke(); } }
+    else if (t === 'quarry') { ctx.fillStyle = '#6f7782'; for (const [dx, dy] of [[-0.24, 0.04], [0.02, 0.04], [-0.11, -0.14]]) { ctx.beginPath(); ctx.rect(x + dx, y + dy, 0.24, 0.16); ctx.fill(); ctx.stroke(); } }
     else if (t === 'field') { ctx.strokeStyle = '#a87d12'; ctx.lineWidth = 0.05; for (let i = -2; i <= 2; i++) { ctx.beginPath(); ctx.moveTo(x + i * 0.11, y + 0.2); ctx.lineTo(x + i * 0.11 + 0.04, y - 0.16); ctx.stroke(); } }
-    else if (t === 'fishery') { ctx.beginPath(); ctx.ellipse(x - 0.04, y + 0.02, 0.22, 0.11, 0, 0, 7); ctx.fillStyle = '#1d6fa3'; ctx.fill(); ctx.stroke(); ctx.beginPath(); ctx.moveTo(x + 0.16, y + 0.02); ctx.lineTo(x + 0.32, y - 0.1); ctx.lineTo(x + 0.32, y + 0.14); ctx.closePath(); ctx.fill(); ctx.stroke(); }
+    else if (t === 'pasture') { for (const [dx, dy] of [[-0.17, 0.04], [0.17, -0.02]]) { ctx.beginPath(); ctx.ellipse(x + dx, y + dy, 0.15, 0.1, 0, 0, 7); ctx.fillStyle = '#f6f3ea'; ctx.fill(); ctx.stroke(); ctx.beginPath(); ctx.arc(x + dx + 0.14, y + dy - 0.03, 0.055, 0, 7); ctx.fillStyle = INK; ctx.fill(); } }
     else { ctx.strokeStyle = 'rgba(120,100,60,.7)'; ctx.lineWidth = 0.04; for (const dy of [0.3, 0.5]) { ctx.beginPath(); ctx.moveTo(x - 0.3, y + dy); ctx.quadraticCurveTo(x - 0.15, y + dy - 0.12, x, y + dy); ctx.quadraticCurveTo(x + 0.15, y + dy + 0.12, x + 0.3, y + dy); ctx.stroke(); } }
   }
 

@@ -1,21 +1,21 @@
 // Tabulky hry. Čísla se ladí tady, ne v kódu.
 export const NAME = 'Souostroví';
-export const PROTO = 1;
+export const PROTO = 2;
 
 // ---------- suroviny a dílky ----------
-export const RES = ['wood', 'stone', 'grain', 'fish', 'iron'];
-export const RES_NAME = { wood: 'dřevo', stone: 'kámen', grain: 'obilí', fish: 'ryby', iron: 'železo' };
-export const RES_COLOR = { wood: '#2f7d4a', stone: '#b08a62', grain: '#e2b93b', fish: '#3f9bd1', iron: '#7c8594' };
-export const TERRAIN = { forest: 'wood', quarry: 'stone', field: 'grain', fishery: 'fish', mine: 'iron', waste: null };
-export const TERRAIN_NAME = { forest: 'les', quarry: 'lom', field: 'pole', fishery: 'loviště', mine: 'důl', waste: 'pustina' };
-export const TERRAIN_COLOR = { forest: '#3c8f55', quarry: '#c39a6e', field: '#ecc94f', fishery: '#58b3e0', mine: '#8d96a6', waste: '#d9cfb4' };
+export const RES = ['wood', 'stone', 'grain', 'sheep', 'brick'];
+export const RES_NAME = { wood: 'dřevo', stone: 'kámen', grain: 'obilí', sheep: 'ovce', brick: 'cihly' };
+export const RES_COLOR = { wood: '#2f7d4a', stone: '#7f8792', grain: '#e2b93b', sheep: '#8bb83a', brick: '#b4533a' };
+export const TERRAIN = { forest: 'wood', quarry: 'stone', field: 'grain', pasture: 'sheep', claypit: 'brick', waste: null };
+export const TERRAIN_NAME = { forest: 'les', quarry: 'lom', field: 'pole', pasture: 'pastvina', claypit: 'hliniště', waste: 'pustina' };
+export const TERRAIN_COLOR = { forest: '#3c8f55', quarry: '#9aa1aa', field: '#ecc94f', pasture: '#9fcf5a', claypit: '#c2673f', waste: '#d9cfb4' };
 
 // ---------- stavby ----------
 export const COST = {
   road: { wood: 1, stone: 1 },
-  settle: { wood: 1, stone: 1, grain: 1, fish: 1 },
-  city: { grain: 2, iron: 2, fish: 1 },
-  card: { grain: 1, fish: 1, iron: 1 },
+  settle: { wood: 1, stone: 1, grain: 1, sheep: 1 },
+  city: { grain: 2, brick: 2, sheep: 1 },
+  card: { grain: 1, sheep: 1, brick: 1 },
 };
 export const KIND_NAME = { road: 'cesta', settle: 'osada', city: 'město', card: 'výprava' };
 export const PIECES = { road: 16, settle: 6, city: 4 };

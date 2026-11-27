@@ -67,7 +67,7 @@ export function genMap(seed, players, type = 'island') {
   const g = graph(hexes);
   // dílky: pustiny + rovnoměrně pět druhů
   const waste = Math.max(1, Math.round(n / 18));
-  const kinds = shuffle(R, ['forest', 'quarry', 'field', 'fishery', 'mine']);
+  const kinds = shuffle(R, ['forest', 'quarry', 'field', 'pasture', 'claypit']);
   const base = []; for (let i = 0; i < n - waste; i++) base.push(kinds[i % 5]);
   for (let i = 0; i < waste; i++) base.push('waste');
   let best = null, bs = 1e9;

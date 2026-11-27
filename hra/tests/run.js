@@ -100,7 +100,7 @@ test('mapa: 1000 seedů každého typu splní pravidla', () => {
     ok(m.hexes[m.storm].t === 'waste', 'bouře mimo pustinu');
     for (const h of m.hexes) ok(h.t === 'waste' ? h.n === 0 : h.n >= 2 && h.n <= 12 && h.n !== 7, 'číslo dílku');
     const cnt = {}; for (const h of m.hexes) cnt[h.t] = (cnt[h.t] || 0) + 1;
-    const vals = ['forest', 'quarry', 'field', 'fishery', 'mine'].map(t => cnt[t] || 0);
+    const vals = ['forest', 'quarry', 'field', 'pasture', 'claypit'].map(t => cnt[t] || 0);
     ok(Math.max(...vals) - Math.min(...vals) <= 1, 'nerovnoměrné dílky');
     ok(m.ports.length >= 4, 'málo přístavů: ' + m.ports.length);
     const pv = m.ports.flatMap(p => [g.E[p.e].a, g.E[p.e].b]);
@@ -187,7 +187,7 @@ test('výnos: město dává dvě, bouře blokuje, banka omezuje', () => {
   const s = started(4, 2), g = graph(s.map.hexes);
   const v = Object.keys(s.bld).find(id => s.bld[id].p === 0 && g.V[id].hex.some(h => s.map.hexes[h].t !== 'waste'));
   const h = g.V[v].hex.find(h => s.map.hexes[h].t !== 'waste'), hx = s.map.hexes[h];
-  const res = { forest: 'wood', quarry: 'stone', field: 'grain', fishery: 'fish', mine: 'iron' }[hx.t];
+  const res = { forest: 'wood', quarry: 'stone', field: 'grain', pasture: 'sheep', claypit: 'brick' }[hx.t];
   // najdi seed hodu, který dá číslo dílku
   const tryRoll = mod => {
     for (let k = 0; k < 5000; k++) {
@@ -218,7 +218,7 @@ test('stavba: cesta, osada, město a jejich ceny', () => {
   setHand(s, 0, { wood: 1, stone: 1 });
   bad(s, 0, { t: 'build', kind: 'road', at: e }); // obsazeno
   // osada: jen u vlastní cesty a ne vedle jiné stavby
-  setHand(s, 0, { wood: 9, stone: 9, grain: 9, fish: 9, iron: 9 });
+  setHand(s, 0, { wood: 9, stone: 9, grain: 9, sheep: 9, brick: 9 });
   const g = graph(s.map.hexes);
   const own = Object.keys(s.bld).find(v => s.bld[v].p === 0);
   bad(s, 0, { t: 'build', kind: 'settle', at: g.V[own].adj[0] });
@@ -243,12 +243,12 @@ test('směna s bankou a přístavy', () => {
   const s = started();
   for (const pt of s.map.ports) { const e = graph(s.map.hexes).E[pt.e]; delete s.bld[e.a]; delete s.bld[e.b]; }
   setHand(s, 0, { wood: 3 });
-  bad(s, 0, { t: 'bank', give: 'wood', get: 'iron' });
+  bad(s, 0, { t: 'bank', give: 'wood', get: 'brick' });
   setHand(s, 0, { wood: 4 });
   bad(s, 0, { t: 'bank', give: 'wood', get: 'wood' });
-  bad(s, 0, { t: 'bank', give: 'iron', get: 'wood' });
-  must(s, 0, { t: 'bank', give: 'wood', get: 'iron' });
-  eq(s.players[0].hand, { wood: 0, stone: 0, grain: 0, fish: 0, iron: 1 });
+  bad(s, 0, { t: 'bank', give: 'brick', get: 'wood' });
+  must(s, 0, { t: 'bank', give: 'wood', get: 'brick' });
+  eq(s.players[0].hand, { wood: 0, stone: 0, grain: 0, sheep: 0, brick: 1 });
   const pt = s.map.ports.find(p => p.type !== 'any'), e = graph(s.map.hexes).E[pt.e];
   s.bld[e.a] = { p: 0, c: 0 };
   eq(rate(s, 0, pt.type), RULES.portResRate);
@@ -265,7 +265,7 @@ test('výpravy: koupě, zahrání až další tah, jedna za tah', () => {
   setHand(s, 0, {});
   bad(s, 0, { t: 'buy' });
   s.deck = ['supply', 'guard', 'roads', 'point', 'guard'];
-  setHand(s, 0, { grain: 5, fish: 5, iron: 5 });
+  setHand(s, 0, { grain: 5, sheep: 5, brick: 5 });
   must(s, 0, { t: 'buy' });
   eq(s.players[0].fresh, ['guard']);
   bad(s, 0, { t: 'play', card: 'guard' });
@@ -303,14 +303,14 @@ test('výpravy: koupě, zahrání až další tah, jedna za tah', () => {
 });
 test('bouře: odhození poloviny, krádež, tajná událost', () => {
   const s = started();
-  setHand(s, 1, { wood: 5, iron: 4 }); setHand(s, 2, { wood: 2 });
+  setHand(s, 1, { wood: 5, brick: 4 }); setHand(s, 2, { wood: 2 });
   s.phase = 'discard'; s.discard = { 1: 4 };
   eq(legal(s, 0), []); eq(legal(s, 1), [{ t: 'discard', n: 4 }]);
   bad(s, 1, { t: 'discard', res: { wood: 3 } });
-  bad(s, 1, { t: 'discard', res: { wood: 5, iron: -1 } });
+  bad(s, 1, { t: 'discard', res: { wood: 5, brick: -1 } });
   bad(s, 1, { t: 'discard', res: { stone: 4 } });
   bad(s, 2, { t: 'discard', res: { wood: 1 } });
-  must(s, 1, { t: 'discard', res: { wood: 2, iron: 2 } });
+  must(s, 1, { t: 'discard', res: { wood: 2, brick: 2 } });
   eq(s.phase, 'storm'); eq(total(s.players[1].hand), 5);
   const a = legal(s, 0).find(x => x.from === 1);
   ok(a, 'chybí možnost okrást hráče 1');
@@ -325,14 +325,14 @@ test('bouře: odhození poloviny, krádež, tajná událost', () => {
 });
 test('obchod mezi hráči', () => {
   const s = started();
-  setHand(s, 0, { wood: 2 }); setHand(s, 1, { iron: 1 }); setHand(s, 2, { iron: 2, wood: 1 });
-  bad(s, 1, { t: 'offer', give: { iron: 1 }, want: { wood: 1 } });
-  bad(s, 0, { t: 'offer', give: { wood: 3 }, want: { iron: 1 } });
+  setHand(s, 0, { wood: 2 }); setHand(s, 1, { brick: 1 }); setHand(s, 2, { brick: 2, wood: 1 });
+  bad(s, 1, { t: 'offer', give: { brick: 1 }, want: { wood: 1 } });
+  bad(s, 0, { t: 'offer', give: { wood: 3 }, want: { brick: 1 } });
   bad(s, 0, { t: 'offer', give: { wood: 1 }, want: { wood: 1 } });
   bad(s, 0, { t: 'offer', give: { wood: 1 }, want: {} });
-  bad(s, 0, { t: 'offer', give: { wood: 1.5 }, want: { iron: 1 } });
-  bad(s, 0, { t: 'offer', give: { gold: 1 }, want: { iron: 1 } });
-  must(s, 0, { t: 'offer', give: { wood: 1 }, want: { iron: 2 } });
+  bad(s, 0, { t: 'offer', give: { wood: 1.5 }, want: { brick: 1 } });
+  bad(s, 0, { t: 'offer', give: { gold: 1 }, want: { brick: 1 } });
+  must(s, 0, { t: 'offer', give: { wood: 1 }, want: { brick: 2 } });
   eq(s.trade.resp, { 1: 'no' }); // hráč 1 nemá dvě železa
   bad(s, 0, { t: 'end' });
   bad(s, 0, { t: 'confirm', with: 2 });
@@ -341,16 +341,16 @@ test('obchod mezi hráči', () => {
   bad(s, 2, { t: 'respond', ok: false });
   bad(s, 0, { t: 'confirm', with: 1 });
   must(s, 0, { t: 'confirm', with: 2 });
-  eq(s.players[0].hand, { wood: 1, stone: 0, grain: 0, fish: 0, iron: 2 });
-  eq(s.players[2].hand, { wood: 2, stone: 0, grain: 0, fish: 0, iron: 0 });
+  eq(s.players[0].hand, { wood: 1, stone: 0, grain: 0, sheep: 0, brick: 2 });
+  eq(s.players[2].hand, { wood: 2, stone: 0, grain: 0, sheep: 0, brick: 0 });
   eq(s.trade, null);
-  must(s, 0, { t: 'offer', give: { wood: 1 }, want: { fish: 1 } }); // nikdo nemá → zavře se sama
+  must(s, 0, { t: 'offer', give: { wood: 1 }, want: { sheep: 1 } }); // nikdo nemá → zavře se sama
   eq(s.trade, null);
-  setHand(s, 1, { iron: 1 });
-  must(s, 0, { t: 'offer', give: { wood: 1 }, want: { iron: 1 } });
+  setHand(s, 1, { brick: 1 });
+  must(s, 0, { t: 'offer', give: { wood: 1 }, want: { brick: 1 } });
   must(s, 0, { t: 'cancel' });
   eq(s.offers, 3);
-  bad(s, 0, { t: 'offer', give: { wood: 1 }, want: { iron: 1 } }); // limit nabídek za tah
+  bad(s, 0, { t: 'offer', give: { wood: 1 }, want: { brick: 1 } }); // limit nabídek za tah
 });
 test('konec tahu a výhra', () => {
   const s = started();
@@ -358,7 +358,7 @@ test('konec tahu a výhra', () => {
   must(s, 0, { t: 'end' });
   eq([s.turn, s.phase], [1, 'roll']);
   s.phase = 'main'; s.target = 3;
-  setHand(s, 1, { wood: 9, stone: 9, grain: 9, fish: 9, iron: 9 });
+  setHand(s, 1, { wood: 9, stone: 9, grain: 9, sheep: 9, brick: 9 });
   const at = Object.keys(s.bld).find(v => s.bld[v].p === 1);
   const ev = must(s, 1, { t: 'build', kind: 'city', at });
   eq([s.phase, s.winner], ['end', 1]);
@@ -387,7 +387,7 @@ test('nejdelší cesta: délka, přerušení, držitel', () => {
 // ---------- pohled ----------
 test('pohled: bez cizích karet, balíčku a stavu náhody', () => {
   const s = started();
-  s.players[1].hand.iron = 3; s.players[1].cards = ['guard']; s.players[1].fresh = ['point'];
+  s.players[1].hand.brick = 3; s.players[1].cards = ['guard']; s.players[1].fresh = ['point'];
   const v = view(s, 0), txt = JSON.stringify(v);
   ok(!('rng' in v) && !('deck' in v), 'pohled obsahuje rng nebo balíček');
   ok(v.players[0].hand && !v.players[1].hand && !v.players[1].cards && !v.players[1].fresh, 'cizí ruka v pohledu');

@@ -59,8 +59,8 @@ try {
   let v = await view(p);
   ok(v.bld >= 8 && v.roads >= 8, `po rozmístění má být aspoň 8 osad a 8 cest, je ${v.bld} a ${v.roads}`);
   // suroviny pro stavbu (zásah do stavu hostitele, pak směna jako běžná akce)
-  await p.evaluate(() => { const g = __so.S.host.g, h = g.players[__so.S.cur].hand; for (const r in h) { g.bank[r] -= 6 - h[r]; h[r] = 6; } __so.S.host.act(__so.S.cur, { t: 'bank', give: 'wood', get: 'iron' }); });
-  await until(p, async () => (await view(p)).hand.iron === 7, 'směna přes hostitele');
+  await p.evaluate(() => { const g = __so.S.host.g, h = g.players[__so.S.cur].hand; for (const r in h) { g.bank[r] -= 6 - h[r]; h[r] = 6; } __so.S.host.act(__so.S.cur, { t: 'bank', give: 'wood', get: 'brick' }); });
+  await until(p, async () => (await view(p)).hand.brick === 7, 'směna přes hostitele');
   await p.screenshot({ path: join(out, 'hra-na-vysku.png') });
   await p.click('#a-trade'); await p.click('.box .row .res[data-res=stone]:not([disabled])'); await p.locator('.box .row').nth(1).locator('.res[data-res=grain]').click(); await p.click('#bank-go');
   await until(p, async () => (await view(p)).hand.grain === 7, 'směna s bankou přes dialog');
@@ -76,7 +76,7 @@ try {
   await tapSpot(p, 'v', v.legal.find(a => a.t === 'build' && a.kind === 'city').at); await p.click('#city-ok');
   await until(p, async () => (await p.evaluate(() => __so.S.view().players[__so.S.cur].pts)) === pts0 + 1, 'stavba města');
   // nabídka obchodu botům
-  await p.click('#a-trade'); await p.locator('.picker').nth(0).locator('.res[data-res=wood]').click(); await p.locator('.picker').nth(1).locator('.res[data-res=iron]').click(); await p.click('#offer-go');
+  await p.click('#a-trade'); await p.locator('.picker').nth(0).locator('.res[data-res=wood]').click(); await p.locator('.picker').nth(1).locator('.res[data-res=brick]').click(); await p.click('#offer-go');
   await until(p, async () => { const w = await view(p); if (w.trade && w.legal.some(a => a.t === 'cancel')) await p.click('#offer-cancel', { timeout: 300 }).catch(() => {}); return !w.trade; }, 'uzavření nabídky');
   await p.click('#a-menu'); await p.screenshot({ path: join(out, 'menu-hry.png') }); await p.mouse.click(5, 5);
   await p.click('#a-end');
