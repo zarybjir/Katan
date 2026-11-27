@@ -1,5 +1,5 @@
 // Herní obrazovka: hráči, mapa, ruka, tlačítka akcí, deník.
-import { h, clear, modal, closeModals, toast, pc, ps, setColors } from './dom.js';
+import { h, clear, modal, closeModals, toast, pc, dot, setColors } from './dom.js';
 import { createBoard } from './board.js';
 import { icon } from './icons.js';
 import { dice, deal, bankFlow, between, banner, cardShow, expand, sources, animDialog, FLY, GAP } from './anim.js';
@@ -35,7 +35,7 @@ export function createGame(root, S) {
       const m = modal('Bouře: komu vzít kartu', h('div', { class: 'col' },
         h('p', { class: 'dim' }, 'Bouře se přesune na vybraný dílek. Jednomu hráči s budovou u dílku se vezme náhodná karta.'),
         c.map(a => h('button', { class: 'btn', 'data-from': a.from, onclick: () => { m.close(); act(a); } },
-          `${ps(a.from)} ${v.players[a.from].name} (karet: ${v.players[a.from].handN})`)),
+          `${v.players[a.from].name} (karet: ${v.players[a.from].handN})`)),
         h('button', { class: 'btn ghost', onclick: () => m.close() }, 'Jiný dílek')), { key: 'storm' });
       return;
     }
@@ -56,7 +56,7 @@ export function createGame(root, S) {
       closeModals('auto');
       el.pass.className = 'show';
       el.pass.append(h('div', { class: 'box' }, h('h2', null, 'Předání zařízení'),
-        h('p', null, h('span', { style: `color:${pc(S.pending)}` }, ps(S.pending) + ' '), `Pokračuje ${v.players[S.pending].name}.`),
+        h('p', null, dot(S.pending), `Pokračuje ${v.players[S.pending].name}.`),
         h('button', { class: 'btn', id: 'pass-ok', onclick: () => S.accept() }, 'Pokračovat')));
       return;
     }
@@ -79,7 +79,7 @@ export function createGame(root, S) {
     v.players.forEach((p, i) => {
       if (i === me) return;
       el.players.append(h('button', { class: 'chip' + (waits(i) ? ' turn' : ''), 'data-p': i, style: `--c:${pc(i)}`, onclick: () => playerInfo(v, i) },
-        h('span', { class: 'nm' }, h('span', { class: 'sym' }, ps(i)), ' ' + p.name + tag(S.seats[i] || {}, i)),
+        h('span', { class: 'nm' }, p.name + tag(S.seats[i] || {}, i)),
         h('span', { class: 'st' }, stats(p, i))));
     });
 
@@ -116,7 +116,7 @@ export function createGame(root, S) {
     if (mine && mine.hand) {
       el.hand.style.setProperty('--c', pc(me));
       el.hand.append(h('div', { class: 'res-row' }, RES.map(r => h('span', { class: 'have' + (mine.hand[r] ? '' : ' zero'), 'data-res': r }, icon(r, 30), h('b', null, String(mine.hand[r]))))),
-        h('button', { class: 'mine', onclick: () => playerInfo(v, me) }, h('span', { class: 'sym', style: `color:${pc(me)}` }, ps(me)), stats(mine, me)));
+        h('button', { class: 'mine', onclick: () => playerInfo(v, me) }, dot(me), stats(mine, me)));
     }
 
     // ---------- tlačítka ----------
@@ -152,7 +152,7 @@ export function createGame(root, S) {
   function playerInfo(v, i) {
     const p = v.players[i], s = S.seats[i] || {};
     const kind = s.kind === 'bot' ? `bot (${BOT_LEVEL[s.level]})` : s.away ? 'hraje bot (hráč je nečinný)' : s.online === false ? 'odpojeno' : 'hráč';
-    modal(`${ps(i)} ${p.name}`, h('div', { class: 'col' },
+    modal(p.name, h('div', { class: 'col' },
       h('p', null, `Body: ${p.pts} z ${v.target}`), h('p', null, `Karty surovin: ${p.handN}, výpravy: ${p.cardN}`),
       h('p', null, `Nejdelší cesta: ${v.longLen[i]}` + (v.long === i ? ` (bonus ${RULES.longPts} body)` : '')),
       h('p', null, `Zahrané hlídky: ${p.guards}` + (v.guard === i ? ` (bonus ${RULES.guardPts} body)` : '')),
@@ -216,7 +216,7 @@ export function createGame(root, S) {
     const order = v.players.map((p, i) => ({ p, i })).sort((a, b) => b.p.pts - a.p.pts);
     modal('Konec hry', h('div', { class: 'col' },
       h('p', null, `Vítězí ${v.players[v.winner].name}.`),
-      order.map(o => h('div', { class: 'line' }, h('span', { style: `color:${pc(o.i)}` }, ps(o.i) + ' '), h('span', { class: 'grow' }, o.p.name), h('b', null, `${o.p.pts} b.`))),
+      order.map(o => h('div', { class: 'line' }, dot(o.i), h('span', { class: 'grow' }, o.p.name), h('b', null, `${o.p.pts} b.`))),
       h('button', { class: 'btn', id: 'over-menu', onclick: () => { closeModals(); S.leave(true); } }, 'Do nabídky')), { key: 'over' });
   }
   // animace událostí (po překreslení, aby cílové prvky existovaly)

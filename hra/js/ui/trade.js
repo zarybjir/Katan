@@ -1,5 +1,5 @@
 // Dialogy: obchod, odhození karet, výpravy, výběr surovin.
-import { h, clear, modal, pc, ps } from './dom.js';
+import { h, clear, modal, pc, dot } from './dom.js';
 import { RES, RES_NAME, RES_COLOR, CARDS, CARD_TEXT, COLORS } from '../data.js';
 import { fmtRes } from './text.js';
 
@@ -72,7 +72,7 @@ export function offerDialog(v, act) {
   return modal('Nabídka odeslána', h('div', { class: 'col' },
     h('p', null, `${fmtRes(tr.give)} za ${fmtRes(tr.want)}`),
     v.players.map((p, i) => i === tr.from ? null : h('div', { class: 'line' },
-      h('span', { style: `color:${pc(i)}` }, ps(i) + ' '), h('span', { class: 'grow' }, p.name),
+      dot(i), h('span', { class: 'grow' }, p.name),
       tr.resp[i] === 'yes' ? h('button', { class: 'btn small', onclick: () => act({ t: 'confirm', with: i }) }, 'Obchodovat')
         : h('span', { class: 'dim' }, tr.resp[i] === 'no' ? 'odmítnuto' : 'čeká se'))),
     h('button', { class: 'btn ghost', id: 'offer-cancel', onclick: () => act({ t: 'cancel' }) }, 'Zrušit nabídku')), { sticky: true, key: 'auto' });

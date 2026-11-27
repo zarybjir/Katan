@@ -239,3 +239,6 @@ input:focus, select:focus { outline: 2px solid var(--acc2); outline-offset: 1px;
 .colors { display: flex; flex-wrap: wrap; gap: 6px; }
 .cdot { width: 40px; height: 40px; min-height: 0; border-radius: 50%; border: 2px solid rgba(60,40,20,.35); background: var(--c); color: rgba(255,255,255,.9); font-size: 15px; padding: 0; text-shadow: 0 0 2px #000; }
 .cdot.on { outline: 3px solid #2b1d0e; outline-offset: 2px; transform: scale(1.08); }
+.pdot { display: inline-block; width: 12px; height: 12px; border-radius: 50%; border: 1.5px solid rgba(0,0,0,.6); vertical-align: middle; margin-right: 6px; flex: none; }
+.pdot.big { width: 22px; height: 22px; margin: 0 4px; }
+.cdot { font-size: 0; }

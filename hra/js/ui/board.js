@@ -37,7 +37,7 @@ function texture(t, q, r) {
   }
   return img.complete && img.naturalWidth ? { img, h } : null;
 }
-import { pc, ps, plight } from './dom.js';
+import { pc } from './dom.js';
 
 const INK = '#1d2a38';
 
@@ -122,14 +122,7 @@ export function createBoard(cv, onPick) {
       }
       ctx.strokeStyle = 'rgba(29,42,56,.7)'; ctx.lineWidth = 0.05; path(i); ctx.stroke();
       if (!tx) glyph(hx.t, c.x, c.y - 0.42);
-      if (hx.n) {
-        ctx.beginPath(); ctx.arc(c.x, c.y + 0.2, 0.35, 0, 7); ctx.fillStyle = '#f7f1dd'; ctx.shadowColor = 'rgba(0,0,0,.45)'; ctx.shadowBlur = 0.12 * k; ctx.fill(); ctx.shadowBlur = 0;
-        ctx.strokeStyle = INK; ctx.lineWidth = 0.04; ctx.stroke();
-        const hot = hx.n === 6 || hx.n === 8;
-        text(String(hx.n), c.x, c.y + 0.15, hot ? 0.36 : 0.3, hot ? '#c22b22' : INK);
-        const n = PIPS[hx.n]; ctx.fillStyle = hot ? '#c22b22' : INK;
-        for (let j = 0; j < n; j++) { ctx.beginPath(); ctx.arc(c.x + (j - (n - 1) / 2) * 0.085, c.y + 0.4, 0.03, 0, 7); ctx.fill(); }
-      }
+      if (hx.n) token(c.x, c.y + 0.18, hx.n);
       if (B.targets && B.targets.h && B.targets.h.includes(i)) { path(i); ctx.fillStyle = 'rgba(255,255,255,.28)'; ctx.fill(); ctx.strokeStyle = '#fff'; ctx.lineWidth = 0.08; ctx.stroke(); }
     });
     // bouře
@@ -141,16 +134,7 @@ export function createBoard(cv, onPick) {
     for (const e of Object.keys(v.roads)) {
       const ed = g.E[e], a = g.V[ed.a], b = g.V[ed.b];
       const ax = a.x + (b.x - a.x) * 0.16, ay = a.y + (b.y - a.y) * 0.16, bx = b.x + (a.x - b.x) * 0.16, by = b.y + (a.y - b.y) * 0.16;
-      const rd = tinted('fig-cesta', pc(v.roads[e]));
-      if (rd) { // prkna podél hrany
-        ctx.save(); ctx.translate((a.x + b.x) / 2, (a.y + b.y) / 2); ctx.rotate(Math.atan2(b.y - a.y, b.x - a.x));
-        ctx.shadowColor = 'rgba(0,0,0,.55)'; ctx.shadowBlur = 0.08 * k; ctx.shadowOffsetY = 0.03 * k;
-        ctx.drawImage(rd, -0.36, -0.12, 0.72, 0.24); ctx.restore();
-        continue;
-      }
-      ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by);
-      ctx.strokeStyle = INK; ctx.lineWidth = 0.21; ctx.stroke();
-      ctx.strokeStyle = pc(v.roads[e]); ctx.lineWidth = 0.13; ctx.stroke();
+      road(ax, ay, bx, by, v.roads[e]);
     }
     // nabídka hran
     if (B.targets && B.targets.e) for (const e of B.targets.e) {
@@ -175,9 +159,46 @@ export function createBoard(cv, onPick) {
       if (x !== undefined) { ctx.beginPath(); ctx.arc(x, y, 0.42, 0, 7); ctx.strokeStyle = 'rgba(255,255,255,.85)'; ctx.lineWidth = 0.05; ctx.setLineDash([0.12, 0.1]); ctx.stroke(); ctx.setLineDash([]); }
     }
   }
+  // žeton čísla: pergamenový kotouč s mosazným lemem, patkové číslo, tečky četnosti
+  function token(x, y, n) {
+    const hot = n === 6 || n === 8, r = 0.33, ink = hot ? '#a3231b' : '#2e2214';
+    ctx.save();
+    ctx.shadowColor = 'rgba(0,0,0,.55)'; ctx.shadowBlur = 0.12 * B.cam.k * dpr; ctx.shadowOffsetY = 0.04 * B.cam.k * dpr;
+    ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fillStyle = '#8a6526'; ctx.fill();
+    ctx.restore();
+    const gr = ctx.createLinearGradient(x, y - r, x, y + r);
+    gr.addColorStop(0, '#f2d27a'); gr.addColorStop(0.5, '#b88a3a'); gr.addColorStop(1, '#7a5520');
+    ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fillStyle = gr; ctx.fill();
+    const pg = ctx.createRadialGradient(x - 0.08, y - 0.1, 0.02, x, y, r * 0.86);
+    pg.addColorStop(0, '#fbf3dc'); pg.addColorStop(1, '#e6d3a5');
+    ctx.beginPath(); ctx.arc(x, y, r * 0.84, 0, 7); ctx.fillStyle = pg; ctx.fill();
+    ctx.font = `700 ${hot ? 0.34 : 0.3}px Georgia, 'Noto Serif', 'Times New Roman', serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillStyle = ink; ctx.fillText(String(n), x, y - 0.035);
+    const k = PIPS[n]; ctx.fillStyle = ink;
+    for (let j = 0; j < k; j++) { ctx.beginPath(); ctx.arc(x + (j - (k - 1) / 2) * 0.07, y + 0.19, 0.024, 0, 7); ctx.fill(); }
+  }
   function text(t, x, y, size, color) {
     ctx.font = `700 ${size}px system-ui, sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     ctx.fillStyle = color; ctx.fillText(t, x, y);
+  }
+  // cesta: trám v barvě hráče s tmavým obrysem, světlou hranou a stínem
+  function road(ax, ay, bx, by, p) {
+    const col = pc(p);
+    ctx.save();
+    ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by);
+    ctx.shadowColor = 'rgba(0,0,0,.55)'; ctx.shadowBlur = 0.09 * B.cam.k * dpr; ctx.shadowOffsetY = 0.035 * B.cam.k * dpr;
+    ctx.strokeStyle = '#1b130b'; ctx.lineWidth = 0.2; ctx.stroke();
+    ctx.shadowColor = 'transparent';
+    ctx.strokeStyle = col; ctx.lineWidth = 0.14; ctx.stroke();
+    // světlá horní hrana a tmavší spodní, aby trám působil plasticky
+    const nx = -(by - ay), ny = bx - ax, l = Math.hypot(nx, ny) || 1, ox = nx / l * 0.035, oy = ny / l * 0.035;
+    const up = oy < 0 ? 1 : -1;
+    ctx.beginPath(); ctx.moveTo(ax + ox * up, ay + oy * up); ctx.lineTo(bx + ox * up, by + oy * up);
+    ctx.strokeStyle = 'rgba(255,255,255,.35)'; ctx.lineWidth = 0.035; ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(ax - ox * up, ay - oy * up); ctx.lineTo(bx - ox * up, by - oy * up);
+    ctx.strokeStyle = 'rgba(0,0,0,.25)'; ctx.lineWidth = 0.035; ctx.stroke();
+    ctx.restore();
   }
   function house(x, y, p, city) {
     const fig = tinted(city ? 'fig-mesto' : 'fig-osada', pc(p));
@@ -185,9 +206,6 @@ export function createBoard(cv, onPick) {
       const s = city ? 0.95 : 0.7;
       ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.6)'; ctx.shadowBlur = 0.1 * B.cam.k * dpr; ctx.shadowOffsetY = 0.04 * B.cam.k * dpr;
       ctx.drawImage(fig, x - s / 2, y - s * 0.62, s, s); ctx.restore();
-      // značka hráče (rozlišení i bez barev)
-      ctx.beginPath(); ctx.arc(x + s * 0.32, y + s * 0.28, 0.13, 0, 7); ctx.fillStyle = pc(p); ctx.fill(); ctx.strokeStyle = INK; ctx.lineWidth = 0.03; ctx.stroke();
-      text(ps(p), x + s * 0.32, y + s * 0.29, 0.15, plight(p) ? INK : '#fff');
       return;
     }
     const s = city ? 0.3 : 0.21;
@@ -196,7 +214,6 @@ export function createBoard(cv, onPick) {
     else { ctx.moveTo(x - s, y + s * 0.85); ctx.lineTo(x - s, y - s * 0.15); ctx.lineTo(x, y - s * 1.05); ctx.lineTo(x + s, y - s * 0.15); ctx.lineTo(x + s, y + s * 0.85); }
     ctx.closePath();
     ctx.fillStyle = pc(p); ctx.fill(); ctx.strokeStyle = INK; ctx.lineWidth = 0.055; ctx.stroke();
-    text(ps(p), x + (city ? s * 0.05 : 0), y + s * 0.3, s * 0.95, plight(p) ? INK : 'rgba(255,255,255,.92)');
   }
   function cloud(x, y) {
     ctx.fillStyle = 'rgba(40,48,66,.92)'; ctx.strokeStyle = '#11161f'; ctx.lineWidth = 0.04;

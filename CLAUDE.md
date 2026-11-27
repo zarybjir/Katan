@@ -167,7 +167,7 @@ prohlížeč, WebView i Node v testech.
 - `hra/gfx/` – obrázky dílků (`<krajina>-<varianta>.jpg`, 640×640, JPEG kvalita 80; seznam
   variant je `TERRAIN_GFX` v `data.js`). Dílek bez obrázku se kreslí barvou a značkou.
   Další malovaná grafika: `res-*.webp` a `banka.webp` (žetony, `icons.js`), `boure.webp` (mapa),
-  `fig-osada.webp`, `fig-mesto.webp`, `fig-cesta.webp` (bílé figurky, `board.js` je obarví na barvu
+  `fig-osada.webp`, `fig-mesto.webp` (bílé figurky, `board.js` je obarví na barvu
   hráče), `btn-wood.webp`, `btn-brass.webp`, `ramecek.webp` (CSS `border-image`), `drevo-*.jpg`, `more.jpg`,
   `pozadi-menu.jpg`, `karta-<druh>.jpg`. Obrázky na zeleném pozadí se klíčují skriptem (zelená →
   průhlednost), ořezávají a ukládají jako WebP; originály do repa nejdou. Ikona aplikace je
@@ -219,9 +219,10 @@ převádí jen `ui/board.js`.
   než jak jsou nakreslené.
 - Stavba: vybrat typ → zvýrazní se dovolená místa → klepnutí umístí. Drahé nebo nevratné akce
   (město, odhození karet) se potvrzují, ostatní ne.
-- Barvy hráčů se liší i tvarem nebo vzorem (barvoslepost). Paleta je `COLORS`/`SYMS` (8 barev);
+- Hráče rozlišuje jen barva (značky zadavatel nechce). Paleta je `COLORS` (8 barev);
   barvu volí hostitel pro každé místo při zakládání, ve stavu je `colors` (index palety pro hráče).
-  V UI se barva hráče bere vždy přes `pc(p)`, značka přes `ps(p)` z `dom.js`, nikdy `COLORS[p]`. Čísla na dílcích ukazují i četnost
+  V UI se barva hráče bere vždy přes `pc(p)` (tečka v textu: `dot(p)`) z `dom.js`, nikdy `COLORS[p]`.
+  Cesty jsou kreslené trámy v barvě hráče, čísla na dílcích mosazné žetony (`road`, `token` v `board.js`). Čísla na dílcích ukazují i četnost
   (tečky nebo velikost písma).
 - Canvas se škáluje podle `devicePixelRatio` (nejvýš 2). Grafika se předkreslí do offscreen
   canvasů; ve smyčce jen `drawImage`. Překresluje se při změně, ne trvale 60× za vteřinu.

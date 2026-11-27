@@ -1,5 +1,5 @@
 // Obrazovky mimo hru: nabídka, založení hry, připojení, lobby.
-import { h, clear, SYMS } from './dom.js';
+import { h, clear } from './dom.js';
 import { NAME, COLORS, COLOR_NAME, BOT_LEVEL, RULES, MAPS, MAP_TEXT } from '../data.js';
 import { genMap } from '../core/mapgen.js';
 import { createBoard } from './board.js';
@@ -45,8 +45,8 @@ export function showSetup(root, A, onStart, onBack) {
         const nm = s.k === 'local' && h('input', { maxlength: 16, value: s.name || (first ? A.settings.name : ''), placeholder: 'Jméno', oninput: () => { s.name = nm.value; } });
         // výběr barvy: barva jiného místa se s ním prohodí
         const pick = h('div', { class: 'colors' }, COLORS.map((c, k) => h('button', { class: 'cdot' + (s.c === k ? ' on' : ''), style: `--c:${c}`, title: COLOR_NAME[k], 'data-color': k, 'aria-label': COLOR_NAME[k],
-          onclick: e => { e.preventDefault(); const o = seats.find(x => x !== s && x.c === k); if (o) o.c = s.c; s.c = k; draw(); } }, SYMS[k])));
-        return h('div', { class: 'seat' }, h('span', { class: 'sym', style: `color:${COLORS[s.c]}` }, SYMS[s.c]), h('div', { class: 'col grow' }, sel, nm, pick));
+          onclick: e => { e.preventDefault(); const o = seats.find(x => x !== s && x.c === k); if (o) o.c = s.c; s.c = k; draw(); } })));
+        return h('div', { class: 'seat' }, h('span', { class: 'pdot big', style: `background:${COLORS[s.c]}` }), h('div', { class: 'col grow' }, sel, nm, pick));
       }),
       h('label', null, 'Cílový počet bodů', h('div', { class: 'row' }, [8, 10, 12].map(n => h('button', { class: 'btn small' + (cfg.target === n ? ' on' : ''), onclick: () => { cfg.target = n; draw(); } }, String(n))))),
       seats.some(s => s.k === 'open') && h('p', { class: 'dim' }, 'Hra se otevře pro připojení. Neobsazená místa po spuštění převezmou boti.'),
@@ -92,7 +92,7 @@ export function showJoin(root, A, onJoin, onBack) {
 export function showLobby(root, m, o) {
   screen(root, h('h2', null, o.host ? 'Hra čeká na hráče' : 'Čekání na spuštění hry'),
     o.net && h('div', { class: 'net', id: 'net' }, o.net.map(l => h('p', null, l))),
-    m.seats.map((s, i) => h('div', { class: 'seat' }, h('span', { class: 'sym', style: `color:${COLORS[s.color ?? i]}` }, SYMS[s.color ?? i]),
+    m.seats.map((s, i) => h('div', { class: 'seat' }, h('span', { class: 'pdot big', style: `background:${COLORS[s.color ?? i]}` }),
       h('span', { class: 'grow' }, s.kind === 'bot' ? `${s.name} (bot, ${BOT_LEVEL[s.level]})` : s.kind === 'open' ? (s.taken ? s.name : 'volné místo') : s.name),
       m.you.includes(i) && h('span', { class: 'dim' }, 'toto zařízení'), s.kind === 'open' && s.taken && h('span', { class: 'dim' }, 'připojeno'))),
     h('p', { class: 'dim' }, `Mapa: ${MAPS[m.map] || MAPS.island}, cíl: ${m.target} bodů`),
