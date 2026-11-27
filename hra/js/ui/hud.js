@@ -77,7 +77,10 @@ export function createGame(root, S) {
     let hint;
     if (v.phase === 'end') hint = `Hra skončila. Vítězí ${v.players[v.winner].name}.`;
     else if (!L.length) hint = v.phase === 'discard' ? 'Čeká se na odhození karet.' : v.trade ? 'Probíhá nabídka obchodu.' : `Na tahu: ${nm}` + (v.phase === 'setup' ? ' (rozmístění)' : v.phase === 'storm' ? ' (přesun bouře)' : '');
-    else if (v.phase === 'setup') hint = L[0].kind === 'settle' ? 'Rozmístění: výběr místa pro osadu' : 'Rozmístění: výběr místa pro cestu';
+    else if (v.phase === 'setup') {
+      const two = v.setup.i >= v.players.length; // druhé kolo jde v opačném pořadí a dává suroviny
+      hint = `Rozmístění, ${two ? '2' : '1'}. kolo: ` + (L[0].kind === 'settle' ? 'výběr místa pro osadu' + (two ? ' (dá suroviny z okolních dílků)' : '') : 'cesta k osadě');
+    }
     else if (L[0].t === 'roll') hint = 'Tah začíná hodem kostkami.';
     else if (L[0].t === 'storm') hint = 'Bouře: výběr dílku, kam se přesune';
     else if (L[0].t === 'discard') hint = 'Bouře: odhození karet';
@@ -179,6 +182,7 @@ export function createGame(root, S) {
       h('p', null, `Osada je za 1 bod, město za 2. Nejdelší cesta (od ${RULES.longMin} úseků) a nejvíc zahraných hlídek (od ${RULES.guardMin}) dávají po ${RULES.longPts} bodech.`),
       h('p', null, `Při součtu 7 přichází bouře: kdo má víc než ${RULES.discardOver} karet, polovinu odhodí. Hráč na tahu bouři přesune; dílek pod bouří nevyrábí.`),
       h('p', null, `Směna s bankou je ${RULES.bankRate}:1, v přístavu ${RULES.portRate}:1 nebo ${RULES.portResRate}:1 za vyznačenou surovinu.`),
+      h('p', null, 'Na začátku si každý postupně postaví osadu a k ní cestu. Pak ještě jednou v opačném pořadí; za druhou osadu hráč dostane po jedné surovině z každého sousedního dílku.'),
       h('p', null, 'Osada nesmí stát hned vedle jiné stavby a musí navazovat na vlastní cestu.'),
       Object.keys(CARDS).map(c => h('p', null, h('b', null, CARDS[c] + ': '), CARD_TEXT[c]))));
   }
