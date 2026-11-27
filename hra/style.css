@@ -78,3 +78,21 @@ label { display: flex; flex-direction: column; gap: 6px; color: var(--dim); font
 .chip-res.lack { outline: 2px solid #ff8a7a; outline-offset: 1px; }
 .price .st { font-size: 14px; font-weight: 600; }
 .bar { height: 8px; border-radius: 4px; background: var(--panel2); overflow: hidden; } .bar i { display: block; height: 100%; width: 0; background: var(--acc); transition: width .2s; }
+
+/* ---------- pruhy hráčů ---------- */
+.ico { display: inline-grid; place-items: center; border-radius: 50%; flex: none; box-shadow: inset 0 0 0 1.5px rgba(0,0,0,.25); }
+.chip { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 3px; }
+.chip .nm { display: flex; align-items: center; gap: 2px; }
+.chip .nm .sym { color: var(--c); font-size: 15px; width: auto; }
+.chip .st, .mine { display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+.stat { display: inline-flex; align-items: center; gap: 3px; font-size: 14px; color: var(--ink); }
+.bonus { font-size: 15px; color: var(--acc); }
+#hand { display: flex; align-items: center; gap: 8px; padding: 4px 6px; border-radius: 10px; border: 2px solid transparent; background: rgba(0,0,0,.18); }
+#hand.turn { border-color: var(--acc); }
+.res-row { display: flex; gap: 4px; flex: 1; justify-content: space-between; min-width: 0; }
+.have { display: inline-flex; align-items: center; gap: 4px; font-size: 19px; } .have.zero { opacity: .45; }
+.mine { background: transparent; border: 0; color: var(--ink); font: inherit; padding: 4px 2px 4px 8px; border-left: 1px solid var(--line); min-height: 44px; }
+.mine .sym { font-size: 17px; width: auto; }
+@media (max-width: 460px) { #hand { flex-wrap: wrap; row-gap: 2px; } .mine { border-left: 0; padding: 0 2px; min-height: 30px; } .res-row { flex-basis: 100%; } }
+@media (orientation: landscape) and (max-height: 560px) { #hand { flex-wrap: wrap; row-gap: 2px; padding: 4px; } .res-row { flex-basis: 100%; gap: 2px; } .mine { border-left: 0; padding: 0 2px; min-height: 30px; }
+  .have { font-size: 15px; gap: 2px; } .have .ico { width: 22px !important; height: 22px !important; } .have .ico svg { width: 17px; height: 17px; } }

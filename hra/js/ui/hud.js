@@ -1,6 +1,7 @@
 // Herní obrazovka: hráči, mapa, ruka, tlačítka akcí, deník.
 import { h, clear, modal, closeModals, toast, SYM } from './dom.js';
 import { createBoard } from './board.js';
+import { icon } from './icons.js';
 import { resTile, tradeDialog, respondDialog, offerDialog, discardDialog, cardsDialog } from './trade.js';
 import { fmtRes } from './text.js';
 import { RES, RES_NAME, RES_COLOR, COST, KIND_NAME, KIND_TEXT, COLORS, RULES, BOT_LEVEL, CARDS, CARD_TEXT } from '../data.js';
@@ -55,13 +56,18 @@ export function createGame(root, S) {
     board.setView(v);
 
     // ---------- hráči ----------
+    // nahoře soupeři (divák vidí všechny), dole vlastní pruh se surovinami
+    const tag = (s, i) => s.kind === 'bot' ? ' ·bot' : s.away ? ' ·bot' : s.online === false ? ' ·odpojeno' : '';
+    const waits = i => v.phase !== 'end' && (i === v.turn || !!(v.discard && v.discard[i]));
+    const stat = (kind, n, title) => h('span', { class: 'stat', title }, icon(kind, 18), h('b', null, String(n)));
+    const stats = (p, i) => [stat('cards', p.handN, 'karty surovin'), stat('special', p.cardN, 'výpravy'), stat('points', p.pts, 'body'),
+      v.long === i && h('span', { class: 'bonus', title: 'nejdelší cesta' }, '⟿'), v.guard === i && h('span', { class: 'bonus', title: 'nejvíc hlídek' }, '⛨')];
     clear(el.players);
     v.players.forEach((p, i) => {
-      const s = S.seats[i] || {};
-      const waits = v.phase !== 'end' && (i === v.turn || (v.discard && v.discard[i]));
-      el.players.append(h('button', { class: 'chip' + (waits ? ' turn' : '') + (i === me ? ' me' : ''), style: `--c:${COLORS[i]}`, onclick: () => playerInfo(v, i) },
-        h('span', { class: 'sym' }, SYM[i]), h('span', { class: 'nm' }, p.name + (s.kind === 'bot' ? ' ·bot' : s.away ? ' ·bot' : s.online === false ? ' ·odpojeno' : '')),
-        h('span', { class: 'st' }, `★${p.pts}  ▮${p.handN}` + (p.cardN ? `  ✦${p.cardN}` : '') + (v.long === i ? '  ⟿' : '') + (v.guard === i ? '  ⛨' : ''))));
+      if (i === me) return;
+      el.players.append(h('button', { class: 'chip' + (waits(i) ? ' turn' : ''), style: `--c:${COLORS[i]}`, onclick: () => playerInfo(v, i) },
+        h('span', { class: 'nm' }, h('span', { class: 'sym' }, SYM[i]), ' ' + p.name + tag(S.seats[i] || {}, i)),
+        h('span', { class: 'st' }, stats(p, i))));
     });
 
     // ---------- nabídka míst na mapě ----------
@@ -91,9 +97,14 @@ export function createGame(root, S) {
     clear(el.hint).append(h('span', { class: 'grow' }, hint), h('button', { class: 'btn small', id: 'a-prices', onclick: () => prices(v) }, 'Ceník'));
     if (v.rolled) el.hint.append(h('span', { class: 'dice' }, h('i', null, String(v.rolled[0])), h('i', null, String(v.rolled[1]))));
 
-    // ---------- ruka ----------
+    // ---------- vlastní pruh ----------
     clear(el.hand);
-    if (mine && mine.hand) for (const r of RES) el.hand.append(resTile(r, mine.hand[r], { off: true }));
+    el.hand.className = waits(me) ? 'turn' : '';
+    if (mine && mine.hand) {
+      el.hand.style.setProperty('--c', COLORS[me]);
+      el.hand.append(h('div', { class: 'res-row' }, RES.map(r => h('span', { class: 'have' + (mine.hand[r] ? '' : ' zero'), 'data-res': r }, icon(r, 30), h('b', null, String(mine.hand[r]))))),
+        h('button', { class: 'mine', onclick: () => playerInfo(v, me) }, h('span', { class: 'sym', style: `color:${COLORS[me]}` }, SYM[me]), stats(mine, me)));
+    }
 
     // ---------- tlačítka ----------
     clear(el.actions);
