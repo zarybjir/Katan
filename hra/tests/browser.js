@@ -149,7 +149,7 @@ try {
   ok(a.you === 0 && b.you === 1 && a.roads === b.roads && a.bld === b.bld, 'hostitel a klient vidí různý stav');
   ok(await cp.evaluate(() => __so.S.view().map.hexes.every(h => Math.abs(h.q) + Math.abs(h.r) + Math.abs(h.q + h.r) >= 4)), 'klient nehraje na zvolené mapě (atol)');
   eq(await cp.evaluate(() => __so.S.view().colors), [7, 0, 2], 'barvy hráčů:');
-  ok(await cp.evaluate(() => getComputedStyle(document.querySelector('.chip[data-p="0"]')).getPropertyValue('--c').trim() === '#e0609e'), 'štítek hostitele u klienta nemá zvolenou barvu');
+  ok(await cp.evaluate(() => getComputedStyle(document.querySelector('.chip[data-p="0"]')).getPropertyValue('--c').trim() === '#ff3fae'), 'štítek hostitele u klienta nemá zvolenou barvu');
   ok(await cp.evaluate(() => !__so.S.view().players[0].hand && !!__so.S.view().players[1].hand), 'klient vidí cizí ruku');
   // odpojení klienta a návrat
   await cp.reload(); await cp.click('#m-join'); await cp.click('#j-go'); await cp.waitForSelector('#board');
