@@ -232,7 +232,7 @@ převádí jen `ui/board.js`.
   barvu volí hostitel pro každé místo při zakládání, hráč ji může změnit v lobby zprávou `color`
   (jen před startem; barvu jiného člověka vzít nejde, s botem se prohodí). Ve stavu je `colors`.
   Paleta je zářivá; obarvené figurky a cesty mají navíc `saturate(1.6)`.
-  Stavby jsou větší, zesvětlené (barva hráče + `screen` bílé figurky) se světlým obrysem a stínem;
+  Stavby jsou v původní velikosti, zesvětlené (barva hráče + `screen` bílé figurky) se světlým obrysem a stínem;
   krajiny jsou mírně ztlumené, aby stavby
   vynikly; poslední stavba se kolečkem nevyznačuje.
   Přístavy kreslí `port()` v `board.js`: lávky (`lavka.webp`), kormidlo (`kormidlo.webp`) se žetonem

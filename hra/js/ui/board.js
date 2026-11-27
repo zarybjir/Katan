@@ -252,7 +252,7 @@ export function createBoard(cv, onPick) {
   function house(x, y, p, city) {
     const fig = tinted(city ? 'fig-mesto' : 'fig-osada', pc(p));
     if (fig) {
-      const s = city ? 1.12 : 0.86, ol = tinted(city ? 'fig-mesto' : 'fig-osada', '#ffffff'), o = 0.024;
+      const s = city ? 0.95 : 0.7, ol = tinted(city ? 'fig-mesto' : 'fig-osada', '#ffffff'), o = 0.024;
       const X = x - s / 2, Y = y - s * 0.62;
       ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.5)'; ctx.shadowBlur = 0.12 * B.cam.k * dpr; ctx.shadowOffsetY = 0.05 * B.cam.k * dpr;
       if (ol) { ctx.globalAlpha = 0.9; for (const [dx, dy] of [[o, 0], [-o, 0], [0, o], [0, -o], [o, o], [-o, o], [o, -o], [-o, -o]]) ctx.drawImage(ol, X + dx, Y + dy, s, s); } // světlý obrys
