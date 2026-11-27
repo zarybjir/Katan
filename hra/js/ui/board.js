@@ -227,7 +227,7 @@ export function createBoard(cv, onPick) {
   function road(ax, ay, bx, by, p) {
     const col = pc(p), img = tinted('fig-cesta', col);
     if (img) {
-      const len = Math.hypot(bx - ax, by - ay) + 0.06, w = 0.11;
+      const len = Math.hypot(bx - ax, by - ay) + 0.06, w = 0.16;
       ctx.save(); ctx.translate((ax + bx) / 2, (ay + by) / 2); ctx.rotate(Math.atan2(by - ay, bx - ax));
       ctx.shadowColor = 'rgba(0,0,0,.6)'; ctx.shadowBlur = 0.07 * B.cam.k * dpr; ctx.shadowOffsetY = 0.03 * B.cam.k * dpr;
       ctx.drawImage(img, -len / 2, -w / 2, len, w); ctx.restore();
