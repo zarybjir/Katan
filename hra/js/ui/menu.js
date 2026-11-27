@@ -61,9 +61,9 @@ export function showSetup(root, A, onStart, onBack) {
     const sel = h('select', { id: 's-map', onchange: () => { cfg.map = sel.value; reroll(); draw(); } },
       [...types.map(k => [k, MAPS[k]]), ['random', 'Náhodná']].map(([k, t]) => h('option', { value: k, selected: cfg.map === k }, t)));
     const cv = h('canvas', { class: 'preview', id: 's-preview' });
-    // náhled ukazuje jen tvar ostrova; krajiny, čísla a přístavy se rozmístí až při spuštění hry
+    // náhled ukazuje tvar ostrova s ukázkovým rozmístěním krajin (bez čísel a přístavů)
     const m = genMap(seed, cfg.n, type);
-    createBoard(cv, () => {}).setView({ map: { hexes: m.hexes.map(x => ({ q: x.q, r: x.r, t: 'blank', n: 0 })), ports: [] }, roads: {}, bld: {}, storm: -1 });
+    createBoard(cv, () => {}).setView({ map: { hexes: m.hexes.map(x => ({ q: x.q, r: x.r, t: x.t, n: 0 })), ports: [] }, roads: {}, bld: {}, storm: -1 });
     return h('label', null, 'Mapa', sel, cv, h('div', { class: 'row' },
       h('span', { class: 'dim grow' }, (cfg.map === 'random' ? MAPS[type] + ': ' : '') + MAP_TEXT[type]),
       !type.startsWith('sym') && h('button', { class: 'btn small', id: 's-reroll', onclick: e => { e.preventDefault(); reroll(); draw(); } }, 'Jiný tvar')));
