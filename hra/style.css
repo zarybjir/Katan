@@ -96,3 +96,23 @@ label { display: flex; flex-direction: column; gap: 6px; color: var(--dim); font
 @media (max-width: 460px) { #hand { flex-wrap: wrap; row-gap: 2px; } .mine { border-left: 0; padding: 0 2px; min-height: 30px; } .res-row { flex-basis: 100%; } }
 @media (orientation: landscape) and (max-height: 560px) { #hand { flex-wrap: wrap; row-gap: 2px; padding: 4px; } .res-row { flex-basis: 100%; gap: 2px; } .mine { border-left: 0; padding: 0 2px; min-height: 30px; }
   .have { font-size: 15px; gap: 2px; } .have .ico { width: 22px !important; height: 22px !important; } .have .ico svg { width: 17px; height: 17px; } }
+
+/* ---------- animace ---------- */
+#fx { position: fixed; inset: 0; pointer-events: none; z-index: 25; }
+.dice-fx { position: absolute; left: 50%; top: 42%; transform: translate(-50%, -50%); display: flex; gap: 18px; align-items: center; pointer-events: auto; padding: 22px 26px; border-radius: 18px; background: rgba(10,22,34,.55); }
+.die { width: 64px; height: 64px; border-radius: 13px; background: #fbf7ea; box-shadow: 0 6px 16px rgba(0,0,0,.45), inset 0 -4px 0 rgba(0,0,0,.12); display: grid; grid-template: repeat(3, 1fr) / repeat(3, 1fr); padding: 9px; animation: tumble .65s ease-out; }
+.die:nth-child(2) { animation-duration: .6s; animation-direction: reverse; }
+.die i { width: 11px; height: 11px; border-radius: 50%; place-self: center; }
+.die i.on { background: #1d2a38; }
+.dice-fx .sum { font-size: 0; color: #fff; font-weight: 800; transition: font-size .15s; min-width: 0; }
+.dice-fx.stop .sum { font-size: 40px; min-width: 40px; text-align: center; }
+.dice-fx.stop .die { animation: land .25s ease-out; }
+.dice-fx.out { opacity: 0; transition: opacity .25s; }
+@keyframes tumble { 0% { transform: translate(-90px, -60px) rotate(-260deg) scale(.6); } 60% { transform: translate(8px, 6px) rotate(20deg) scale(1.05); } 100% { transform: none; } }
+@keyframes land { 50% { transform: scale(1.15); } }
+.fly { position: absolute; box-shadow: 0 3px 8px rgba(0,0,0,.5); }
+.burn { position: absolute; }
+.toggle { flex-direction: row; align-items: center; gap: 12px; min-height: 48px; color: var(--ink); font-size: 16px; }
+.toggle input { width: 24px; height: 24px; min-height: 0; accent-color: var(--acc); }
+.card-b { width: 28px; height: 38px; border-radius: 5px; background: repeating-linear-gradient(45deg, #e9dfc4 0 4px, #d8c9a2 4px 8px); border: 2px solid #8a6d3b; box-shadow: 0 3px 8px rgba(0,0,0,.4); }
+.flame { position: absolute; left: -6px; top: 4px; font-size: 32px; line-height: 1; opacity: 0; }

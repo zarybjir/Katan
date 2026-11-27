@@ -88,7 +88,10 @@ try {
   // nabídka obchodu botům
   await p.click('#a-trade'); await p.locator('.picker').nth(0).locator('.res[data-res=wood]').click(); await p.locator('.picker').nth(1).locator('.res[data-res=brick]').click(); await p.click('#offer-go');
   await until(p, async () => { const w = await view(p); if (w.trade && w.legal.some(a => a.t === 'cancel')) await p.click('#offer-cancel', { timeout: 300 }).catch(() => {}); return !w.trade; }, 'uzavření nabídky');
-  await p.click('#a-menu'); await p.screenshot({ path: join(out, 'menu-hry.png') }); await p.mouse.click(5, 5);
+  await p.click('#a-menu'); await p.screenshot({ path: join(out, 'menu-hry.png') });
+  await p.click('#g-anim'); await p.click('[data-anim=burn]');
+  ok(await p.evaluate(() => JSON.parse(localStorage.getItem('so-set')).anim.burn === false), 'vypnutí animace se neuložilo');
+  await p.click('[data-anim=burn]'); await p.mouse.click(5, 5);
   await p.click('#a-end');
   await until(p, async () => { await step(p); return (await view(p)).turnNo >= 9; }, 'několik kol hry', 60000);
   ok((await p.locator('#log div').count()) > 0, 'deník je prázdný');

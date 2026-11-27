@@ -10,6 +10,7 @@ import { showMenu, showSetup, showJoin, showLobby } from './ui/menu.js';
 import { createGame } from './ui/hud.js';
 import { describe } from './ui/text.js';
 import { checkUpdate } from './update.js';
+import { ANIM_DEF, animDialog } from './ui/anim.js';
 import { h, clear, modal, toast, topModal, closeModals } from './ui/dom.js';
 
 const $screen = document.getElementById('screen'), $game = document.getElementById('game');
@@ -21,6 +22,7 @@ const store = {
 const android = globalThis.Android;
 const FAST = new URLSearchParams(location.search).has('fast'); // rychlí boti pro testy
 const settings = Object.assign({ name: '', token: '' }, store.get('so-set'));
+settings.anim = Object.assign({ ...ANIM_DEF }, settings.anim);
 if (!settings.token) settings.token = newToken();
 const saveSettings = () => store.set('so-set', settings);
 saveSettings();
@@ -32,6 +34,7 @@ const A = {
   newGame: () => showSetup($screen, A, hostGame, menu),
   join: joinScreen,
   update: () => checkUpdate(true),
+  anim: () => animDialog(settings.anim, saveSettings),
   resume: () => { const r = store.get('so-host'); if (r) hostGame(null, r); },
 };
 
@@ -46,6 +49,7 @@ function session(conn, hello, host) {
   s.accept = () => { s.cur = s.pending; s.pending = null; s.G.update(); };
   s.refresh = () => host && host.resend(); // jen pro testy: znovu rozeslat pohledy
   s.version = A.version;
+  s.anim = settings.anim; s.saveAnim = saveSettings; s.fx = [];
   s.away = () => s.cur !== null && s.cur >= 0 && s.seats[s.cur] && s.seats[s.cur].away;
   s.back = () => s.client.back(s.cur);
   s.netInfo = () => s.net && netLines(s);
@@ -70,6 +74,8 @@ function session(conn, hello, host) {
     else if (want !== s.cur) s.pending = want; else s.pending = null;
     if (!s.G) { show(true); s.G = createGame($game, s); }
     s.G.update();
+    const fx = s.fx; s.fx = [];
+    if (s.pending === null || s.pending === undefined) s.G.animate(fx);
   };
   s.client = createClient(conn, hello, {
     onLobby: m => { s.lobby = m; drawLobby(s); },
@@ -84,6 +90,7 @@ function session(conn, hello, host) {
           if (line) s.log.push(line);
           if (e.e === 'build' && s.G) s.G.board.setMark(e.at);
         }
+        s.fx.push(...m.ev);
       }
       if (!queued) { queued = true; queueMicrotask(refresh); }
     },

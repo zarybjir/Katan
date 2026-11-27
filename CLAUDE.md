@@ -153,7 +153,10 @@ prohlížeč, WebView i Node v testech.
 - `hra/js/ui/` – `board.js` (kreslení mapy na canvas, výběr místa dotykem, posun a zoom),
   `hud.js` (herní obrazovka: hráči, ruka, tlačítka akcí, deník), `trade.js` (dialogy obchodu,
   odhození a výprav), `menu.js` (nabídka, založení hry, připojení, lobby), `text.js` (věty do
-  deníku), `dom.js` (`h()`, dialogy, značky hráčů). Animace zatím nejsou (`anim.js` až s nimi).
+  deníku), `dom.js` (`h()`, dialogy, značky hráčů), `icons.js` (SVG ikonky surovin a ukazatelů),
+  `anim.js` (hod kostkami, rozdávání surovin, pálení odhozených karet; jen vizuální vrstva `#fx`,
+  stav se mění hned; zapínají se v nastavení `so-set.anim`). Animace spouští `G.animate(události)`
+  po překreslení.
 - `hra/js/app.js` – start, přepínání obrazovek, relace hostitele a klienta, ukládání nastavení.
 - `hra/lib/peerjs.min.js` – jediná cizí knihovna (MIT), načítá se až při hře přes internet. Nečti ji.
 - `hra/gfx/` – obrázky dílků (`<krajina>-<varianta>.jpg`, 640×640, JPEG kvalita 80; seznam

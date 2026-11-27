@@ -19,6 +19,9 @@ získá cílový počet bodů. Android aplikace; server hry běží na zařízen
 - Ceník (tlačítko vedle nápovědy nad kartami) ukazuje, co lze koupit, za kolik, k čemu to je
   a co přesně chybí. Klepnutí na nedostupnou stavbu ceník otevře také.
 
+- Animace hodu kostkami, rozdávání surovin a pálení odhozených karet; každou lze vypnout
+  v nabídce Animace (hlavní nabídka i menu ☰ ve hře). Kostky se přeskočí klepnutím.
+
 ## Pravidla ve zkratce
 
 | Stavba | Cena |

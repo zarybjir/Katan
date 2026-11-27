@@ -2,6 +2,7 @@
 import { h, clear, modal, closeModals, toast, SYM } from './dom.js';
 import { createBoard } from './board.js';
 import { icon } from './icons.js';
+import { dice, deal, burn, sources, animDialog } from './anim.js';
 import { resTile, tradeDialog, respondDialog, offerDialog, discardDialog, cardsDialog } from './trade.js';
 import { fmtRes } from './text.js';
 import { RES, RES_NAME, RES_COLOR, COST, KIND_NAME, KIND_TEXT, COLORS, RULES, BOT_LEVEL, CARDS, CARD_TEXT } from '../data.js';
@@ -65,7 +66,7 @@ export function createGame(root, S) {
     clear(el.players);
     v.players.forEach((p, i) => {
       if (i === me) return;
-      el.players.append(h('button', { class: 'chip' + (waits(i) ? ' turn' : ''), style: `--c:${COLORS[i]}`, onclick: () => playerInfo(v, i) },
+      el.players.append(h('button', { class: 'chip' + (waits(i) ? ' turn' : ''), 'data-p': i, style: `--c:${COLORS[i]}`, onclick: () => playerInfo(v, i) },
         h('span', { class: 'nm' }, h('span', { class: 'sym' }, SYM[i]), ' ' + p.name + tag(S.seats[i] || {}, i)),
         h('span', { class: 'st' }, stats(p, i))));
     });
@@ -157,6 +158,7 @@ export function createGame(root, S) {
       S.away && S.away() && h('button', { class: 'btn', onclick: () => { m.close(); S.back(); } }, 'Převzít hru zpět od bota'),
       h('button', { class: 'btn', onclick: () => { m.close(); prices(S.view()); } }, 'Ceník'),
       h('button', { class: 'btn', onclick: () => { m.close(); rules(); } }, 'Pravidla'),
+      h('button', { class: 'btn', id: 'g-anim', onclick: () => { m.close(); animDialog(S.anim, S.saveAnim); } }, 'Animace'),
       h('button', { class: 'btn', onclick: () => { m.close(); board.moved = false; board.fit(); } }, 'Vystředit mapu'),
       h('button', { class: 'btn ghost', id: 'leave', onclick: () => { m.close(); const c = modal('Opustit hru', h('div', { class: 'col' }, h('p', null, S.host ? 'Hra zůstane uložená a půjde v ní pokračovat. Připojení hráči budou odpojeni.' : 'Do hry se lze vrátit přes nabídku Připojit se.'),
         h('div', { class: 'row' }, h('button', { class: 'btn', id: 'leave-ok', onclick: () => { c.close(); S.leave(); } }, 'Opustit'), h('button', { class: 'btn ghost', onclick: () => c.close() }, 'Zpět')))); } }, 'Opustit hru'),
@@ -205,6 +207,20 @@ export function createGame(root, S) {
       order.map(o => h('div', { class: 'line' }, h('span', { style: `color:${COLORS[o.i]}` }, SYM[o.i] + ' '), h('span', { class: 'grow' }, o.p.name), h('b', null, `${o.p.pts} b.`))),
       h('button', { class: 'btn', id: 'over-menu', onclick: () => { closeModals(); S.leave(true); } }, 'Do nabídky')), { key: 'over' });
   }
+  // animace událostí (po překreslení, aby cílové prvky existovaly)
+  G.animate = ev => {
+    const v = S.view(), a = S.anim;
+    if (!v || !ev.length) return;
+    const target = (p, r) => p === v.you ? (r ? document.querySelector(`#hand .have[data-res=${r}]`) : document.getElementById('hand')) : document.querySelector(`.chip[data-p="${p}"]`);
+    let sum = 0;
+    const gains = [];
+    for (const e of ev) {
+      if (e.e === 'roll') { sum = e.d[0] + e.d[1]; if (a.dice) dice(e.d); }
+      else if (e.e === 'gain' && Object.keys(e.res).length) gains.push(e);
+      else if (e.e === 'discard' && a.burn) burn(target(e.p), e.n);
+    }
+    if (gains.length && a.deal) setTimeout(() => deal(gains, (p, r) => sources(S.view(), board, sum, p, r), target), sum && a.dice ? 1100 : 0);
+  };
   G.toast = toast;
   return G;
 }
