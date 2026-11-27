@@ -9,7 +9,7 @@ export const RES_COLOR = { wood: '#2f7d4a', stone: '#7f8792', grain: '#e2b93b', 
 export const TERRAIN = { forest: 'wood', quarry: 'stone', field: 'grain', pasture: 'sheep', claypit: 'brick', waste: null };
 export const TERRAIN_NAME = { forest: 'les', quarry: 'skály', field: 'pole', pasture: 'pastvina', claypit: 'hliniště', waste: 'pustina' };
 // obrázky dílků v gfx/ (bez přípony .jpg); víc variant = víc položek v poli
-export const TERRAIN_GFX = { forest: ['les-1'], quarry: ['skaly-1'], field: ['pole-1'], pasture: ['pastvina-1'], claypit: ['hliniste-1'], waste: [] };
+export const TERRAIN_GFX = { forest: ['les-1'], quarry: ['skaly-1'], field: ['pole-1'], pasture: ['pastvina-1'], claypit: ['hliniste-1'], waste: ['pustina-1'] };
 export const TERRAIN_COLOR = { forest: '#3c8f55', quarry: '#9aa1aa', field: '#ecc94f', pasture: '#9fcf5a', claypit: '#c2673f', waste: '#d9cfb4' };
 
 // ---------- stavby ----------
