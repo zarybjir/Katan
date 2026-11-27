@@ -128,7 +128,7 @@ export function apply(s, p, a) {
   switch (a.t) {
     case 'build': {
       if (!has(x => x.t === 'build' && x.kind === a.kind && x.at === a.at)) return fail('zde nelze stavět');
-      const setup = s.phase === 'setup';
+      const setup = s.phase === 'setup', paid = !setup && !(a.kind === 'road' && s.freeRoads > 0);
       if (a.kind === 'road') {
         if (s.freeRoads > 0) s.freeRoads--; else if (!setup) pay(s, p, COST.road);
         s.roads[a.at] = p; pl.left.road--;
@@ -139,7 +139,7 @@ export function apply(s, p, a) {
         pay(s, p, COST.city);
         s.bld[a.at].c = 1; pl.left.city--; pl.left.settle++;
       }
-      ev.push({ e: 'build', p, kind: a.kind, at: a.at });
+      ev.push({ e: 'build', p, kind: a.kind, at: a.at, paid });
       updateBonus(s);
       if (setup) setupStep(s, p, a, ev);
       else if (s.freeRoads > 0 && !roadSpots(s, p).length) s.freeRoads = 0;
@@ -162,7 +162,7 @@ export function apply(s, p, a) {
       if (!n) return fail('není co odhazovat');
       if (!isRes(a.res) || tot(a.res) !== n || !canPay(pl.hand, a.res)) return fail('neplatný výběr karet');
       pay(s, p, a.res); delete s.discard[p];
-      ev.push({ e: 'discard', p, n });
+      ev.push({ e: 'discard', p, n, secret: { res: a.res }, see: [p] });
       if (!Object.keys(s.discard).length) s.phase = 'storm';
       break;
     }

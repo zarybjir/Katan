@@ -96,7 +96,7 @@ test('mapa: 1000 seedů každého typu splní pravidla', () => {
   for (const type of Object.keys(MAPS)) for (let seed = 1; seed <= 1000; seed++) {
     const n = 2 + seed % 5, m = genMap(seed, n, type), g = graph(m.hexes);
     eq(new Set(m.hexes.map(h => h.q + ',' + h.r)).size, m.hexes.length, type + ': opakovaný dílek,');
-    eq(m.hexes.length, MAPSIZE[n]);
+    eq(m.hexes.length, type === 'sym' ? (n > 4 ? 31 : 19) : MAPSIZE[n]);
     eq(quality(m.hexes).hot, 0, type + ' seed ' + seed + ': 6 a 8 vedle sebe,');
     ok(m.hexes[m.storm].t === 'waste', 'bouře mimo pustinu');
     for (const h of m.hexes) ok(h.t === 'waste' ? h.n === 0 : h.n >= 2 && h.n <= 12 && h.n !== 7, 'číslo dílku');
@@ -114,6 +114,10 @@ test('mapa: 1000 seedů každého typu splní pravidla', () => {
 });
 test('mapa: typy mají svůj tvar', () => {
   const key = h => h.q + ',' + h.r;
+  for (const n of [2, 4, 6]) { // souměrná: středová i zrcadlová souměrnost
+    const set = new Set(genMap(5, n, 'sym').hexes.map(key));
+    for (const k of set) { const [q, r] = k.split(',').map(Number); ok(set.has(-q + ',' + -r) && set.has(r + ',' + q) && set.has(-q - r + ',' + r), 'souměrná mapa není souměrná'); }
+  }
   for (let seed = 1; seed <= 200; seed++) for (const n of [2, 4, 6]) {
     let m = genMap(seed, n, 'atoll'), g = graph(m.hexes);
     ok(!m.hexes.some(h => (Math.abs(h.q) + Math.abs(h.r) + Math.abs(h.q + h.r)) / 2 < 2), 'atol: dílek v laguně');

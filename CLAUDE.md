@@ -36,7 +36,8 @@ Každou změnu poměřuj těmito body.
 ### Návrh pravidel (výchozí, lze měnit)
 
 - **Mapa** se generuje ze seedu; velikost podle počtu hráčů. Typ mapy určuje tvar pevniny
-  (`MAPS` v `data.js`, tvary v `SHAPES` v `mapgen.js`): ostrov, zátoky, atol, šíje, hřeben.
+  (`MAPS` v `data.js`, tvary v `SHAPES` v `mapgen.js`): souměrný ostrov (šestiúhelník 19 dílků,
+  pro 5–6 hráčů 31), ostrov, zátoky, atol, šíje, hřeben.
   Pevnina je vždy souvislá (lodě nejsou). Nový typ = záznam v `MAPS`, `MAP_TEXT`, `SHAPES` a test tvaru.
   Při zakládání hry je vidět náhled přesně té mapy, na které se bude hrát. Dílky: les (dřevo), skály (kámen),
   pole (obilí), pastvina (ovce), hliniště (cihly), pustina (nic). Každý dílek kromě pustiny má číslo
@@ -154,7 +155,8 @@ prohlížeč, WebView i Node v testech.
   `hud.js` (herní obrazovka: hráči, ruka, tlačítka akcí, deník), `trade.js` (dialogy obchodu,
   odhození a výprav), `menu.js` (nabídka, založení hry, připojení, lobby), `text.js` (věty do
   deníku), `dom.js` (`h()`, dialogy, značky hráčů), `icons.js` (SVG ikonky surovin a ukazatelů),
-  `anim.js` (hod kostkami, rozdávání surovin, pálení odhozených karet; jen vizuální vrstva `#fx`,
+  `anim.js` (hod kostkami, rozdávání surovin z dílků, suroviny do banky a z banky – ikonka banky
+  vpravo nahoře na mapě; jen vizuální vrstva `#fx`,
   stav se mění hned; zapínají se v nastavení `so-set.anim`). Animace spouští `G.animate(události)`
   po překreslení.
 - `hra/js/app.js` – start, přepínání obrazovek, relace hostitele a klienta, ukládání nastavení.

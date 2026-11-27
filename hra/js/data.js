@@ -31,8 +31,9 @@ export const PIECES = { road: 16, settle: 6, city: 4 };
 // ---------- mapa ----------
 export const MAPSIZE = { 2: 16, 3: 19, 4: 22, 5: 27, 6: 31 }; // počet dílků podle počtu hráčů
 // typy map (tvar pevniny); klíč se ukládá do nastavení
-export const MAPS = { island: 'Ostrov', bays: 'Zátoky', atoll: 'Atol', isthmus: 'Šíje', ridge: 'Hřeben' };
+export const MAPS = { sym: 'Souměrný ostrov', island: 'Ostrov', bays: 'Zátoky', atoll: 'Atol', isthmus: 'Šíje', ridge: 'Hřeben' };
 export const MAP_TEXT = {
+  sym: 'Pravidelný šestiúhelník bez výběžků; krajiny a čísla jsou náhodné.',
   island: 'Sevřený ostrov, krátké vzdálenosti.',
   bays: 'Členité pobřeží s výběžky, hodně přístavů.',
   atoll: 'Prstenec pevniny kolem laguny.',
@@ -75,7 +76,7 @@ export const BOT = {
 
 // přednost cílů bota: o kolik chybějících karet smí být stavba dál než levnější možnost
 export const BOT_BIAS = { city: 1.5, settle: 1.5, road: 0.5, card: 0 };
-export const BOT_OFFER = 0.6; // šance, že bot v tahu podá nabídku, když mu chybí jedna surovina
+export const BOT_OFFER = 0.2; // šance, že bot v tahu podá nabídku, když mu chybí jedna surovina
 
 // ---------- síť ----------
 export const NET = { maxMsg: 16000, maxRate: 30, turnLimit: 120, botDelay: 900, lanPort: 47600, ping: 5, dead: 16 };

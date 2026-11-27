@@ -45,6 +45,16 @@ const SHAPES = {
     grow(R, set, 3 + half, 3, h => cx(h) <= -3, h => cx(h) <= -2);
     return grow(R, set, n, 3, h => cx(h) >= 3, h => cx(h) >= 2);
   },
+  // pravidelný šestiúhelník o poloměru 2 (19 dílků); pro 5–6 hráčů navíc 12 dílků třetího kruhu
+  // bez rohů (31 dílků) – tvar je souměrný podle všech os
+  sym: (R, n) => {
+    const out = [];
+    for (let q = -3; q <= 3; q++) for (let r = -3; r <= 3; r++) {
+      const d = dist({ q, r }), big = [q, r, -q - r].filter(x => Math.abs(x) === 3).length;
+      if (d <= 2 || (n > 22 && d === 3 && big === 1)) out.push([q, r]);
+    }
+    return seedSet(out);
+  },
   ridge: (R, n) => grow(R, seedSet([[0, 0]]), n, 1.5, h => Math.abs(h.r) <= 1),
 };
 function shape(R, n, type) { return [...(SHAPES[type] || SHAPES.island)(R, n).values()]; }
@@ -62,8 +72,7 @@ export function quality(hexes) {
 
 export function genMap(seed, players, type = 'island') {
   const R = { rng: seed | 0 };
-  const n = MAPSIZE[players] || MAPSIZE[4];
-  const hexes = shape(R, n, type);
+  const hexes = shape(R, MAPSIZE[players] || MAPSIZE[4], type), n = hexes.length; // souměrná mapa má vlastní velikost
   const g = graph(hexes);
   // dílky: pustiny + rovnoměrně pět druhů
   const waste = Math.max(1, Math.round(n / 18));

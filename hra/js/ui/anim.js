@@ -1,4 +1,4 @@
-// Animace: hod kostkami, rozdávání surovin, pálení karet. Jsou jen vizuální – stav hry se
+// Animace: hod kostkami, rozdávání surovin z dílků, suroviny do banky a z banky. Jsou jen vizuální – stav hry se
 // mění hned, animace se dají vypnout v nastavení a kostky přeskočit klepnutím.
 import { h, modal } from './dom.js';
 import { icon } from './icons.js';
@@ -6,7 +6,8 @@ import { graph } from '../core/hex.js';
 import { TERRAIN } from '../data.js';
 
 export const ANIM_DEF = { dice: true, deal: true, burn: true };
-export const ANIM_NAME = { dice: 'Hod kostkami', deal: 'Rozdávání surovin', burn: 'Pálení odhozených karet' };
+// klíč burn zůstává kvůli uloženému nastavení; dnes znamená suroviny letící do banky a z ní
+export const ANIM_NAME = { dice: 'Hod kostkami', deal: 'Rozdávání surovin z dílků', burn: 'Platby a odhození do banky' };
 
 let fx = null;
 const layer = () => fx || (fx = document.body.appendChild(h('div', { id: 'fx' })));
@@ -18,6 +19,7 @@ function face(el, n) {
   el.replaceChildren(...Array.from({ length: 9 }, (_, i) => h('i', { class: PIPS[n].includes(i + 1) ? 'on' : '' })));
 }
 export function dice(d) {
+  document.querySelectorAll('.dice-fx').forEach(e => e.remove()); // předchozí hod (rychlí boti) zmizí hned
   const a = h('div', { class: 'die' }), b = h('div', { class: 'die' });
   const box = h('div', { class: 'dice-fx', onclick: () => end() }, a, b, h('div', { class: 'sum' }));
   let done = false, t;
@@ -29,7 +31,7 @@ export function dice(d) {
     clearInterval(t); face(a, d[0]); face(b, d[1]);
     box.classList.add('stop'); box.lastChild.textContent = String(d[0] + d[1]);
   }, 650);
-  setTimeout(() => { box.classList.add('out'); setTimeout(end, 250); }, 1350);
+  setTimeout(() => { box.classList.add('out'); setTimeout(end, 200); }, 1200);
 }
 
 // ---------- přelet ikonky ----------
@@ -66,31 +68,19 @@ export function deal(gains, srcOf, dst) {
   }
 }
 
-// ---------- pálení ----------
-export function burn(el, n) {
-  if (!el) return;
-  const c = center(el);
-  for (let i = 0; i < n; i++) {
-    const card = h('div', { class: 'burn' }, h('div', { class: 'card-b' }), h('span', { class: 'flame' }, '🔥'));
-    card.style.left = c.x - 14 + (i - (n - 1) / 2) * 18 + 'px'; card.style.top = c.y - (c.y > innerHeight / 3 ? 30 : 0) + 'px';
-    layer().append(card);
-    const rot = (i % 2 ? 1 : -1) * (8 + i * 3), d = 110 * i, up = c.y > innerHeight / 3 ? -1 : 1; // u horního okraje karta padá dolů
-    const fy = k => (up < 0 ? -k : 40 - (k - 30) * 0.6); // plamen vždy stoupá
-    card.firstChild.animate([
-      { transform: 'translateY(0) rotate(0)', filter: 'none', opacity: 1 },
-      { transform: `translateY(${26 * up}px) rotate(${rot}deg)`, filter: 'none', opacity: 1, offset: .3 },
-      { transform: `translateY(${34 * up}px) rotate(${rot}deg) scale(.9)`, filter: 'brightness(.35) sepia(1)', opacity: 1, offset: .7 },
-      { transform: `translateY(${40 * up}px) rotate(${rot}deg) scale(.4)`, filter: 'brightness(.1)', opacity: 0 },
-    ], { duration: 1300, delay: d, easing: 'ease-in', fill: 'forwards' });
-    const an = card.lastChild.animate([
-      { transform: 'translateY(0) scale(.2)', opacity: 0 },
-      { transform: `translateY(${fy(30)}px) scale(.5)`, opacity: 0, offset: .25 },
-      { transform: `translateY(${fy(46)}px) scale(1.4)`, opacity: 1, offset: .55 },
-      { transform: `translateY(${fy(70)}px) scale(.6)`, opacity: 0 },
-    ], { duration: 1300, delay: d, fill: 'forwards' });
-    an.onfinish = () => card.remove();
-  }
+// ---------- banka ----------
+// kinds: seznam surovin (nebo 'cards' u skrytých karet); toBank = z hráče do banky, jinak z banky k hráči
+export function bankFlow(el, kinds, toBank, delay0 = 0) {
+  const bank = document.getElementById('bank');
+  if (!el || !bank || !kinds.length) return;
+  const a = center(el), b = center(bank);
+  kinds.forEach((k, i) => {
+    const d = delay0 + 110 * i;
+    fly(k, toBank ? a : b, toBank ? b : a, d);
+    pulse(toBank ? bank : el, d + 650);
+  });
 }
+export const expand = res => Object.keys(res || {}).flatMap(r => Array(res[r]).fill(r));
 
 // Zdroj surovin: dílky s hozeným číslem kolem staveb hráče; jinak střed mapy (banka, karta zásoby).
 export function sources(v, board, sum, p, r) {

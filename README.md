@@ -6,8 +6,8 @@ získá cílový počet bodů. Android aplikace; server hry běží na zařízen
 
 ## Co hra umí
 
-- Mapa se pro každou hru generuje nově, velikost podle počtu hráčů. Pět typů map: ostrov,
-  zátoky, atol, šíje a hřeben; při zakládání hry je vidět náhled a mapu lze vyměnit za jinou.
+- Mapa se pro každou hru generuje nově, velikost podle počtu hráčů. Šest typů map: souměrný
+  ostrov (pravidelný šestiúhelník), ostrov, zátoky, atol, šíje a hřeben; při zakládání hry je vidět náhled a mapu lze vyměnit za jinou.
 - Boti ve třech obtížnostech (lehký, střední, těžký), libovolná kombinace lidí a botů.
 - **Jedno zařízení:** více hráčů si zařízení předává, mezi tahy je obrazovka předání.
 - **Místní síť:** hostitel hru otevře, ostatní ji uvidí v seznamu nebo zadají adresu, kterou
@@ -19,7 +19,8 @@ získá cílový počet bodů. Android aplikace; server hry běží na zařízen
 - Ceník (tlačítko vedle nápovědy nad kartami) ukazuje, co lze koupit, za kolik, k čemu to je
   a co přesně chybí. Klepnutí na nedostupnou stavbu ceník otevře také.
 
-- Animace hodu kostkami, rozdávání surovin a pálení odhozených karet; každou lze vypnout
+- Animace hodu kostkami, rozdávání surovin z dílků a surovin letících do banky (platby,
+  odhození, směna) a z banky; každou lze vypnout
   v nabídce Animace (hlavní nabídka i menu ☰ ve hře). Kostky se přeskočí klepnutím.
 
 ## Pravidla ve zkratce

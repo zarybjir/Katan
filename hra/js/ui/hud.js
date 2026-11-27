@@ -2,10 +2,10 @@
 import { h, clear, modal, closeModals, toast, SYM } from './dom.js';
 import { createBoard } from './board.js';
 import { icon } from './icons.js';
-import { dice, deal, burn, sources, animDialog } from './anim.js';
+import { dice, deal, bankFlow, expand, sources, animDialog } from './anim.js';
 import { resTile, tradeDialog, respondDialog, offerDialog, discardDialog, cardsDialog } from './trade.js';
 import { fmtRes } from './text.js';
-import { RES, RES_NAME, RES_COLOR, COST, KIND_NAME, KIND_TEXT, COLORS, RULES, BOT_LEVEL, CARDS, CARD_TEXT } from '../data.js';
+import { RES, RES_NAME, RES_COLOR, COST, TERRAIN, KIND_NAME, KIND_TEXT, COLORS, RULES, BOT_LEVEL, CARDS, CARD_TEXT } from '../data.js';
 
 // S: { view(), seats, log, multi, pending, cur, act(a), accept(), leave(), netInfo() }
 export function createGame(root, S) {
@@ -14,7 +14,7 @@ export function createGame(root, S) {
     players: h('div', { id: 'players' }), cv: h('canvas', { id: 'board' }), log: h('div', { id: 'log', onclick: showLog }),
     hint: h('div', { id: 'hint' }), hand: h('div', { id: 'hand' }), actions: h('div', { id: 'actions' }), pass: h('div', { id: 'pass' }),
   };
-  clear(root).append(el.players, h('div', { id: 'mid' }, el.cv, el.log), h('div', { id: 'bar' }, el.hint, el.hand, el.actions), el.pass);
+  clear(root).append(el.players, h('div', { id: 'mid' }, el.cv, el.log, h('div', { id: 'bank', title: 'banka' }, icon('bank', 40))), h('div', { id: 'bar' }, el.hint, el.hand, el.actions), el.pass);
   const board = createBoard(el.cv, pick);
   const G = { update, board };
 
@@ -212,12 +212,17 @@ export function createGame(root, S) {
     const v = S.view(), a = S.anim;
     if (!v || !ev.length) return;
     const target = (p, r) => p === v.you ? (r ? document.querySelector(`#hand .have[data-res=${r}]`) : document.getElementById('hand')) : document.querySelector(`.chip[data-p="${p}"]`);
-    let sum = 0;
+    let sum = 0, fromBank = false;
     const gains = [];
     for (const e of ev) {
       if (e.e === 'roll') { sum = e.d[0] + e.d[1]; if (a.dice) dice(e.d); }
-      else if (e.e === 'gain' && Object.keys(e.res).length) gains.push(e);
-      else if (e.e === 'discard' && a.burn) burn(target(e.p), e.n);
+      else if (e.e === 'play' && e.card === 'supply') fromBank = true;
+      else if (e.e === 'gain' && Object.keys(e.res).length) { if (fromBank) { if (a.burn) bankFlow(target(e.p), expand(e.res), false); } else gains.push(e); }
+      else if (!a.burn) continue;
+      else if (e.e === 'discard') bankFlow(target(e.p), e.res ? expand(e.res) : Array(e.n).fill('cards'), true);
+      else if (e.e === 'build' && e.paid) bankFlow(target(e.p), expand(COST[e.kind]), true);
+      else if (e.e === 'buy') bankFlow(target(e.p), expand(COST.card), true);
+      else if (e.e === 'bank') { bankFlow(target(e.p, e.give), Array(e.rate).fill(e.give), true); bankFlow(target(e.p, e.get), [e.get], false, 110 * e.rate + 300); }
     }
     if (gains.length && a.deal) setTimeout(() => deal(gains, (p, r) => sources(S.view(), board, sum, p, r), target), sum && a.dice ? 1100 : 0);
   };
