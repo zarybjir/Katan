@@ -45,6 +45,7 @@ function session(conn, hello, host) {
   s.act = a => s.client.act(s.cur, a);
   s.accept = () => { s.cur = s.pending; s.pending = null; s.G.update(); };
   s.refresh = () => host && host.resend(); // jen pro testy: znovu rozeslat pohledy
+  s.version = A.version;
   s.away = () => s.cur !== null && s.cur >= 0 && s.seats[s.cur] && s.seats[s.cur].away;
   s.back = () => s.client.back(s.cur);
   s.netInfo = () => s.net && netLines(s);

@@ -148,7 +148,8 @@ export function createGame(root, S) {
       h('button', { class: 'btn', onclick: () => { m.close(); rules(); } }, 'Pravidla'),
       h('button', { class: 'btn', onclick: () => { m.close(); board.moved = false; board.fit(); } }, 'Vystředit mapu'),
       h('button', { class: 'btn ghost', id: 'leave', onclick: () => { m.close(); const c = modal('Opustit hru', h('div', { class: 'col' }, h('p', null, S.host ? 'Hra zůstane uložená a půjde v ní pokračovat. Připojení hráči budou odpojeni.' : 'Do hry se lze vrátit přes nabídku Připojit se.'),
-        h('div', { class: 'row' }, h('button', { class: 'btn', id: 'leave-ok', onclick: () => { c.close(); S.leave(); } }, 'Opustit'), h('button', { class: 'btn ghost', onclick: () => c.close() }, 'Zpět')))); } }, 'Opustit hru')));
+        h('div', { class: 'row' }, h('button', { class: 'btn', id: 'leave-ok', onclick: () => { c.close(); S.leave(); } }, 'Opustit'), h('button', { class: 'btn ghost', onclick: () => c.close() }, 'Zpět')))); } }, 'Opustit hru'),
+      S.version && h('p', { class: 'dim small' }, 'verze ' + S.version)));
   }
   // ceník: co lze koupit, cena, k čemu to je a co hráči chybí
   function prices(v) {
