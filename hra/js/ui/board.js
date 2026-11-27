@@ -3,6 +3,20 @@ import { graph, hexXY } from '../core/hex.js';
 import { TERRAIN_COLOR, TERRAIN_GFX, RES_COLOR, PIPS, COLORS } from '../data.js';
 
 // ---------- obrázky dílků ----------
+// figurky obarvené na barvu hráče: bílý obrázek × barva, předkreslené jednou na hráče
+const TINT = {};
+function tinted(name, color) {
+  const k = name + color;
+  if (TINT[k]) return TINT[k];
+  const img = sprite(name);
+  if (!img) return null;
+  const c = document.createElement('canvas'); c.width = img.naturalWidth; c.height = img.naturalHeight;
+  const x = c.getContext('2d');
+  x.drawImage(img, 0, 0);
+  x.globalCompositeOperation = 'multiply'; x.fillStyle = color; x.fillRect(0, 0, c.width, c.height);
+  x.globalCompositeOperation = 'destination-in'; x.drawImage(img, 0, 0);
+  return (TINT[k] = c);
+}
 // samostatné obrázky (bouře); načtou se jednou, do té doby se kreslí náhradní tvar
 function sprite(name) {
   let img = IMG[name];
@@ -127,6 +141,13 @@ export function createBoard(cv, onPick) {
     for (const e of Object.keys(v.roads)) {
       const ed = g.E[e], a = g.V[ed.a], b = g.V[ed.b];
       const ax = a.x + (b.x - a.x) * 0.16, ay = a.y + (b.y - a.y) * 0.16, bx = b.x + (a.x - b.x) * 0.16, by = b.y + (a.y - b.y) * 0.16;
+      const rd = tinted('fig-cesta', COLORS[v.roads[e]]);
+      if (rd) { // prkna podél hrany
+        ctx.save(); ctx.translate((a.x + b.x) / 2, (a.y + b.y) / 2); ctx.rotate(Math.atan2(b.y - a.y, b.x - a.x));
+        ctx.shadowColor = 'rgba(0,0,0,.55)'; ctx.shadowBlur = 0.08 * k; ctx.shadowOffsetY = 0.03 * k;
+        ctx.drawImage(rd, -0.36, -0.12, 0.72, 0.24); ctx.restore();
+        continue;
+      }
       ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by);
       ctx.strokeStyle = INK; ctx.lineWidth = 0.21; ctx.stroke();
       ctx.strokeStyle = COLORS[v.roads[e]]; ctx.lineWidth = 0.13; ctx.stroke();
@@ -159,6 +180,16 @@ export function createBoard(cv, onPick) {
     ctx.fillStyle = color; ctx.fillText(t, x, y);
   }
   function house(x, y, p, city) {
+    const fig = tinted(city ? 'fig-mesto' : 'fig-osada', COLORS[p]);
+    if (fig) {
+      const s = city ? 0.95 : 0.7;
+      ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.6)'; ctx.shadowBlur = 0.1 * B.cam.k * dpr; ctx.shadowOffsetY = 0.04 * B.cam.k * dpr;
+      ctx.drawImage(fig, x - s / 2, y - s * 0.62, s, s); ctx.restore();
+      // značka hráče (rozlišení i bez barev)
+      ctx.beginPath(); ctx.arc(x + s * 0.32, y + s * 0.28, 0.13, 0, 7); ctx.fillStyle = COLORS[p]; ctx.fill(); ctx.strokeStyle = INK; ctx.lineWidth = 0.03; ctx.stroke();
+      text(SYM[p], x + s * 0.32, y + s * 0.29, 0.15, p === 2 ? INK : '#fff');
+      return;
+    }
     const s = city ? 0.3 : 0.21;
     ctx.beginPath();
     if (city) { ctx.moveTo(x - s, y + s * 0.8); ctx.lineTo(x - s, y - s * 0.2); ctx.lineTo(x - s * 0.1, y - s * 0.2); ctx.lineTo(x - s * 0.1, y - s * 0.7); ctx.lineTo(x + s * 0.45, y - s * 1.25); ctx.lineTo(x + s, y - s * 0.7); ctx.lineTo(x + s, y + s * 0.8); }

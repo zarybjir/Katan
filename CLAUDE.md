@@ -167,7 +167,8 @@ prohlížeč, WebView i Node v testech.
 - `hra/gfx/` – obrázky dílků (`<krajina>-<varianta>.jpg`, 640×640, JPEG kvalita 80; seznam
   variant je `TERRAIN_GFX` v `data.js`). Dílek bez obrázku se kreslí barvou a značkou.
   Další malovaná grafika: `res-*.webp` a `banka.webp` (žetony, `icons.js`), `boure.webp` (mapa),
-  `btn-wood.webp`, `btn-brass.webp`, `ramecek.webp` (CSS `border-image`), `drevo-*.jpg`, `more.jpg`,
+  `fig-osada.webp`, `fig-mesto.webp`, `fig-cesta.webp` (bílé figurky, `board.js` je obarví na barvu
+  hráče), `btn-wood.webp`, `btn-brass.webp`, `ramecek.webp` (CSS `border-image`), `drevo-*.jpg`, `more.jpg`,
   `pozadi-menu.jpg`, `karta-<druh>.jpg`. Obrázky na zeleném pozadí se klíčují skriptem (zelená →
   průhlednost), ořezávají a ukládají jako WebP; originály do repa nejdou. Ikona aplikace je
   `app/src/main/res/drawable-nodpi/ic_launcher_img.png` a `mipmap-*/ic_launcher.png`.
