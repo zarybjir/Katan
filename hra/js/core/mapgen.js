@@ -1,7 +1,7 @@
 // Generování mapy ze seedu: tvar ostrova, dílky, čísla, přístavy.
 import { DIRS, hid, graph } from './hex.js';
 import { next, shuffle } from './rng.js';
-import { MAPSIZE, NUMS, RES } from '../data.js';
+import { MAPSIZE, NUMS, RES, PORTS_ANY } from '../data.js';
 
 // ---------- tvar ----------
 const cx = h => 2 * h.q + h.r; // vodorovná poloha na mřížce vrcholů
@@ -110,7 +110,8 @@ export function genMap(seed, players, type = 'island') {
     return false;
   };
   const put = (first, second, type) => place(first, type, true) || place(second, type, true) || place(coast, type, false);
+  // napřed 3:1, protože hran na samotném okraji je méně
+  for (let i = 0; i < PORTS_ANY; i++) put(tip, seam, 'any');
   for (const r of shuffle(R, RES.slice())) put(seam, tip, r);
-  for (let i = 0; i < Math.max(2, Math.round(n / 8)); i++) put(tip, seam, 'any');
   return { hexes, ports, storm: hexes.findIndex(h => h.t === 'waste') };
 }

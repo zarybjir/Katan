@@ -104,7 +104,7 @@ test('mapa: 1000 seedů každého typu splní pravidla', () => {
     const vals = ['forest', 'quarry', 'field', 'pasture', 'claypit'].map(t => cnt[t] || 0);
     ok(Math.max(...vals) - Math.min(...vals) <= 1, 'nerovnoměrné dílky');
     for (const r of RES) eq(m.ports.filter(p => p.type === r).length, 1, `${type} seed ${seed}: přístav ${r}`);
-    ok(m.ports.filter(p => p.type === 'any').length >= 2, 'málo přístavů 3:1');
+    eq(m.ports.filter(p => p.type === 'any').length, 4, `${type} seed ${seed}: přístavy 3:1`);
     const pv = m.ports.flatMap(p => [g.E[p.e].a, g.E[p.e].b]);
     ok(new Set(pv).size === pv.length, 'přístavy sdílejí vrchol');
     for (const p of m.ports) ok(g.E[p.e].hex.length === 1, 'přístav mimo pobřeží');

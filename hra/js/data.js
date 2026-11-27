@@ -1,6 +1,6 @@
 // Tabulky hry. Čísla se ladí tady, ne v kódu.
 export const NAME = 'Souostroví';
-export const PROTO = 6;
+export const PROTO = 7;
 
 // ---------- suroviny a dílky ----------
 export const RES = ['wood', 'stone', 'grain', 'sheep', 'brick'];
@@ -40,6 +40,7 @@ export const MAP_TEXT = {
   isthmus: 'Dvě pevniny spojené úzkou šíjí.',
   ridge: 'Dlouhý úzký pás pevniny.',
 };
+export const PORTS_ANY = 4; // počet přístavů 3:1 (2:1 je po jednom pro každou surovinu)
 export const NUMS = [6, 8, 5, 9, 4, 10, 3, 11, 5, 9, 6, 8, 4, 10, 2, 12, 3, 11]; // pořadí přidělování čísel
 export const PIPS = { 2: 1, 3: 2, 4: 3, 5: 4, 6: 5, 8: 5, 9: 4, 10: 3, 11: 2, 12: 1 };
 

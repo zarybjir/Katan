@@ -39,7 +39,7 @@ získá cílový počet bodů. Android aplikace; server hry běží na zařízen
 - Součet 7 přivolá bouři: kdo má víc než 8 karet, polovinu odhodí; hráč na tahu bouři přesune
   na jiný dílek (ten nevyrábí) a vezme kartu jednomu sousedovi.
 - Směna s bankou 4:1, v přístavu 3:1 nebo 2:1 za vyznačenou surovinu. Na každé mapě je přístav
-  2:1 pro každou surovinu (na pobřeží mezi dvěma dílky) a aspoň dva přístavy 3:1 (na výběžcích).
+  2:1 pro každou surovinu (na pobřeží mezi dvěma dílky) a čtyři přístavy 3:1 (na výběžcích).
 - Nejdelší cesta (od 5 úseků) a nejvíc zahraných hlídek (od 3) dávají po 2 bodech.
 
 ## Instalace a aktualizace
