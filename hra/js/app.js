@@ -113,7 +113,7 @@ function drawLobby(s) {
 function hostGame(cfg, restore) {
   const code = restore ? restore.code : newCode();
   const H = createHost(restore ? { restore, botDelay: FAST ? 20 : undefined, save: t => store.set('so-host', t) }
-    : { botDelay: FAST ? 20 : undefined, seats: cfg.seats, target: cfg.target, seed: (Math.random() * 2 ** 31) | 0, code, save: t => store.set('so-host', t) });
+    : { botDelay: FAST ? 20 : undefined, seats: cfg.seats, target: cfg.target, map: cfg.map, seed: cfg.seed ?? (Math.random() * 2 ** 31) | 0, code, save: t => store.set('so-host', t) });
   const [a, b] = memPair(queueMicrotask);
   S = session(a, null, H);
   S.timer = setInterval(() => H.tick(), 1000);

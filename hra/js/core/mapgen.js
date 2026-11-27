@@ -4,24 +4,50 @@ import { next, shuffle } from './rng.js';
 import { MAPSIZE, NUMS, RES } from '../data.js';
 
 // ---------- tvar ----------
-function shape(R, n) {
-  const set = new Map([[hid(0, 0), { q: 0, r: 0 }]]);
+const cx = h => 2 * h.q + h.r; // vodorovná poloha na mřížce vrcholů
+const dist = h => (Math.abs(h.q) + Math.abs(h.r) + Math.abs(h.q + h.r)) / 2;
+// Růst pevniny: přidává sousední dílky, dokud jich není n. pow určuje sevřenost (víc sousedů = větší šance).
+function grow(R, set, n, pow, allowed, from) {
   while (set.size < n) {
     const fr = new Map();
-    for (const h of set.values()) for (const [dq, dr] of DIRS) {
-      const k = hid(h.q + dq, h.r + dr);
-      if (set.has(k)) continue;
-      const f = fr.get(k) || { q: h.q + dq, r: h.r + dr, w: 0 };
-      f.w++; fr.set(k, f);
+    for (const h of set.values()) {
+      if (from && !from(h)) continue;
+      for (const [dq, dr] of DIRS) {
+        const c = { q: h.q + dq, r: h.r + dr }, k = hid(c.q, c.r);
+        if (set.has(k) || (allowed && !allowed(c))) continue;
+        const f = fr.get(k) || { ...c, w: 0 };
+        f.w++; fr.set(k, f);
+      }
     }
     const list = [...fr.values()];
-    let tot = 0; for (const f of list) tot += f.w * f.w * f.w; // kompaktní tvar: víc sousedů = větší šance
-    let x = next(R) * tot, ch = list[0];
-    for (const f of list) { x -= f.w * f.w * f.w; if (x <= 0) { ch = f; break; } }
+    if (!list.length) break;
+    let tot = 0; for (const f of list) tot += f.w ** pow;
+    let x = next(R) * tot, ch = list[list.length - 1];
+    for (const f of list) { x -= f.w ** pow; if (x <= 0) { ch = f; break; } }
     set.set(hid(ch.q, ch.r), { q: ch.q, r: ch.r });
   }
-  return [...set.values()];
+  return set;
 }
+const seedSet = list => new Map(list.map(([q, r]) => [hid(q, r), { q, r }]));
+const SHAPES = {
+  island: (R, n) => grow(R, seedSet([[0, 0]]), n, 3),
+  bays: (R, n) => grow(R, seedSet([[0, 0]]), n, 0.4),
+  // prstenec: celý kruh ve vzdálenosti 2, zbytek roste ven; střed zůstává lagunou
+  atoll: (R, n) => {
+    const ring = [];
+    for (let q = -2; q <= 2; q++) for (let r = -2; r <= 2; r++) if (dist({ q, r }) === 2) ring.push([q, r]);
+    return grow(R, seedSet(ring), n, 2, h => dist(h) >= 2);
+  },
+  // dvě pevniny, mezi nimi tři dílky v řadě
+  isthmus: (R, n) => {
+    const set = seedSet([[-1, 0], [0, 0], [1, 0]]);
+    const half = Math.floor((n - 3) / 2);
+    grow(R, set, 3 + half, 3, h => cx(h) <= -3, h => cx(h) <= -2);
+    return grow(R, set, n, 3, h => cx(h) >= 3, h => cx(h) >= 2);
+  },
+  ridge: (R, n) => grow(R, seedSet([[0, 0]]), n, 1.5, h => Math.abs(h.r) <= 1),
+};
+function shape(R, n, type) { return [...(SHAPES[type] || SHAPES.island)(R, n).values()]; }
 
 // počet sousedních dvojic se stejným dílkem / s čísly 6 a 8
 export function quality(hexes) {
@@ -34,10 +60,10 @@ export function quality(hexes) {
   return { same, hot };
 }
 
-export function genMap(seed, players) {
+export function genMap(seed, players, type = 'island') {
   const R = { rng: seed | 0 };
   const n = MAPSIZE[players] || MAPSIZE[4];
-  const hexes = shape(R, n);
+  const hexes = shape(R, n, type);
   const g = graph(hexes);
   // dílky: pustiny + rovnoměrně pět druhů
   const waste = Math.max(1, Math.round(n / 18));

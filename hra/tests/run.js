@@ -9,7 +9,7 @@ import { botAct } from '../js/bot/bot.js';
 import { createHost } from '../js/net/host.js';
 import { createClient } from '../js/net/client.js';
 import { memPair } from '../js/net/transport-mem.js';
-import { RES, PIECES, MAPSIZE, COST, RULES, PROTO, bankSize, deckFor } from '../js/data.js';
+import { RES, PIECES, MAPSIZE, MAPS, COST, RULES, PROTO, bankSize, deckFor } from '../js/data.js';
 
 const tests = [];
 const test = (name, fn) => tests.push({ name, fn });
@@ -91,11 +91,12 @@ test('geometrie: sousednosti a jednoznačnost id', () => {
 });
 
 // ---------- generátor mapy ----------
-test('mapa: 1000 seedů splní pravidla', () => {
-  for (let seed = 1; seed <= 1000; seed++) {
-    const n = 2 + seed % 5, m = genMap(seed, n), g = graph(m.hexes);
+test('mapa: 1000 seedů každého typu splní pravidla', () => {
+  for (const type of Object.keys(MAPS)) for (let seed = 1; seed <= 1000; seed++) {
+    const n = 2 + seed % 5, m = genMap(seed, n, type), g = graph(m.hexes);
+    eq(new Set(m.hexes.map(h => h.q + ',' + h.r)).size, m.hexes.length, type + ': opakovaný dílek,');
     eq(m.hexes.length, MAPSIZE[n]);
-    eq(quality(m.hexes).hot, 0, 'seed ' + seed + ': 6 a 8 vedle sebe,');
+    eq(quality(m.hexes).hot, 0, type + ' seed ' + seed + ': 6 a 8 vedle sebe,');
     ok(m.hexes[m.storm].t === 'waste', 'bouře mimo pustinu');
     for (const h of m.hexes) ok(h.t === 'waste' ? h.n === 0 : h.n >= 2 && h.n <= 12 && h.n !== 7, 'číslo dílku');
     const cnt = {}; for (const h of m.hexes) cnt[h.t] = (cnt[h.t] || 0) + 1;
@@ -108,6 +109,31 @@ test('mapa: 1000 seedů splní pravidla', () => {
     const seen = new Set([0]), q = [0]; // souvislost
     while (q.length) for (const j of g.hadj[q.pop()]) if (!seen.has(j)) { seen.add(j); q.push(j); }
     eq(seen.size, m.hexes.length, 'nesouvislá mapa');
+  }
+});
+test('mapa: typy mají svůj tvar', () => {
+  const key = h => h.q + ',' + h.r;
+  for (let seed = 1; seed <= 200; seed++) for (const n of [2, 4, 6]) {
+    let m = genMap(seed, n, 'atoll'), g = graph(m.hexes);
+    ok(!m.hexes.some(h => (Math.abs(h.q) + Math.abs(h.r) + Math.abs(h.q + h.r)) / 2 < 2), 'atol: dílek v laguně');
+    m = genMap(seed, n, 'ridge');
+    ok(m.hexes.every(h => Math.abs(h.r) <= 1), 'hřeben: širší než tři řady');
+    m = genMap(seed, n, 'isthmus'); g = graph(m.hexes);
+    const mid = g.H['0,0'], left = m.hexes.filter(h => 2 * h.q + h.r < 0).length, right = m.hexes.filter(h => 2 * h.q + h.r > 0).length;
+    eq(g.hadj[mid].length, 2, 'šíje: střed má mít dva sousedy,');
+    ok(Math.abs(left - right) <= 1, `šíje: nevyvážené pevniny ${left} a ${right}`);
+    const a = new Set(genMap(seed, n, 'island').hexes.map(key)), b = new Set(genMap(seed, n, 'bays').hexes.map(key));
+    ok(a.size === b.size);
+  }
+  // zátoky mají v průměru delší pobřeží než ostrov
+  const coast = t => { let c = 0; for (let s = 1; s <= 100; s++) c += Object.values(graph(genMap(s, 4, t).hexes).E).filter(e => e.hex.length === 1).length; return c; };
+  ok(coast('bays') > coast('island') * 1.15, 'zátoky nemají členitější pobřeží');
+});
+test('mapa: boti dohrají hru na každém typu', () => {
+  for (const type of Object.keys(MAPS)) for (let seed = 1; seed <= 12; seed++) {
+    const n = 2 + seed % 5, s = newGame({ seed, names: names(n), map: type }), rnd = rndOf(seed);
+    let steps = 0;
+    while (s.phase !== 'end') { if (!botStep(s, 'mid', rnd, invariants)) throw new Error(`${type} seed ${seed}: hra se zasekla`); if (++steps > 40000) throw new Error(`${type} seed ${seed}: hra nekončí`); }
   }
 });
 test('mapa: stejný seed dá stejnou mapu', () => {

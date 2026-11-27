@@ -8,10 +8,10 @@ import { RES, PIECES, RULES, bankSize, deckFor } from '../data.js';
 export const emptyRes = () => Object.fromEntries(RES.map(r => [r, 0]));
 export const total = h => RES.reduce((a, r) => a + (h[r] || 0), 0);
 
-// opts: { seed, names: [...], target }
+// opts: { seed, names: [...], target, map }
 export function newGame(opts) {
   const n = opts.names.length, seed = opts.seed | 0;
-  const map = genMap(seed, n);
+  const map = genMap(seed, n, opts.map);
   const s = {
     v: 1, rng: (seed ^ 0x5bd1e995) | 0, target: opts.target || RULES.target,
     map: { hexes: map.hexes, ports: map.ports }, storm: map.storm,

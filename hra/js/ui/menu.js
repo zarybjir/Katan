@@ -1,6 +1,8 @@
 // Obrazovky mimo hru: nabídka, založení hry, připojení, lobby.
 import { h, clear, SYM } from './dom.js';
-import { NAME, COLORS, BOT_LEVEL, RULES } from '../data.js';
+import { NAME, COLORS, BOT_LEVEL, RULES, MAPS, MAP_TEXT } from '../data.js';
+import { genMap } from '../core/mapgen.js';
+import { createBoard } from './board.js';
 
 const screen = (root, ...kids) => clear(root).append(h('div', { class: 'screen' }, kids));
 
@@ -18,6 +20,11 @@ export function showMenu(root, A) {
 // založení hry: počet hráčů, obsazení míst, cíl
 export function showSetup(root, A, onStart, onBack) {
   const cfg = A.settings.setup || { n: 4, target: RULES.target, seats: [] };
+  if (!MAPS[cfg.map] && cfg.map !== 'random') cfg.map = 'island';
+  const types = Object.keys(MAPS);
+  let seed, type; // náhled ukazuje přesně tu mapu, na které se bude hrát
+  const reroll = () => { seed = (Math.random() * 2 ** 31) | 0; type = cfg.map === 'random' ? types[seed % types.length] : cfg.map; };
+  reroll();
   const KINDS = [['local', 'Hráč na tomto zařízení'], ['open', 'Hráč po síti'], ['bot:easy', 'Bot – ' + BOT_LEVEL.easy], ['bot:mid', 'Bot – ' + BOT_LEVEL.mid], ['bot:hard', 'Bot – ' + BOT_LEVEL.hard]];
   const draw = () => {
     while (cfg.seats.length < cfg.n) cfg.seats.push({ k: cfg.seats.length ? 'bot:mid' : 'local', name: '' });
@@ -25,6 +32,7 @@ export function showSetup(root, A, onStart, onBack) {
     let locals = 0;
     screen(root, h('h2', null, 'Nová hra'),
       h('label', null, 'Počet hráčů', h('div', { class: 'row' }, [2, 3, 4, 5, 6].map(n => h('button', { class: 'btn small' + (cfg.n === n ? ' on' : ''), 'data-n': n, onclick: () => { cfg.n = n; draw(); } }, String(n))))),
+      mapBox(),
       seats.map((s, i) => {
         const first = s.k === 'local' && locals++ === 0;
         const sel = h('select', { 'data-seat': i, onchange: () => { s.k = sel.value; draw(); } }, KINDS.map(([k, t]) => h('option', { value: k, selected: s.k === k }, t)));
@@ -36,10 +44,20 @@ export function showSetup(root, A, onStart, onBack) {
       h('button', { class: 'btn', id: 's-go', onclick: () => {
         A.settings.setup = cfg; A.saveSettings();
         let l = 0;
-        onStart({ target: cfg.target, seats: seats.map((s, i) => s.k.startsWith('bot') ? { kind: 'bot', level: s.k.slice(4) } : s.k === 'open' ? { kind: 'open' } : { kind: 'local', name: (s.name || (l++ === 0 ? A.settings.name : '')).trim() || 'Hráč ' + (i + 1) }) });
+        onStart({ target: cfg.target, map: type, seed, seats: seats.map((s, i) => s.k.startsWith('bot') ? { kind: 'bot', level: s.k.slice(4) } : s.k === 'open' ? { kind: 'open' } : { kind: 'local', name: (s.name || (l++ === 0 ? A.settings.name : '')).trim() || 'Hráč ' + (i + 1) }) });
       } }, 'Pokračovat'),
       h('button', { class: 'btn ghost', onclick: onBack }, 'Zpět'));
   };
+  function mapBox() {
+    const sel = h('select', { id: 's-map', onchange: () => { cfg.map = sel.value; reroll(); draw(); } },
+      [...types.map(k => [k, MAPS[k]]), ['random', 'Náhodná']].map(([k, t]) => h('option', { value: k, selected: cfg.map === k }, t)));
+    const cv = h('canvas', { class: 'preview', id: 's-preview' });
+    const m = genMap(seed, cfg.n, type);
+    createBoard(cv, () => {}).setView({ map: { hexes: m.hexes, ports: m.ports }, roads: {}, bld: {}, storm: m.storm });
+    return h('label', null, 'Mapa', sel, cv, h('div', { class: 'row' },
+      h('span', { class: 'dim grow' }, (cfg.map === 'random' ? MAPS[type] + ': ' : '') + MAP_TEXT[type]),
+      h('button', { class: 'btn small', id: 's-reroll', onclick: e => { e.preventDefault(); reroll(); draw(); } }, 'Jiná mapa')));
+  }
   draw();
 }
 
@@ -68,7 +86,7 @@ export function showLobby(root, m, o) {
     m.seats.map((s, i) => h('div', { class: 'seat' }, h('span', { class: 'sym', style: `color:${COLORS[i]}` }, SYM[i]),
       h('span', { class: 'grow' }, s.kind === 'bot' ? `${s.name} (bot, ${BOT_LEVEL[s.level]})` : s.kind === 'open' ? (s.taken ? s.name : 'volné místo') : s.name),
       m.you.includes(i) && h('span', { class: 'dim' }, 'toto zařízení'), s.kind === 'open' && s.taken && h('span', { class: 'dim' }, 'připojeno'))),
-    h('p', { class: 'dim' }, `Cíl: ${m.target} bodů`),
+    h('p', { class: 'dim' }, `Mapa: ${MAPS[m.map] || MAPS.island}, cíl: ${m.target} bodů`),
     o.host && h('button', { class: 'btn', id: 'l-start', onclick: o.start }, 'Spustit hru'),
     h('button', { class: 'btn ghost', id: 'l-leave', onclick: o.leave }, o.host ? 'Zrušit' : 'Odejít'));
 }

@@ -22,6 +22,15 @@ export const PIECES = { road: 16, settle: 6, city: 4 };
 
 // ---------- mapa ----------
 export const MAPSIZE = { 2: 16, 3: 19, 4: 22, 5: 27, 6: 31 }; // počet dílků podle počtu hráčů
+// typy map (tvar pevniny); klíč se ukládá do nastavení
+export const MAPS = { island: 'Ostrov', bays: 'Zátoky', atoll: 'Atol', isthmus: 'Šíje', ridge: 'Hřeben' };
+export const MAP_TEXT = {
+  island: 'Sevřený ostrov, krátké vzdálenosti.',
+  bays: 'Členité pobřeží s výběžky, hodně přístavů.',
+  atoll: 'Prstenec pevniny kolem laguny.',
+  isthmus: 'Dvě pevniny spojené úzkou šíjí.',
+  ridge: 'Dlouhý úzký pás pevniny.',
+};
 export const NUMS = [6, 8, 5, 9, 4, 10, 3, 11, 5, 9, 6, 8, 4, 10, 2, 12, 3, 11]; // pořadí přidělování čísel
 export const PIPS = { 2: 1, 3: 2, 4: 3, 5: 4, 6: 5, 8: 5, 9: 4, 10: 3, 11: 2, 12: 1 };
 

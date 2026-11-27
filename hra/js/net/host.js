@@ -7,17 +7,17 @@ import { botAct } from '../bot/bot.js';
 import { parse, pack, cleanName, okToken } from './proto.js';
 import { PROTO, NET, RULES, BOT_NAMES } from '../data.js';
 
-// opt: { seats:[{kind:'local'|'bot'|'open', name, level}], target, seed, code, save(text), botDelay, now(), restore }
+// opt: { seats:[{kind:'local'|'bot'|'open', name, level}], target, map, seed, code, save(text), botDelay, now(), restore }
 export function createHost(opt) {
   const now = opt.now || (() => Date.now());
   const H = {
-    g: null, seats: [], conns: new Set(), seq: 0, code: opt.code || '', target: opt.target || RULES.target,
+    g: null, seats: [], conns: new Set(), seq: 0, code: opt.code || '', target: opt.target || RULES.target, map: opt.map || 'island',
     R: { rng: (opt.seed | 0) ^ 0x1234567 }, seed: opt.seed | 0, lastAct: now(), timer: null, botDelay: opt.botDelay ?? NET.botDelay,
     onChange: null, closed: false,
   };
   if (opt.restore) {
     const r = opt.restore;
-    Object.assign(H, { g: r.g, seq: r.seq, code: r.code, target: r.target, R: r.R, seed: r.seed });
+    Object.assign(H, { g: r.g, seq: r.seq, code: r.code, target: r.target, R: r.R, seed: r.seed, map: r.map || 'island' });
     H.seats = r.seats.map(s => ({ ...s, conn: null }));
   } else H.seats = opt.seats.map((s, i) => seat(s, i));
 
@@ -25,7 +25,7 @@ export function createHost(opt) {
     return { kind: s.kind, level: s.level || 'mid', name: s.kind === 'bot' ? BOT_NAMES[i % BOT_NAMES.length] : s.kind === 'local' ? cleanName(s.name) : '', token: null, conn: null, away: false };
   }
   const pub = () => H.seats.map(s => ({ kind: s.kind, name: s.name, level: s.level, taken: s.kind !== 'open' || !!s.token, online: s.kind !== 'open' || !!s.conn, away: s.away }));
-  const save = () => { if (opt.save && H.g) opt.save(JSON.stringify({ v: 1, g: H.g, seq: H.seq, code: H.code, target: H.target, R: H.R, seed: H.seed, seats: H.seats.map(({ conn, ...s }) => s) })); };
+  const save = () => { if (opt.save && H.g) opt.save(JSON.stringify({ v: 1, g: H.g, seq: H.seq, code: H.code, target: H.target, map: H.map, R: H.R, seed: H.seed, seats: H.seats.map(({ conn, ...s }) => s) })); };
 
   // ---------- rozesílání ----------
   function pidsOf(c) {
@@ -33,7 +33,7 @@ export function createHost(opt) {
     return H.seats.map((s, i) => (s.conn === c ? i : -1)).filter(i => i >= 0);
   }
   function sendState(c, ev) {
-    if (!H.g) { c.conn.send(pack({ t: 'lobby', seats: pub(), you: pidsOf(c), target: H.target, code: H.code })); return; }
+    if (!H.g) { c.conn.send(pack({ t: 'lobby', seats: pub(), you: pidsOf(c), target: H.target, map: H.map, code: H.code })); return; }
     for (const pid of pidsOf(c)) c.conn.send(pack({ t: 'view', pid, view: view(H.g, pid), ev: eventsFor(ev || [], pid), seq: H.seq, seats: pub() }));
   }
   function broadcast(ev) { for (const c of H.conns) if (c.local || c.hello) sendState(c, ev); if (H.onChange) H.onChange(); }
@@ -100,7 +100,7 @@ export function createHost(opt) {
   H.start = () => {
     if (H.g) return;
     H.seats.forEach((s, i) => { if (s.kind === 'open' && !s.token) Object.assign(s, seat({ kind: 'bot', level: 'mid' }, i)); });
-    H.g = newGame({ seed: H.seed, names: H.seats.map(s => s.name), target: H.target });
+    H.g = newGame({ seed: H.seed, names: H.seats.map(s => s.name), target: H.target, map: H.map });
     H.lastAct = now(); H.seq = 1; save(); broadcast(); H.kick();
   };
 

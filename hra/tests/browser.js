@@ -106,8 +106,12 @@ try {
   // ---------- dvě záložky (přenos tabs) ----------
   ctx = await browser.newContext({ viewport: { width: 390, height: 800 } });
   const hp = await open(ctx, 'Hostitel');
-  await hp.click('#m-new'); await hp.click('[data-n="3"]'); await hp.selectOption('[data-seat="1"]', 'open'); await hp.click('#s-go');
+  await hp.click('#m-new'); await hp.click('[data-n="3"]'); await hp.selectOption('[data-seat="1"]', 'open');
+  await hp.selectOption('#s-map', 'atoll'); await hp.click('#s-reroll'); await hp.waitForSelector('#s-preview');
+  await hp.screenshot({ path: join(out, 'nova-hra.png') });
+  await hp.click('#s-go');
   await hp.waitForSelector('#l-start');
+  ok((await hp.locator('.screen').textContent()).includes('Mapa: Atol'), 'lobby neukazuje typ mapy');
   const code = await hp.evaluate(() => __so.S.host.code);
   ok((await hp.locator('#net').textContent()).includes(code), 'lobby neukazuje kód hry');
   const cp = await open(ctx, 'Klient');
@@ -120,6 +124,7 @@ try {
   await until(hp, async () => { await step(hp); await step(cp); const a = await view(hp), b = await view(cp); return a.turnNo >= 4 && b.turnNo >= 4; }, 'hra ve dvou záložkách', 60000);
   const [a, b] = [await view(hp), await view(cp)];
   ok(a.you === 0 && b.you === 1 && a.roads === b.roads && a.bld === b.bld, 'hostitel a klient vidí různý stav');
+  ok(await cp.evaluate(() => __so.S.view().map.hexes.every(h => Math.abs(h.q) + Math.abs(h.r) + Math.abs(h.q + h.r) >= 4)), 'klient nehraje na zvolené mapě (atol)');
   ok(await cp.evaluate(() => !__so.S.view().players[0].hand && !!__so.S.view().players[1].hand), 'klient vidí cizí ruku');
   // odpojení klienta a návrat
   await cp.reload(); await cp.click('#m-join'); await cp.click('#j-go'); await cp.waitForSelector('#board');

@@ -6,7 +6,8 @@ získá cílový počet bodů. Android aplikace; server hry běží na zařízen
 
 ## Co hra umí
 
-- Mapa se pro každou hru generuje nově, velikost podle počtu hráčů.
+- Mapa se pro každou hru generuje nově, velikost podle počtu hráčů. Pět typů map: ostrov,
+  zátoky, atol, šíje a hřeben; při zakládání hry je vidět náhled a mapu lze vyměnit za jinou.
 - Boti ve třech obtížnostech (lehký, střední, těžký), libovolná kombinace lidí a botů.
 - **Jedno zařízení:** více hráčů si zařízení předává, mezi tahy je obrazovka předání.
 - **Místní síť:** hostitel hru otevře, ostatní ji uvidí v seznamu nebo zadají adresu, kterou

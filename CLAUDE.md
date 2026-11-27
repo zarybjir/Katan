@@ -35,7 +35,10 @@ Každou změnu poměřuj těmito body.
 
 ### Návrh pravidel (výchozí, lze měnit)
 
-- **Mapa** se generuje ze seedu; velikost podle počtu hráčů. Dílky: les (dřevo), lom (kámen),
+- **Mapa** se generuje ze seedu; velikost podle počtu hráčů. Typ mapy určuje tvar pevniny
+  (`MAPS` v `data.js`, tvary v `SHAPES` v `mapgen.js`): ostrov, zátoky, atol, šíje, hřeben.
+  Pevnina je vždy souvislá (lodě nejsou). Nový typ = záznam v `MAPS`, `MAP_TEXT`, `SHAPES` a test tvaru.
+  Při zakládání hry je vidět náhled přesně té mapy, na které se bude hrát. Dílky: les (dřevo), lom (kámen),
   pole (obilí), loviště (ryby), důl (železo), pustina (nic). Každý dílek kromě pustiny má číslo
   2–12 bez 7; generátor hlídá, aby nejčastější čísla nesousedila a suroviny nebyly v jednom shluku.
 - **Tah:** hod dvěma kostkami → dílky s tím číslem dají surovinu sousedním osadám (1) a městům (2)
@@ -211,7 +214,7 @@ Přístup vždy v `try/catch`.
 - **Po změně v `core/`, `bot/`, `net/` nebo `data.js` spusť `node hra/tests/run.js`**
   (bez prohlížeče, bez npm):
   - geometrie: počty vrcholů a hran, sousednosti, jednoznačnost id,
-  - generátor map: 1000 seedů splní pravidla vyváženosti,
+  - generátor map: 1000 seedů každého typu splní pravidla, typy mají svůj tvar, boti na nich dohrají,
   - pravidla: každý typ akce má test platného i neplatného použití,
   - **hry botů:** stovky celých her doběhnou do konce bez chyby, neplatné akce a zaseknutí;
     po každé akci se kontrolují invarianty (počty karet sedí s bankou, body sedí se stavbami),
