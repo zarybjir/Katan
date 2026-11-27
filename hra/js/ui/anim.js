@@ -5,14 +5,14 @@ import { icon } from './icons.js';
 import { graph } from '../core/hex.js';
 import { TERRAIN } from '../data.js';
 
-export const ANIM_DEF = { dice: true, deal: true, burn: true, sound: true };
+export const ANIM_DEF = { dice: true, deal: true, burn: true, banner: true, sound: true };
 // klíč burn zůstává kvůli uloženému nastavení; dnes znamená suroviny letící do banky a z ní
-export const ANIM_NAME = { dice: 'Hod kostkami', deal: 'Rozdávání surovin z dílků', burn: 'Platby a odhození do banky', sound: 'Zvuky' };
+export const ANIM_NAME = { dice: 'Hod kostkami', deal: 'Rozdávání surovin z dílků', burn: 'Pohyb surovin (banka, obchod, krádež)', banner: 'Hlášky uprostřed obrazovky', sound: 'Zvuky' };
 
 let fx = null;
 const layer = () => fx || (fx = document.body.appendChild(h('div', { id: 'fx' })));
 const wait = ms => new Promise(r => setTimeout(r, ms));
-export const FLY = 1300, GAP = 250; // délka letu suroviny a rozestup mezi surovinami (ms)
+export const FLY = 1900, GAP = 380; // délka letu suroviny a rozestup mezi surovinami (ms)
 
 // ---------- kostky ----------
 const PIPS = { 1: [5], 2: [1, 9], 3: [1, 5, 9], 4: [1, 3, 7, 9], 5: [1, 3, 5, 7, 9], 6: [1, 3, 4, 6, 7, 9] };
@@ -84,6 +84,31 @@ export function bankFlow(el, kinds, toBank, delay0 = 0, ding) {
     fly(k, toBank ? a : b, toBank ? b : a, d);
     pulse(toBank ? bank : el, d + FLY, ding && (() => ding(k)));
   });
+}
+// přelet surovin mezi dvěma hráči (obchod, krádež)
+export function between(a, b, kinds, delay0 = 0, ding) {
+  if (!live(a) || !live(b) || !kinds.length) return;
+  const p = center(a), q = center(b);
+  kinds.forEach((k, i) => { const d = delay0 + GAP * i; fly(k, p, q, d); pulse(b, d + FLY, ding && (() => ding(k))); });
+}
+
+// ---------- hlášky uprostřed obrazovky ----------
+// zobrazí se na 2 s; další hláška počká, ve frontě zůstanou nejvýš dvě
+const queue = [];
+let showing = false;
+export function banner(text) {
+  if (queue.length >= 2) queue.shift();
+  queue.push(text);
+  if (!showing) nextBanner();
+}
+function nextBanner() {
+  const text = queue.shift();
+  if (!text) { showing = false; return; }
+  showing = true;
+  const el = h('div', { class: 'banner' }, text);
+  (document.getElementById('bn') || document.body.appendChild(h('div', { id: 'bn' }))).append(el); // pod dialogy, aby je hláška nezakryla
+  el.animate([{ opacity: 0, transform: 'translate(-50%,-50%) scale(.85)' }, { opacity: 1, transform: 'translate(-50%,-50%) scale(1)', offset: .1 }, { opacity: 1, transform: 'translate(-50%,-50%) scale(1)', offset: .85 }, { opacity: 0, transform: 'translate(-50%,-50%) scale(.95)' }], { duration: 2000, fill: 'forwards' })
+    .finished.catch(() => {}).then(() => { el.remove(); nextBanner(); });
 }
 export const expand = res => Object.keys(res || {}).flatMap(r => Array(res[r]).fill(r));
 

@@ -188,3 +188,5 @@ input::placeholder { color: #8b7656; }
 .toggle { color: var(--ink); }
 .toggle input { accent-color: var(--acc2); }
 input:focus, select:focus { outline: 2px solid var(--acc2); outline-offset: 1px; border-color: var(--acc2); }
+.banner { position: absolute; left: 50%; top: 30%; transform: translate(-50%,-50%); padding: 10px 20px; border-radius: 12px; background: var(--wood); border: 2px solid var(--acc); color: var(--ink); font: 700 19px/1.25 var(--serif); text-align: center; max-width: 86vw; box-shadow: 0 8px 24px rgba(0,0,0,.5); white-space: normal; }
+#bn { position: fixed; inset: 0; pointer-events: none; z-index: 15; }

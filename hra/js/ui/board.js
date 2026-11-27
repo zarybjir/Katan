@@ -216,7 +216,7 @@ export function createBoard(cv, onPick) {
     for (const id of t.v || []) { const d = Math.hypot(g.V[id].x - w.x, g.V[id].y - w.y); if (d < bd) { bd = d; best = { type: 'v', id }; } }
     for (const id of t.e || []) { const e = g.E[id], d = Math.hypot((g.V[e.a].x + g.V[e.b].x) / 2 - w.x, (g.V[e.a].y + g.V[e.b].y) / 2 - w.y); if (d < bd) { bd = d; best = { type: 'e', id }; } }
     if (!best) for (const i of t.h || []) { const hx = B.v.map.hexes[i], c = hexXY(hx.q, hx.r); if (Math.hypot(c.x - w.x, c.y - w.y) < 0.87) best = { type: 'h', id: i }; }
-    if (best) onPick(best);
+    onPick(best); // null = klepnutí mimo nabízená místa
   }
   new ResizeObserver(B.resize).observe(cv);
   return B;

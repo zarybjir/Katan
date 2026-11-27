@@ -2,7 +2,7 @@
 import { h, clear, modal, closeModals, toast, SYM } from './dom.js';
 import { createBoard } from './board.js';
 import { icon } from './icons.js';
-import { dice, deal, bankFlow, expand, sources, animDialog, FLY, GAP } from './anim.js';
+import { dice, deal, bankFlow, between, banner, expand, sources, animDialog, FLY, GAP } from './anim.js';
 import { sfx, snd } from './sound.js';
 import { resTile, tradeDialog, respondDialog, offerDialog, discardDialog, cardsDialog } from './trade.js';
 import { fmtRes } from './text.js';
@@ -23,11 +23,20 @@ export function createGame(root, S) {
 
   function pick(t) {
     const v = S.view(), L = v.legal;
+    if (!t) { // klepnutí vedle zvýrazněných míst
+      if (mode || v.phase === 'setup' || (L[0] && (L[0].t === 'storm' || L[0].free))) toast('Vybrat lze jen zvýrazněné místo.');
+      return;
+    }
     if (t.type === 'h') {
       const c = L.filter(a => a.t === 'storm' && a.hex === t.id);
-      if (c.length === 1) return act(c[0]);
-      const m = modal('Bouře: komu vzít kartu', h('div', { class: 'col' }, c.map(a => h('button', { class: 'btn', onclick: () => { m.close(); act(a); } },
-        `${SYM[a.from]} ${v.players[a.from].name} (karet: ${v.players[a.from].handN})`))));
+      if (!c.length) return;
+      if (c[0].from === null) return act(c[0]); // u dílku nikdo s kartami není
+      // výběr, komu vzít kartu – i když je kandidát jen jeden
+      const m = modal('Bouře: komu vzít kartu', h('div', { class: 'col' },
+        h('p', { class: 'dim' }, 'Bouře se přesune na vybraný dílek. Jednomu hráči s budovou u dílku se vezme náhodná karta.'),
+        c.map(a => h('button', { class: 'btn', 'data-from': a.from, onclick: () => { m.close(); act(a); } },
+          `${SYM[a.from]} ${v.players[a.from].name} (karet: ${v.players[a.from].handN})`)),
+        h('button', { class: 'btn ghost', onclick: () => m.close() }, 'Jiný dílek')), { key: 'storm' });
       return;
     }
     const a = L.find(a => a.t === 'build' && a.at === t.id && (!mode || a.kind === mode));
@@ -216,6 +225,9 @@ export function createGame(root, S) {
     let sum = 0, fromBank = false;
     snd.on = a.sound !== false;
     const coin = () => sfx.coin(), gainS = r => sfx.gain(r);
+    const nm = p => (v.players[p] ? v.players[p].name : '');
+    const say = t => { if (a.banner !== false) banner(t); };
+    const later = t => setTimeout(() => say(t), a.dice ? 1100 : 0); // až po dohození kostek
     const gains = [];
     // zvuk se ozve při doletu suroviny; když je animace vypnutá, hned
     const flow = (el, kinds, toBank, delay = 0) => {
@@ -224,12 +236,26 @@ export function createGame(root, S) {
     };
     for (const e of ev) {
       if (e.e === 'roll') { sum = e.d[0] + e.d[1]; if (a.dice) dice(e.d); sfx.dice(); }
-      else if (e.e === 'seven') setTimeout(() => sfx.storm(), a.dice ? 700 : 0);
-      else if (e.e === 'turn' && e.p === v.you && v.phase !== 'setup') sfx.turn();
-      else if (e.e === 'steal') sfx.steal();
-      else if (e.e === 'offer' && e.p !== v.you) sfx.offer();
-      else if (e.e === 'win') sfx.win();
-      else if (e.e === 'play') { sfx.card(); if (e.card === 'supply') fromBank = true; }
+      else if (e.e === 'seven') {
+        setTimeout(() => sfx.storm(), a.dice ? 700 : 0);
+        later(e.discard && e.discard[v.you] ? `Bouře: odhození ${e.discard[v.you]} karet` : e.p === v.you ? 'Přesun bouře' : `Bouře: přesun – ${nm(e.p)}`);
+      }
+      else if (e.e === 'turn' && v.phase !== 'setup') { if (e.p === v.you) sfx.turn(); later(`Na tahu: ${nm(e.p)}`); }
+      else if (e.e === 'storm' && e.p !== v.you) say(`${nm(e.p)} přesouvá bouři`);
+      else if (e.e === 'steal') {
+        sfx.steal();
+        const k = [e.res || 'cards'];
+        if (a.burn) between(target(e.from, e.res), target(e.p, e.res), k, 300, gainS);
+        if (e.from === v.you) say(`${nm(e.p)} bere kartu` + (e.res ? ': ' + RES_NAME[e.res] : ''));
+        else if (e.p === v.you && e.res) say(`Karta od hráče ${nm(e.from)}: ${RES_NAME[e.res]}`);
+      }
+      else if (e.e === 'trade') {
+        say(`Obchod: ${nm(e.p)} a ${nm(e.with)}`);
+        if (a.burn) { const g = expand(e.give), w = expand(e.want); between(target(e.p), target(e.with), g, 0, gainS); between(target(e.with), target(e.p), w, GAP * g.length + 300, gainS); }
+      }
+      else if (e.e === 'offer' && e.p !== v.you) { sfx.offer(); say(`Nabídka obchodu: ${nm(e.p)}`); }
+      else if (e.e === 'win') { sfx.win(); say(`Vítězí ${nm(e.p)}`); }
+      else if (e.e === 'play') { sfx.card(); if (e.card === 'supply') fromBank = true; if (e.card === 'guard') say(e.p === v.you ? 'Přesun bouře' : `Hlídka: ${nm(e.p)}`); }
       else if (e.e === 'build') { sfx.build(e.kind); if (e.paid) flow(target(e.p), expand(COST[e.kind]), true); }
       else if (e.e === 'gain' && Object.keys(e.res).length) { if (fromBank) flow(target(e.p), expand(e.res), false); else gains.push(e); }
       else if (e.e === 'discard') flow(target(e.p), e.res ? expand(e.res) : Array(e.n).fill('cards'), true);

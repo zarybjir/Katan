@@ -19,8 +19,9 @@ získá cílový počet bodů. Android aplikace; server hry běží na zařízen
 - Ceník (tlačítko vedle nápovědy nad kartami) ukazuje, co lze koupit, za kolik, k čemu to je
   a co přesně chybí. Klepnutí na nedostupnou stavbu ceník otevře také.
 
-- Animace hodu kostkami, rozdávání surovin z dílků a surovin letících do banky (platby,
-  odhození, směna) a z banky; každou lze vypnout
+- Animace hodu kostkami, rozdávání surovin z dílků, surovin letících do banky (platby,
+  odhození, směna) a z banky i mezi hráči (obchod, krádež) a hlášky uprostřed obrazovky
+  (na tahu, bouře, obchod, krádež, vítěz; zmizí po 2 s); každou lze vypnout
   v nabídce Animace a zvuky (hlavní nabídka i menu ☰ ve hře). Kostky se přeskočí klepnutím.
 - Zvuky: hod kostkami, příchod surovin, platby do banky, stavby, bouře, krádež, nabídka obchodu,
   začátek vlastního tahu a vítězství. Vypínají se tamtéž.
