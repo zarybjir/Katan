@@ -78,7 +78,7 @@ jobs:
       # Podepsaná verze se při každé nové versionName zveřejní jako vydání v<verze> se souborem
       # souostrovi.apk. Z něj si ji stáhne aplikace (Zkontrolovat aktualizace). Existující vydání se nemění.
       - name: Vydání
-        if: env.KATAN_KEYSTORE != '' && github.event_name == 'push'
+        if: env.KATAN_KEYSTORE != '' && github.event_name != 'pull_request'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
