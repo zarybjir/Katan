@@ -196,8 +196,8 @@ export function createBoard(cv, onPick) {
     ctx.fillStyle = color; ctx.fillText(t, x, y);
   }
   // pruh pobřeží na každou hranu s jediným dílkem: tráva pod dílek, skály a pěna ven do moře.
-  // Pruh je 4:1, výška SH jednotek mapy, hrana leží v SE jeho výšky; konce přesahují o SX kvůli rohům.
-  const SH = 0.8, SE = 0.12, SX = 0.3;
+  // Pruh je 4:1, výška SH jednotek mapy, hrana leží v SE jeho výšky; konce přesahují o SX a ořízne je výseč.
+  const SH = 0.85, SE = 0.15, SX = 0.45;
   function shore(img) {
     const g = B.g, iw = img.naturalWidth, ih = img.naturalHeight;
     for (const id in g.E) {
@@ -209,7 +209,10 @@ export function createBoard(cv, onPick) {
       if (ux * ((a.x + b.x) / 2 - c.x) + uy * ((a.y + b.y) / 2 - c.y) < 0) { ux = -ux; uy = -uy; }
       const len = L + 2 * SX, sw = len / SH * ih, h = [...String(id)].reduce((s, ch) => s * 31 + ch.charCodeAt(0) | 0, 7);
       const sx = Math.abs(h) % Math.max(1, Math.floor(iw - sw));
-      ctx.save(); ctx.transform(tx, ty, ux, uy, a.x, a.y);
+      ctx.save();
+      // výseč dílku za touto hranou: sousední pruhy se v rozích potkají bez mezery a bez přesahu
+      ctx.beginPath(); ctx.moveTo(c.x, c.y); ctx.lineTo(c.x + (a.x - c.x) * 3, c.y + (a.y - c.y) * 3); ctx.lineTo(c.x + (b.x - c.x) * 3, c.y + (b.y - c.y) * 3); ctx.closePath(); ctx.clip();
+      ctx.transform(tx, ty, ux, uy, a.x, a.y);
       ctx.drawImage(img, sx, 0, sw, ih, -SX, -SH * SE, len, SH);
       ctx.restore();
     }

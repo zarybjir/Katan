@@ -238,7 +238,7 @@ převádí jen `ui/board.js`.
   Stavby jsou v původní velikosti, zesvětlené (barva hráče + `screen` bílé figurky) se světlým obrysem a stínem;
   krajiny jsou mírně ztlumené, aby stavby
   vynikly; poslední stavba se kolečkem nevyznačuje.
-  Ostrov má skalnaté pobřeží s pěnou (malovaný pruh `breh.webp` položený na každou hranu pobřeží, `shore()` v `board.js`) a nahnědlé pískové spáry mezi dílky. Místa ke stavbě jsou nenápadné
+  Ostrov má kamenité pobřeží s oblými kameny (malovaný pruh `breh.webp` na každé hraně pobřeží, oříznutý výsečí dílku, `shore()` v `board.js`) a nahnědlé pískové spáry mezi dílky. Místa ke stavbě jsou nenápadné
   světlé tečky (bílá kolečka zadavatel nechce). Přístavy kreslí `port()` v `board.js`: lávky
   (`lavka.webp`) a pergamenová cedulka s ikonkou suroviny a „2:1“, u 3:1 jen poměr. Cesta je `fig-cesta.webp` obarvená na hráče.
   V UI se barva hráče bere vždy přes `pc(p)` (tečka v textu: `dot(p)`) z `dom.js`, nikdy `COLORS[p]`.
