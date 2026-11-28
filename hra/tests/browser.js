@@ -41,6 +41,8 @@ async function step(p) {
   const v = await view(p);
   if (!v) return false;
   if (v.pending !== null) { await p.click('#pass-ok'); return true; }
+  // klepnutí do tlačítka, které se mezitím překreslilo, může otevřít menu hry; to se zavře
+  if (await p.locator('.modal h2', { hasText: /^Hra$/ }).count()) await p.mouse.click(5, 5);
   const L = v.legal;
   if (!L.length || v.phase === 'end') return false;
   const a = L[0];
