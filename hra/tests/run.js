@@ -290,6 +290,17 @@ test('směna s bankou a přístavy', () => {
   must(s, 0, { t: 'bank', give: pt.type, get: RES.find(r => r !== pt.type) });
   eq(total(s.players[0].hand), 1);
 });
+test('bot zahraje hlídku před hodem, když bouře stojí u jeho stavby', () => {
+  const s = started();
+  s.turn = 0; s.phase = 'roll'; s.played = false; s.players[0].cards = ['guard'];
+  const own = Object.keys(s.bld).find(id => s.bld[id].p === 0), g = graph(s.map.hexes);
+  s.storm = s.map.hexes.findIndex((_, i) => g.hv[i].includes(own));
+  eq(botAct(view(s, 0), 'mid', () => 0.5).t, 'play');
+  s.storm = s.map.hexes.findIndex((_, i) => !g.hv[i].some(id => s.bld[id] && s.bld[id].p === 0));
+  eq(botAct(view(s, 0), 'mid', () => 0.5).t, 'roll');
+  s.storm = s.map.hexes.findIndex((_, i) => g.hv[i].includes(own));
+  eq(botAct(view(s, 0), 'easy', () => 0.5).t, 'roll');
+});
 test('hlídka jde zahrát i před hodem, pak se hází', () => {
   const s = started();
   s.turn = 0; s.phase = 'roll'; s.played = false; s.players[0].cards = ['guard', 'supply'];

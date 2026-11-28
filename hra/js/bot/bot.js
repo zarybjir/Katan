@@ -50,7 +50,11 @@ export function botAct(v, level, rnd) {
     const sp = spotMap();
     return bestOf(L, a => roadScore(v, me, a.at, sp, w, have));
   }
-  if (first.t === 'roll') return first;
+  if (first.t === 'roll') { // hlídka před hodem, když bouře stojí u vlastní stavby (lehký bot ne)
+    const gp = L.find(a => a.t === 'play' && a.card === 'guard');
+    if (gp && cfg.plan && v.storm >= 0 && graph(v.map.hexes).hv[v.storm].some(id => v.bld[id] && v.bld[id].p === me)) return gp;
+    return first;
+  }
   // ---------- bouře ----------
   if (first.t === 'storm') {
     const g = graph(v.map.hexes);

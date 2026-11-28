@@ -221,7 +221,8 @@ převádí jen `ui/board.js`.
 - Bot je funkce `(pohled, seed) → akce`. Dostává **pohled**, ne stav – nevidí cizí karty.
 - Běží u hostitele, se zpožděním kvůli čitelnosti (nastavitelné, v testech nulové).
 - Rozhodování je ohodnocení dovolených akcí, žádné prohledávání do hloubky, dokud to nebude
-  potřeba. Úvodní rozmístění hodnotí výnos čísel a pestrost surovin.
+  potřeba. Úvodní rozmístění hodnotí výnos čísel a pestrost surovin. Střední a těžký bot zahraje
+  hlídku už před hodem, když bouře stojí u jeho stavby.
 - Na obchodní nabídku bot odpoví vždy a hned. Nenabízí obchod opakovaně v jednom tahu.
 - Bot nesmí nikdy vrátit neplatnou akci ani skončit bez akce; test to hlídá na tisících her.
 
