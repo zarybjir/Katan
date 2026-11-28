@@ -1,6 +1,6 @@
 // Kreslení mapy na canvas, posun a zoom, výběr místa dotykem.
 import { graph, hexXY } from '../core/hex.js';
-import { TERRAIN_COLOR, TERRAIN_GFX, TERRAIN_HEX, RES_COLOR, PIPS, COLORS } from '../data.js';
+import { TERRAIN_COLOR, TERRAIN_GFX, TERRAIN_HEX, TERRAIN_FILTER, RES_COLOR, PIPS, COLORS } from '../data.js';
 
 // ---------- obrázky dílků ----------
 // figurky obarvené na barvu hráče: bílý obrázek × barva, předkreslené jednou na hráče
@@ -42,7 +42,14 @@ function texture(t, q, r) {
     img.onload = () => { for (const B of waiting) B.draw(); };
     img.src = 'gfx/' + name + '.jpg';
   }
-  return img.complete && img.naturalWidth ? { img, h } : null;
+  if (!(img.complete && img.naturalWidth)) return null;
+  // úprava vzhledu krajiny (TERRAIN_FILTER), předpočítaná jednou do canvasu
+  const f = TERRAIN_FILTER[t], key = name + '|f';
+  if (f && !IMG[key]) {
+    const c = document.createElement('canvas'); c.width = img.naturalWidth; c.height = img.naturalHeight;
+    const x = c.getContext('2d'); if ('filter' in x) x.filter = f; x.drawImage(img, 0, 0); c.naturalWidth = c.width; IMG[key] = c;
+  }
+  return { img: f ? IMG[key] : img, h };
 }
 import { pc } from './dom.js';
 
@@ -127,7 +134,7 @@ export function createBoard(cv, onPick) {
         ctx.save(); ctx.clip(); ctx.translate(c.x, c.y); if (h & 1) ctx.scale(-1, 1);
         ctx.drawImage(img, ox, oy, s, s, -1.01, -1.01, 2.02, 2.02);
         ctx.restore();
-        path(i); ctx.fillStyle = 'rgba(20,16,10,.16)'; ctx.fill(); // ztlumení krajiny, aby stavby vynikly
+        path(i); ctx.fillStyle = 'rgba(20,16,10,.06)'; ctx.fill(); // ztlumení krajiny, aby stavby vynikly
       }
       ctx.strokeStyle = 'rgba(29,42,56,.7)'; ctx.lineWidth = 0.05; path(i); ctx.stroke();
       if (!tx && TERRAIN_COLOR[hx.t]) glyph(hx.t, c.x, c.y - 0.42);

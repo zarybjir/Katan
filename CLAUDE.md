@@ -173,7 +173,8 @@ prohlížeč, WebView i Node v testech.
 - `hra/js/app.js` – start, přepínání obrazovek, relace hostitele a klienta, ukládání nastavení.
 - `hra/lib/peerjs.min.js` – jediná cizí knihovna (MIT), načítá se až při hře přes internet. Nečti ji.
 - `hra/gfx/` – obrázky dílků (`<krajina>-<varianta>.jpg`, 640×640, JPEG kvalita 80; seznam
-  variant je `TERRAIN_GFX` v `data.js`). Dílek bez obrázku se kreslí barvou a značkou.
+  variant je `TERRAIN_GFX` v `data.js`; úprava jasu a kontrastu je `TERRAIN_FILTER`, les je
+  zesvětlený a změkčený). Dílek bez obrázku se kreslí barvou a značkou.
   Hotové šestiúhelníkové dílky s okrajem jsou `hex-*.webp` (`TERRAIN_HEX`), zapínají se
   konstantou `HEX_TILES` v `board.js` (zatím vypnuto, čeká na rozhodnutí zadavatele).
   Další malovaná grafika: `res-*.webp` a `banka.webp` (žetony, `icons.js`), `boure.webp` (mapa),

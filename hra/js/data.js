@@ -12,6 +12,8 @@ export const TERRAIN_NAME = { forest: 'les', quarry: 'skály', field: 'pole', pa
 export const TERRAIN_GFX = { forest: ['les-1'], quarry: ['skaly-1'], field: ['pole-1'], pasture: ['pastvina-1'], claypit: ['hliniste-1'], waste: ['pustina-1'] };
 // hotové šestiúhelníkové dílky s okrajem (špičkou nahoru); když chybí, použije se TERRAIN_GFX
 export const TERRAIN_HEX = { forest: ['hex-les', 'hex-les-2'], quarry: ['hex-skaly', 'hex-skaly-2'], field: ['hex-pole'], pasture: ['hex-pastvina'], claypit: ['hex-hliniste'], waste: ['hex-pustina'] };
+// úprava obrázků krajin (CSS filtr): les je příliš tmavý a kontrastní
+export const TERRAIN_FILTER = { forest: 'brightness(1.35) contrast(0.72) saturate(0.85)', quarry: 'brightness(1.08) contrast(0.9)' };
 export const TERRAIN_COLOR = { forest: '#3c8f55', quarry: '#9aa1aa', field: '#ecc94f', pasture: '#9fcf5a', claypit: '#c2673f', waste: '#d9cfb4' };
 
 // ---------- stavby ----------
