@@ -200,12 +200,11 @@ export function createBoard(cv, onPick) {
       }
       ctx.restore();
     }
-    // kormidlo se žetonem suroviny (2:1) nebo kotvou (3:1)
-    const r = 0.36, wheel = sprite('kormidlo'), tok = sprite(pt.type === 'any' ? 'res-any' : 'res-' + pt.type);
-    if (wheel && tok) {
-      ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.55)'; ctx.shadowBlur = 0.1 * B.cam.k * dpr; ctx.shadowOffsetY = 0.04 * B.cam.k * dpr;
-      ctx.drawImage(wheel, px - r * 1.45, py - r * 1.45, r * 2.9, r * 2.9); ctx.restore();
-      ctx.drawImage(tok, px - r * 0.82, py - r * 0.82, r * 1.64, r * 1.64);
+    // žeton suroviny (2:1) nebo kotvy (3:1)
+    const r = 0.36, tok = sprite(pt.type === 'any' ? 'res-any' : 'res-' + pt.type);
+    if (tok) { // žeton suroviny (2:1) nebo kotvy (3:1) se stínem, bez kormidla
+      ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.5)'; ctx.shadowBlur = 0.1 * B.cam.k * dpr; ctx.shadowOffsetY = 0.04 * B.cam.k * dpr;
+      ctx.drawImage(tok, px - r, py - r, r * 2, r * 2); ctx.restore();
     } else {
       ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.55)'; ctx.shadowBlur = 0.12 * B.cam.k * dpr; ctx.shadowOffsetY = 0.04 * B.cam.k * dpr;
       ctx.beginPath(); ctx.arc(px, py, r, 0, 7); ctx.fillStyle = '#7a5520'; ctx.fill(); ctx.restore();
@@ -213,7 +212,7 @@ export function createBoard(cv, onPick) {
       if (pt.type === 'any') anchor(px, py - 0.02, 0.2);
     }
     // štítek s poměrem pod bójí
-    const lx = px, ly = py + r * 1.22, w = 0.42, hgt = 0.2;
+    const lx = px, ly = py + r * 1.08, w = 0.42, hgt = 0.2;
     ctx.beginPath(); ctx.roundRect ? ctx.roundRect(lx - w / 2, ly - hgt / 2, w, hgt, 0.05) : ctx.rect(lx - w / 2, ly - hgt / 2, w, hgt);
     ctx.fillStyle = '#2b1d10'; ctx.fill(); ctx.strokeStyle = '#d8b25a'; ctx.lineWidth = 0.02; ctx.stroke();
     ctx.font = "700 0.155px Georgia, 'Noto Serif', serif"; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = '#f4e3b5';

@@ -236,7 +236,7 @@ převádí jen `ui/board.js`.
   Stavby jsou v původní velikosti, zesvětlené (barva hráče + `screen` bílé figurky) se světlým obrysem a stínem;
   krajiny jsou mírně ztlumené, aby stavby
   vynikly; poslední stavba se kolečkem nevyznačuje.
-  Přístavy kreslí `port()` v `board.js`: lávky (`lavka.webp`), kormidlo (`kormidlo.webp`) se žetonem
+  Přístavy kreslí `port()` v `board.js`: lávky (`lavka.webp`) a žeton (bez kormidla, zadavatel ho nechce)
   suroviny nebo kotvou (`res-any.webp`), štítek s poměrem. Cesta je `fig-cesta.webp` obarvená na hráče.
   V UI se barva hráče bere vždy přes `pc(p)` (tečka v textu: `dot(p)`) z `dom.js`, nikdy `COLORS[p]`.
   Cesty jsou kreslené trámy v barvě hráče, čísla na dílcích pergamenové žetony průhledné na 25 % (alpha 0,75) bez lemu (`road`, `token` v `board.js`). Čísla na dílcích jsou bez teček (zadavatel
