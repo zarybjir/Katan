@@ -110,7 +110,13 @@ export function createBoard(cv, onPick) {
     ctx.setTransform(k, 0, 0, k, cv.width / 2 - B.cam.x * k, cv.height / 2 - B.cam.y * k);
     ctx.lineJoin = 'round'; ctx.lineCap = 'round';
     const path = i => { ctx.beginPath(); g.hv[i].forEach((id, j) => { const p = g.V[id]; j ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y); }); ctx.closePath(); };
-    // pobřeží: jen jednotlivé kameny přímo v moři, bez lemu (dokud se nenačtou, pobřeží se nekreslí)
+    // pobřeží: lem z malované textury oblázků (oblazky.jpg, vzor 512 px = 2 jednotky mapy) a na něm
+    // jednotlivé kameny; plochý barevný lem zadavatel nechce, bez textury se lem nekreslí
+    const ob = sprite('oblazky', 'jpg');
+    if (ob) {
+      if (!B.shingle) { B.shingle = ctx.createPattern(ob, 'repeat'); B.shingle.setTransform(new DOMMatrix().scale(2 / 512)); }
+      ctx.strokeStyle = B.shingle; ctx.lineWidth = 0.74; v.map.hexes.forEach((_, i) => { path(i); ctx.stroke(); });
+    }
     const rs = Array.from({ length: KAMENY }, (_, i) => sprite('kamen-' + (i + 1)));
     if (rs.every(Boolean)) stones(rs);
     // přístavy: dřevěné molo od pobřeží k bóji s žetonem suroviny (2:1) nebo kotvou (3:1)
