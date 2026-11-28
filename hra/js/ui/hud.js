@@ -128,7 +128,9 @@ export function createGame(root, S) {
     if (L.some(a => a.t === 'roll')) { // před hodem jde otevřít karty (hlídku lze zahrát už teď)
       const nc = mine.cards.length + mine.fresh.length, r = btn('roll', 'Hodit kostkami', true, () => act({ t: 'roll' }), 'wide');
       r.style.gridColumn = 'span 2';
-      el.actions.append(r, btn('cards', `Karty (${nc})`, nc > 0, () => cardsDialog(v, act)));
+      const gp = L.find(a => a.t === 'play' && a.card === 'guard');
+      el.actions.append(r, gp ? btn('guard', [h('span', { class: 'kh' }, icon('guard', 20), 'Hlídka')], true, () => act(gp)) // zahrát hlídku hned, před hodem
+        : btn('cards', `Karty (${nc})`, nc > 0, () => cardsDialog(v, act)));
     }
     else if (mine) { // mimo vlastní tah zůstávají tlačítka na místě, jen nedostupná (lišta není prázdná)
       const own = v.phase === 'main' && v.turn === me && !free && !v.trade, nc = mine.cards.length + mine.fresh.length;
