@@ -11,8 +11,8 @@ android {
         applicationId = "cz.souostrovi.app"
         minSdk = 26
         targetSdk = 34
-        versionCode = 68
-        versionName = "0.68"
+        versionCode = 69
+        versionName = "0.69"
     }
 
     // Podepisování release buildu: hodnoty z proměnných prostředí (GitHub Actions).

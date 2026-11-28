@@ -342,3 +342,5 @@ input:focus, select:focus { outline: 2px solid var(--acc2); outline-offset: 1px;
 .vtxt p { font-family: var(--serif); font-size: 11.5px; line-height: 1.25; }
 .vtxt .btn.small { position: absolute; left: 4%; right: 4%; bottom: 0; margin: 0; }
 .card-show .vtxt { padding-bottom: 0; } .card-show .vtxt p { font-size: 14px; }
+/* otevřený dialog: přelety surovin z tahů ostatních se nad ním neukazují (kromě ukázky rychlosti) */
+body:has(.modal) #fx .fly:not(.demo) { visibility: hidden; }

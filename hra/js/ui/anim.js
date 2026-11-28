@@ -45,9 +45,9 @@ export function dice(d) {
 // ---------- přelet ikonky ----------
 const center = el => { const r = el.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; };
 const live = el => el && el.isConnected; // obrazovka se mezitím mohla změnit (konec hry, odchod)
-function fly(kind, from, to, delay) {
+function fly(kind, from, to, delay, demo) {
   const ic = icon(kind, 30);
-  ic.classList.add('fly');
+  ic.classList.add('fly'); if (demo) ic.classList.add('demo');
   ic.style.left = from.x - 15 + 'px'; ic.style.top = from.y - 15 + 'px'; ic.style.opacity = '0';
   layer().append(ic);
   const dx = to.x - from.x, dy = to.y - from.y;
@@ -156,7 +156,7 @@ export function animDialog(set, save) {
     set.speed = k; save(); setSpeed(k);
     sp.querySelectorAll('button').forEach(b => b.classList.toggle('on', b === e.currentTarget));
     const bar = document.getElementById('bar'), y = bar ? bar.getBoundingClientRect().top - 24 : innerHeight * 0.8;
-    fly(['wood', 'stone', 'grain', 'sheep', 'brick'][Math.floor(Math.random() * 5)], { x: 30, y }, { x: innerWidth - 30, y }, 0);
+    fly(['wood', 'stone', 'grain', 'sheep', 'brick'][Math.floor(Math.random() * 5)], { x: 30, y }, { x: innerWidth - 30, y }, 0, true);
   } }, SPEED_NAME[k])));
   modal('Animace a zvuky', h('div', { class: 'col' }, rows, h('label', null, 'Rychlost letu surovin', sp), h('p', { class: 'dim' }, 'Animace jsou jen pro přehled; hra pokračuje i během nich. Kostky lze přeskočit klepnutím.')));
 }
