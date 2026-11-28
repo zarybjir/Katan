@@ -27,7 +27,8 @@ async function open(ctx, name) {
   return p;
 }
 const view = p => p.evaluate(() => { const S = __so.S, v = S && S.view(); return v && { phase: v.phase, turn: v.turn, you: v.you, turnNo: v.turnNo, legal: v.legal, pending: S.pending, roads: Object.keys(v.roads).length, bld: Object.keys(v.bld).length, hand: v.players[v.you]?.hand, trade: v.trade }; });
-const tapSpot = async (p, type, id) => { const c = await p.evaluate(([t, i]) => __so.S.G.board.px(t, i), [type, id]); await p.mouse.click(c.x, c.y); };
+// kostky po hodu leží přes mapu (klepnutí je přeskočí), proto se před klepnutím na mapu čeká, až zmizí
+const tapSpot = async (p, type, id) => { await p.waitForSelector('.dice-fx', { state: 'detached', timeout: 4000 }); const c = await p.evaluate(([t, i]) => __so.S.G.board.px(t, i), [type, id]); await p.mouse.click(c.x, c.y); };
 // klepnutí s chvěním prstu: součet pohybů přes 10 px, vzdálenost od začátku pod toleranci
 const shakyTap = async (p, type, id) => {
   const c = await p.evaluate(([t, i]) => __so.S.G.board.px(t, i), [type, id]);
