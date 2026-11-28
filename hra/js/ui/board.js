@@ -196,28 +196,43 @@ export function createBoard(cv, onPick) {
     ctx.fillStyle = color; ctx.fillText(t, x, y);
   }
   // pruh pobřeží na každou hranu s jediným dílkem: tráva pod dílek, skály a pěna ven do moře.
-  // Pruh je 4:1, výška SH jednotek mapy, hrana leží v SE jeho výšky; konce přesahují o SX a ořízne je výseč.
+  // Pruh je 4:1, výška SH jednotek mapy, hrana leží v SE jeho výšky; konce přesahují o SX a ořízne je výseč dílku.
   const SH = 0.85, SE = 0.15, SX = 0.45;
   function shore(img) {
     const g = B.g, iw = img.naturalWidth, ih = img.naturalHeight;
+    const hash = id => Math.abs([...String(id)].reduce((s, ch) => s * 31 + ch.charCodeAt(0) | 0, 7));
+    // kus pruhu: počátek o, směr podél pobřeží t, kolmice ven u; ořez výsečí z bodu c paprsky přes p1 a p2
+    const piece = (o, t, u, x0, len, h, c, p1, p2) => {
+      const sw = len / SH * ih, sx = h % Math.max(1, Math.floor(iw - sw));
+      ctx.save();
+      ctx.beginPath(); ctx.moveTo(c.x, c.y);
+      ctx.lineTo(c.x + (p1.x - c.x) * 4, c.y + (p1.y - c.y) * 4); ctx.lineTo(c.x + (p2.x - c.x) * 4, c.y + (p2.y - c.y) * 4);
+      ctx.closePath(); ctx.clip();
+      ctx.transform(t.x, t.y, u.x, u.y, o.x, o.y);
+      ctx.drawImage(img, sx, 0, sw, ih, x0, -SH * SE, len, SH);
+      ctx.restore();
+    };
+    const cen = i => hexXY(B.v.map.hexes[i].q, B.v.map.hexes[i].r);
+    // hrany pobřeží: výseč dílku za hranou
     for (const id in g.E) {
       const e = g.E[id];
       if (e.hex.length !== 1) continue;
-      const a = g.V[e.a], b = g.V[e.b], hx = B.v.map.hexes[e.hex[0]], c = hexXY(hx.q, hx.r);
-      const L = Math.hypot(b.x - a.x, b.y - a.y), tx = (b.x - a.x) / L, ty = (b.y - a.y) / L;
-      let ux = -ty, uy = tx; // kolmice ven z dílku
-      if (ux * ((a.x + b.x) / 2 - c.x) + uy * ((a.y + b.y) / 2 - c.y) < 0) { ux = -ux; uy = -uy; }
-      const len = L + 2 * SX, sw = len / SH * ih, h = [...String(id)].reduce((s, ch) => s * 31 + ch.charCodeAt(0) | 0, 7);
-      const sx = Math.abs(h) % Math.max(1, Math.floor(iw - sw));
-      ctx.save();
-      // ořez: na vypouklém rohu (vrchol jen jednoho dílku) po paprsku ze středu dílku, aby pruhy
-      // nepřečnívaly do moře; v zálivu (vrchol dvou dílků) bez ořezu, aby se pruhy překryly a nevznikla mezera
-      const end = (v, s) => v.hex.length === 1 ? [v.x, v.y, v.x - c.x, v.y - c.y] : [v.x - s * tx * SX, v.y - s * ty * SX, ux, uy];
-      const [ax, ay, adx, ady] = end(a, 1), [bx, by, bdx, bdy] = end(b, -1);
-      ctx.beginPath(); ctx.moveTo(c.x, c.y); ctx.lineTo(ax, ay); ctx.lineTo(ax + adx * 3, ay + ady * 3); ctx.lineTo(bx + bdx * 3, by + bdy * 3); ctx.lineTo(bx, by); ctx.closePath(); ctx.clip();
-      ctx.transform(tx, ty, ux, uy, a.x, a.y);
-      ctx.drawImage(img, sx, 0, sw, ih, -SX, -SH * SE, len, SH);
-      ctx.restore();
+      const a = g.V[e.a], b = g.V[e.b], c = cen(e.hex[0]);
+      const L = Math.hypot(b.x - a.x, b.y - a.y), t = { x: (b.x - a.x) / L, y: (b.y - a.y) / L };
+      let u = { x: -t.y, y: t.x }; // kolmice ven z dílku
+      if (u.x * ((a.x + b.x) / 2 - c.x) + u.y * ((a.y + b.y) / 2 - c.y) < 0) u = { x: -u.x, y: -u.y };
+      piece(a, t, u, -SX, L + 2 * SX, hash(id), c, a, b);
+    }
+    // zálivy (vrchol pobřeží sdílený dvěma dílky): klín mezi výsečemi obou dílků vyplní kus pruhu
+    // natočený podle osy klínu, aby pobřeží nemělo mezeru
+    for (const id in g.V) {
+      const v = g.V[id];
+      if (v.hex.length !== 2) continue;
+      const c1 = cen(v.hex[0]), c2 = cen(v.hex[1]);
+      const d1 = { x: v.x - c1.x, y: v.y - c1.y }, d2 = { x: v.x - c2.x, y: v.y - c2.y };
+      let u = { x: d1.x + d2.x, y: d1.y + d2.y }; const n = Math.hypot(u.x, u.y); u = { x: u.x / n, y: u.y / n };
+      const t = { x: -u.y, y: u.x };
+      piece(v, t, u, -0.6, 1.2, hash(id), v, { x: v.x + d1.x, y: v.y + d1.y }, { x: v.x + d2.x, y: v.y + d2.y });
     }
   }
   function port(pt) {
