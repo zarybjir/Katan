@@ -235,7 +235,7 @@ převádí jen `ui/board.js`.
 - Tlačítka akcí jsou ve spodní liště vždy (i mimo vlastní tah, pak zašedlá), aby lišta nebyla prázdná.
 - Stavba: vybrat typ → zvýrazní se dovolená místa → klepnutí umístí. Drahé nebo nevratné akce
   (město, odhození karet) se potvrzují, ostatní ne.
-- Hráče rozlišuje jen barva (značky zadavatel nechce). Paleta je `COLORS` (8 barev);
+- Hráče rozlišuje jen barva (značky zadavatel nechce). Paleta je `COLORS` (13 barev, nové se přidávají jen na konec – index je ve stavu); volba barvy je jeden vodorovně posuvný řádek;
   barvu volí hostitel pro každé místo při zakládání, hráč ji může změnit v lobby zprávou `color`
   (jen před startem; barvu jiného člověka vzít nejde, s botem se prohodí). Ve stavu je `colors`.
   Paleta je zářivá; obarvené figurky a cesty mají navíc `saturate(1.6)`.

@@ -80,8 +80,8 @@ export const deckFor = n => { const k = n > 4 ? 1.4 : 1; return { guard: Math.ro
 
 // ---------- hráči a boti ----------
 // paleta barev hráčů; hráč si barvu vybírá při zakládání hry (index do palety je v stavu hry `colors`)
-export const COLORS = ['#ff2b2b', '#1f7bff', '#ffffff', '#ff9500', '#a640ff', '#00c9a7', '#2b2b2b', '#ff3fae'];
-export const COLOR_NAME = ['červená', 'modrá', 'bílá', 'oranžová', 'fialová', 'tyrkysová', 'černá', 'růžová'];
+export const COLORS = ['#ff2b2b', '#1f7bff', '#ffffff', '#ff9500', '#a640ff', '#00c9a7', '#2b2b2b', '#ff3fae', '#2fc43a', '#ffd60a', '#8b5a2b', '#3fd0ff', '#9a9a9a'];
+export const COLOR_NAME = ['červená', 'modrá', 'bílá', 'oranžová', 'fialová', 'tyrkysová', 'černá', 'růžová', 'zelená', 'žlutá', 'hnědá', 'světle modrá', 'šedá'];
 export const COLOR_LIGHT = [false, false, true, false, false, false, false, false]; // světlá barva = tmavé písmo
 export const BOT_NAMES = ['Alba', 'Bruno', 'Cyril', 'Dora', 'Emil', 'Flora'];
 export const BOT_LEVEL = { easy: 'lehký', mid: 'střední', hard: 'těžký' };
