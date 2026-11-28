@@ -40,7 +40,7 @@ export function createGame(root, S) {
       return;
     }
     const a = L.find(a => a.t === 'build' && a.at === t.id && (!mode || a.kind === mode));
-    if (!a) return;
+    if (!a) return toast('Na tomto místě teď stavět nelze.');
     if (a.kind !== 'city') return act({ t: 'build', kind: a.kind, at: a.at });
     const m = modal('Stavba města', h('div', { class: 'col' }, h('p', { class: 'trade-line' }, 'Osada se změní na město. Cena: ', resIcons(COST.city)),
       h('div', { class: 'row' }, h('button', { class: 'btn', id: 'city-ok', onclick: () => { m.close(); act({ t: 'build', kind: 'city', at: a.at }); } }, 'Postavit'), h('button', { class: 'btn ghost', onclick: () => m.close() }, 'Zpět'))));

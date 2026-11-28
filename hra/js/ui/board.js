@@ -309,20 +309,23 @@ export function createBoard(cv, onPick) {
   // klepnutí se vyhodnotí v místě dotyku. SLOP je tolerance chvění prstu v CSS px.
   const SLOP = 16, pts = new Map();
   let start = null, panning = false, pinch = 0;
+  // poloha prstu vůči canvasu z clientX/Y (offsetX se v některých WebView počítá jinak)
+  const at = e => { const r = cv.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; };
   cv.addEventListener('pointerdown', e => {
+    const o = at(e);
     if (e.isPrimary) pts.clear(); // první prst: zapomenout ztracené dotyky z dřívějška
     try { cv.setPointerCapture(e.pointerId); } catch {}
-    pts.set(e.pointerId, { x: e.offsetX, y: e.offsetY });
-    if (pts.size === 1) { start = { x: e.offsetX, y: e.offsetY }; panning = false; }
+    pts.set(e.pointerId, { x: o.x, y: o.y });
+    if (pts.size === 1) { start = { x: o.x, y: o.y }; panning = false; }
     else { start = null; pinch = 0; } // druhý prst = zoom, klepnutí se už nevyhodnotí
   });
   cv.addEventListener('pointermove', e => {
     const p = pts.get(e.pointerId);
     if (!p) return;
-    const dx = e.offsetX - p.x, dy = e.offsetY - p.y;
-    p.x = e.offsetX; p.y = e.offsetY;
+    const o = at(e), dx = o.x - p.x, dy = o.y - p.y;
+    p.x = o.x; p.y = o.y;
     if (pts.size === 1) {
-      if (!panning && start && Math.hypot(e.offsetX - start.x, e.offsetY - start.y) > SLOP) panning = true;
+      if (!panning && start && Math.hypot(o.x - start.x, o.y - start.y) > SLOP) panning = true;
       if (panning) { B.cam.x -= dx / B.cam.k; B.cam.y -= dy / B.cam.k; B.moved = true; B.draw(); }
     } else if (pts.size === 2) {
       const [a, b] = [...pts.values()], d = Math.hypot(a.x - b.x, a.y - b.y);
@@ -337,7 +340,7 @@ export function createBoard(cv, onPick) {
     if (!pts.size) start = null;
   };
   cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', up); cv.addEventListener('lostpointercapture', up);
-  cv.addEventListener('wheel', e => { e.preventDefault(); zoom(e.deltaY < 0 ? 1.15 : 1 / 1.15, e.offsetX, e.offsetY); }, { passive: false });
+  cv.addEventListener('wheel', e => { e.preventDefault(); zoom(e.deltaY < 0 ? 1.15 : 1 / 1.15, at(e).x, at(e).y); }, { passive: false });
   function zoom(f, px, py) {
     const w = toWorld(px, py), k = Math.max(B.minK || 10, Math.min((B.minK || 10) * 6, B.cam.k * f));
     B.cam.k = k; B.cam.x = w.x - (px - W / 2) / k; B.cam.y = w.y - (py - H / 2) / k; B.moved = true; B.draw();
