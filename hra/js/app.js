@@ -10,7 +10,7 @@ import { showMenu, showSetup, showJoin, showLobby } from './ui/menu.js';
 import { createGame } from './ui/hud.js';
 import { describe } from './ui/text.js';
 import { checkUpdate } from './update.js';
-import { ANIM_DEF, animDialog } from './ui/anim.js';
+import { ANIM_DEF, animDialog, stopFx } from './ui/anim.js';
 import { h, clear, modal, toast, topModal, closeModals } from './ui/dom.js';
 
 const $screen = document.getElementById('screen'), $game = document.getElementById('game');
@@ -57,7 +57,7 @@ function session(conn, hello, host) {
     s.left = true; clearInterval(s.timer);
     s.client.close(); for (const f of s.stops) try { f(); } catch {}
     if (host) { host.close(); if (finished) store.del('so-host'); }
-    S = null; closeModals(); clear($game); menu();
+    S = null; stopFx(); closeModals(); clear($game); menu();
   };
   let queued = false;
   const refresh = () => {

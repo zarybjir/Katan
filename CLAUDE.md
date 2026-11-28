@@ -42,8 +42,8 @@ Každou změnu poměřuj těmito body.
   zátoky, atol, šíje, hřeben. Počty krajin podle poměru `TERRAIN_SHARE` (les, pastvina, pole po 4,
   hliniště a skály po 3; na 19 dílcích přesně 4/4/4/3/3 + pustina).
   Pevnina je vždy souvislá (lodě nejsou). Nový typ = záznam v `MAPS`, `MAP_TEXT`, `SHAPES` a test tvaru.
-  Při zakládání hry náhled ukazuje přesně tu mapu, na které se bude hrát (krajiny, čísla, přístavy),
-  s ukázkovým úvodním rozmístěním osad a cest v barvách míst (rozmístí ho boti, jen pro ilustraci); u náhodných tvarů jde tvar vyměnit tlačítkem Jiný tvar. Dílky: les (dřevo), skály (kámen),
+  Při zakládání hry náhled ukazuje jen obrys mapy, na které se bude hrát (bez krajin, čísel,
+  přístavů a staveb); u náhodných tvarů jde tvar vyměnit tlačítkem Jiný tvar. Dílky: les (dřevo), skály (kámen),
   pole (obilí), pastvina (ovce), hliniště (cihly), pustina (nic). Každý dílek kromě pustiny má číslo
   2–12 bez 7; 6 a 8 nesousedí a stejná čísla také ne (test na 1000 mapách každého typu). Souměrný
   ostrov klade čísla ve spirále od okraje ke středu podle vlastních posloupností `SPIRAL` v `data.js`
@@ -165,7 +165,8 @@ prohlížeč, WebView i Node v testech.
   `hud.js` (herní obrazovka: hráči, ruka, tlačítka akcí, deník), `trade.js` (dialogy obchodu,
   odhození a výprav), `menu.js` (nabídka, založení hry, připojení, lobby), `text.js` (věty do
   deníku), `dom.js` (`h()`, dialogy, značky hráčů), `icons.js` (SVG ikonky surovin a ukazatelů),
-  `anim.js` (hod kostkami, rozdávání surovin z dílků, suroviny do banky a z banky – ikonka banky
+  `anim.js` (přelety surovin vždy z/do políčka dané suroviny v ruce, u soupeřů ze štítku; odložené kroky
+  přes `after()`, `stopFx()` při odchodu ze hry vše zastaví; hod kostkami, rozdávání surovin z dílků, suroviny do banky a z banky – ikonka banky
   vpravo nahoře na mapě; jen vizuální vrstva `#fx`,
   stav se mění hned; zapínají se v nastavení `so-set.anim`; rychlost letu surovin `so-set.anim.speed`
   = `fast`/`mid`/`slow`, tabulka `SPEEDS` v `anim.js`). Animace spouští `G.animate(události)`
@@ -226,6 +227,7 @@ převádí jen `ui/board.js`.
 
 ## Rozhraní
 
+- Na výšku jsou štítky soupeřů v řádcích (dva, od tří soupeřů tři v řádku se zmenšenými ikonkami), bez vodorovného posunu.
 - Hra je **na výšku i na šířku**; mapa uprostřed s posunem a zoomem dvěma prsty, ovládání dole
   (na šířku vpravo). Dotykové cíle nejméně 48 dp; vrcholy a hrany mají větší zásahovou plochu,
   než jak jsou nakreslené.

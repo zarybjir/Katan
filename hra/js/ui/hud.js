@@ -2,7 +2,7 @@
 import { h, clear, modal, closeModals, toast, pc, dot, setColors } from './dom.js';
 import { createBoard } from './board.js';
 import { icon, resIcons } from './icons.js';
-import { dice, deal, bankFlow, between, banner, cardShow, expand, sources, animDialog, setSpeed, FLY, GAP, DICE_ROLL } from './anim.js';
+import { dice, deal, bankFlow, between, banner, cardShow, expand, sources, animDialog, setSpeed, after, FLY, GAP, DICE_ROLL } from './anim.js';
 import { sfx, snd } from './sound.js';
 import { resTile, tradeDialog, respondDialog, offerDialog, discardDialog, cardsDialog } from './trade.js';
 import { fmtRes } from './text.js';
@@ -223,23 +223,24 @@ export function createGame(root, S) {
   G.animate = ev => {
     const v = S.view(), a = S.anim;
     if (!v || !ev.length) return;
-    const target = (p, r) => p === v.you ? (r ? document.querySelector(`#hand .have[data-res=${r}]`) : document.getElementById('hand')) : document.querySelector(`.chip[data-p="${p}"]`);
+    // vlastní suroviny letí z/do svého políčka v ruce, ostatní z/do štítku hráče
+    const target = (p, r) => p === v.you ? (r && document.querySelector(`#hand .have[data-res=${r}]`)) || document.getElementById('hand') : document.querySelector(`.chip[data-p="${p}"]`);
     let sum = 0, fromBank = false;
     snd.on = a.sound !== false; setSpeed(a.speed);
     const coin = () => sfx.coin(), gainS = r => sfx.gain(r);
     const nm = p => (v.players[p] ? v.players[p].name : '');
     const say = t => { if (a.banner !== false) banner(t); };
-    const later = t => setTimeout(() => say(t), a.dice ? DICE_ROLL + 300 : 0); // až po dohození kostek
+    const later = t => after(() => say(t), a.dice ? DICE_ROLL + 300 : 0); // až po dohození kostek
     const gains = [];
     // zvuk se ozve při doletu suroviny; když je animace vypnutá, hned
     const flow = (el, kinds, toBank, delay = 0) => {
-      if (a.burn) bankFlow(el, kinds, toBank, delay, toBank ? coin : gainS);
-      else kinds.forEach((k, i) => setTimeout(() => (toBank ? coin() : gainS(k)), delay + 120 * i));
+      if (a.burn) kinds.forEach((k, i) => bankFlow(el(k), [k], toBank, delay + GAP * i, toBank ? coin : gainS)); // el(k): prvek pro danou surovinu
+      else kinds.forEach((k, i) => after(() => (toBank ? coin() : gainS(k)), delay + 120 * i));
     };
     for (const e of ev) {
       if (e.e === 'roll') { sum = e.d[0] + e.d[1]; if (a.dice) dice(e.d); sfx.dice(); }
       else if (e.e === 'seven') {
-        setTimeout(() => sfx.storm(), a.dice ? DICE_ROLL : 0);
+        after(() => sfx.storm(), a.dice ? DICE_ROLL : 0);
         later(e.discard && e.discard[v.you] ? `Bouře: odhození ${e.discard[v.you]} karet` : e.p === v.you ? 'Přesun bouře' : `Bouře: přesun – ${nm(e.p)}`);
       }
       else if (e.e === 'turn' && v.phase !== 'setup') { if (e.p === v.you) sfx.turn(); later(`Na tahu: ${nm(e.p)}`); }
@@ -253,20 +254,24 @@ export function createGame(root, S) {
       }
       else if (e.e === 'trade') {
         say(`Obchod: ${nm(e.p)} a ${nm(e.with)}`);
-        if (a.burn) { const g = expand(e.give), w = expand(e.want); between(target(e.p), target(e.with), g, 0, gainS); between(target(e.with), target(e.p), w, GAP * g.length + 300, gainS); }
+        if (a.burn) { // každá surovina letí z políčka dárce do políčka příjemce
+          const g = expand(e.give), w = expand(e.want);
+          g.forEach((k, i) => between(target(e.p, k), target(e.with, k), [k], GAP * i, gainS));
+          w.forEach((k, i) => between(target(e.with, k), target(e.p, k), [k], GAP * (g.length + i) + 300, gainS));
+        }
       }
       else if (e.e === 'offer' && e.p !== v.you) { sfx.offer(); say(`Nabídka obchodu: ${nm(e.p)}`); }
       else if (e.e === 'win') { sfx.win(); say(`Vítězí ${nm(e.p)}`); }
       else if (e.e === 'play') { sfx.card(); if (e.card === 'supply') fromBank = true; if (a.banner !== false) cardShow(e.card, `${CARDS[e.card]}: ${nm(e.p)}`); if (e.card === 'guard' && e.p === v.you) say('Přesun bouře'); }
-      else if (e.e === 'build') { sfx.build(e.kind); if (e.paid) flow(target(e.p), expand(COST[e.kind]), true); }
-      else if (e.e === 'gain' && Object.keys(e.res).length) { if (fromBank) flow(target(e.p), expand(e.res), false); else gains.push(e); }
-      else if (e.e === 'discard') flow(target(e.p), e.res ? expand(e.res) : Array(e.n).fill('cards'), true);
-      else if (e.e === 'buy') { sfx.card(); flow(target(e.p), expand(COST.card), true); if (e.card && a.banner !== false) setTimeout(() => cardShow(e.card, 'Nová výprava: ' + CARDS[e.card]), 600); }
-      else if (e.e === 'bank') { flow(target(e.p, e.give), Array(e.rate).fill(e.give), true); flow(target(e.p, e.get), [e.get], false, GAP * e.rate + FLY); }
+      else if (e.e === 'build') { sfx.build(e.kind); if (e.paid) flow(k => target(e.p, k), expand(COST[e.kind]), true); }
+      else if (e.e === 'gain' && Object.keys(e.res).length) { if (fromBank) flow(k => target(e.p, k), expand(e.res), false); else gains.push(e); }
+      else if (e.e === 'discard') flow(k => target(e.p, k), e.res ? expand(e.res) : Array(e.n).fill('cards'), true);
+      else if (e.e === 'buy') { sfx.card(); flow(k => target(e.p, k), expand(COST.card), true); if (e.card && a.banner !== false) after(() => cardShow(e.card, 'Nová výprava: ' + CARDS[e.card]), 600); }
+      else if (e.e === 'bank') { flow(k => target(e.p, k), Array(e.rate).fill(e.give), true); flow(k => target(e.p, k), [e.get], false, GAP * e.rate + FLY); }
     }
     const wait = sum && a.dice ? DICE_ROLL + 300 : 0;
-    if (gains.length && a.deal) setTimeout(() => deal(gains, (p, r) => sources(S.view(), board, sum, p, r), target, gainS), wait);
-    else if (gains.length) setTimeout(() => expand(Object.assign({}, ...gains.map(g => g.res))).slice(0, 6).forEach((r, i) => setTimeout(() => gainS(r), 120 * i)), wait);
+    if (gains.length && a.deal) after(() => deal(gains, (p, r) => sources(S.view(), board, sum, p, r), target, gainS), wait);
+    else if (gains.length) after(() => expand(Object.assign({}, ...gains.map(g => g.res))).slice(0, 6).forEach((r, i) => after(() => gainS(r), 120 * i)), wait);
   };
   G.toast = toast;
   return G;

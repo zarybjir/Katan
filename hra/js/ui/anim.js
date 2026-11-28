@@ -42,6 +42,16 @@ export function dice(d) {
   setTimeout(() => { box.classList.add('out'); setTimeout(end, 250); }, DICE_SHOW);
 }
 
+// ---------- zastavení po odchodu ze hry ----------
+// odložené kroky (zvuk při doletu, hlášky po kostkách) běží přes after(); stopFx() je všechny zruší
+// a smaže rozpracované přelety, kostky, hlášky i odhalené karty
+let gen = 0;
+export const after = (fn, ms) => { const g = gen; setTimeout(() => { if (g === gen) fn(); }, ms); };
+export function stopFx() {
+  gen++; queue.length = 0; showing = false;
+  for (const id of ['fx', 'bn']) { const el = document.getElementById(id); if (el) el.replaceChildren(); }
+}
+
 // ---------- přelet ikonky ----------
 const center = el => { const r = el.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; };
 const live = el => el && el.isConnected; // obrazovka se mezitím mohla změnit (konec hry, odchod)
@@ -61,8 +71,8 @@ function fly(kind, from, to, delay, demo) {
 }
 function pulse(el, delay, ding) {
   if (!el) return;
-  setTimeout(() => ding && ding(), delay);
-  setTimeout(() => el.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.25)' }, { transform: 'scale(1)' }], { duration: 250 }), delay);
+  after(() => ding && ding(), delay);
+  after(() => el.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.25)' }, { transform: 'scale(1)' }], { duration: 250 }), delay);
 }
 
 // ---------- rozdávání ----------

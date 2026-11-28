@@ -350,3 +350,16 @@ body:has(.modal) #fx .fly:not(.demo) { visibility: hidden; }
   padding: 8px 12px; box-shadow: 0 14px 40px rgba(0,0,0,.5); }
 .die { background: url("gfx/kostka.webp") center / 100% 100% no-repeat; border-radius: 0; box-shadow: none; padding: 12px; filter: drop-shadow(0 6px 10px rgba(0,0,0,.45)); }
 .die i.on { background: #3a2414; box-shadow: inset 0 1px 2px rgba(0,0,0,.6); }
+/* na výšku: hráči ve dvou řádcích místo vodorovného posunu (od tří soupeřů po třech v řádku) */
+@media (orientation: portrait) {
+  #players { flex-wrap: wrap; overflow-x: hidden; }
+  #players .chip { flex: 1 1 calc(50% - 6px); min-width: 0; }
+  #players:has(.chip:nth-child(3)) .chip { flex-basis: calc(33% - 6px); }
+}
+@media (orientation: portrait) {
+  #players:has(.chip:nth-child(3)) .chip { padding: 4px 4px 4px 6px; }
+  #players:has(.chip:nth-child(3)) .chip .st { gap: 3px; }
+  #players:has(.chip:nth-child(3)) .stat { gap: 1px; font-size: 12px; }
+  #players:has(.chip:nth-child(3)) .stat .ico { width: 14px !important; height: 14px !important; }
+  #players:has(.chip:nth-child(3)) .stat .ico svg { width: 10px; height: 10px; }
+}
