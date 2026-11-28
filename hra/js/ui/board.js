@@ -193,14 +193,6 @@ export function createBoard(cv, onPick) {
     const g = B.g, e = g.E[pt.e], a = g.V[e.a], b = g.V[e.b], hx = B.v.map.hexes[e.hex[0]], c = hexXY(hx.q, hx.r);
     const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2, d = Math.hypot(mx - c.x, my - c.y), ux = (mx - c.x) / d, uy = (my - c.y) / d;
     const px = mx + ux * 0.86, py = my + uy * 0.86;
-    // lodička mezi lávkami, přídí ke břehu (lod-1…3.webp, druh podle id hrany)
-    const lod = sprite('lod-' + (1 + [...pt.e].reduce((s, ch) => s + ch.charCodeAt(0), 0) % 3));
-    if (lod) {
-      const L = 0.42, W = L * lod.naturalWidth / lod.naturalHeight;
-      ctx.save(); ctx.translate(mx + ux * 0.36, my + uy * 0.36); ctx.rotate(Math.atan2(-ux, uy));
-      ctx.shadowColor = 'rgba(0,30,45,.4)'; ctx.shadowBlur = 0.05 * B.cam.k * dpr; ctx.shadowOffsetY = 0.02 * B.cam.k * dpr;
-      ctx.drawImage(lod, -W / 2, -L / 2, W, L); ctx.restore();
-    }
     // dvě lávky od rohů hrany k přístavu
     const jet = sprite('lavka');
     for (const v of [a, b]) {
@@ -215,6 +207,16 @@ export function createBoard(cv, onPick) {
         for (let t = 0.07; t < len; t += 0.07) { ctx.beginPath(); ctx.moveTo(t, -0.065); ctx.lineTo(t, 0.065); ctx.stroke(); }
       }
       ctx.restore();
+    }
+    // lodička z boku vedle cedulky, přídí k ní (lod-1…3.webp, druh podle id hrany)
+    const hs = [...pt.e].reduce((s, ch) => s * 7 + ch.charCodeAt(0), 0), lod = sprite('lod-' + (1 + hs % 3));
+    if (lod) {
+      // vodorovně vedle cedulky na straně dál od ostrova (u hran nahoře a dole strana podle id)
+      const side = Math.abs(ux) > 0.3 ? Math.sign(ux) : (hs % 2 ? 1 : -1), W = 0.66, H = W * lod.naturalHeight / lod.naturalWidth;
+      const ofs = (pt.type === 'any' ? 0.31 : 0.47) + W / 2 + 0.04;
+      ctx.save(); ctx.translate(px + side * ofs, py + 0.06); if (side > 0) ctx.scale(-1, 1); // příď (vpravo v obrázku) míří k cedulce
+      ctx.shadowColor = 'rgba(0,30,45,.35)'; ctx.shadowBlur = 0.05 * B.cam.k * dpr; ctx.shadowOffsetY = 0.03 * B.cam.k * dpr;
+      ctx.drawImage(lod, -W / 2, -H / 2, W, H); ctx.restore();
     }
     // štítek přístavu: pergamenová cedulka s ikonkou suroviny a poměrem (3:1 jen poměr)
     const any = pt.type === 'any', tok = !any && sprite('res-' + pt.type);

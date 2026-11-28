@@ -239,7 +239,7 @@ převádí jen `ui/board.js`.
   krajiny jsou mírně ztlumené, aby stavby
   vynikly; poslední stavba se kolečkem nevyznačuje.
   Ostrov nemá pobřeží ani lem (zadavatel chce čisté dílky přímo v moři; lem, kameny ani pruhy nechce) a má nahnědlé pískové spáry mezi dílky. Místa ke stavbě jsou nenápadné
-  světlé tečky (bílá kolečka zadavatel nechce). Přístavy kreslí `port()` v `board.js`: lodička mezi lávkami (`lod-1…3.webp`, přídí ke břehu), lávky
+  světlé tečky (bílá kolečka zadavatel nechce). Přístavy kreslí `port()` v `board.js`: lodička z boku vodorovně vedle cedulky na straně dál od ostrova (`lod-1…3.webp`), lávky končící kus před cedulkou
   (`lavka.webp`) a pergamenová cedulka s ikonkou suroviny a „2:1“, u 3:1 jen poměr. Cesta je `fig-cesta.webp` obarvená na hráče.
   V UI se barva hráče bere vždy přes `pc(p)` (tečka v textu: `dot(p)`) z `dom.js`, nikdy `COLORS[p]`.
   Cesty jsou kreslené trámy v barvě hráče, čísla na dílcích pergamenové žetony průhledné na 25 % (alpha 0,75) bez lemu (`road`, `token` v `board.js`). Čísla na dílcích jsou bez teček (zadavatel
