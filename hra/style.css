@@ -265,3 +265,4 @@ input:focus, select:focus { outline: 2px solid var(--acc2); outline-offset: 1px;
 .banner { border: 1px solid var(--rim); border-image: none; box-shadow: 0 6px 20px rgba(0,0,0,.45); }
 #bank { background: rgba(20,16,10,.5); border: 1px solid var(--rim); width: 48px; height: 48px; }
 #bank { width: 40px; height: 40px; }
+.preview { pointer-events: none; touch-action: auto; } /* náhled mapy jen k prohlížení, stránka se přes něj posouvá */
