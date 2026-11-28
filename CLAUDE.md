@@ -245,6 +245,8 @@ převádí jen `ui/board.js`.
   (béžové, světlá dubová textura `drevo-dub.jpg` pod krémovým závojem) s tmavým písmem, bez tmavých textur
   dřeva, moře je světlý klidný obrázek `more-svetle.jpg` (ne `more.jpg`), banka je kreslená SVG ikona. Malované
   obrázky `drevo-*.jpg`, `btn-*.webp`, `more.jpg`, `banka.webp` zůstávají v repu, ale nepoužívají se.
+- Kamera mapy (posun, zoom) se mění jen na pokyn hráče: vystředí se poprvé a přes menu „Vystředit
+  mapu“; spodní lišta má stálou výšku, aby mapa neposkakovala.
 - Canvas se škáluje podle `devicePixelRatio` (nejvýš 2). Grafika se předkreslí do offscreen
   canvasů; ve smyčce jen `drawImage`. Překresluje se při změně, ne trvale 60× za vteřinu.
 

@@ -292,3 +292,5 @@ input:focus, select:focus { outline: 2px solid var(--acc2); outline-offset: 1px;
 .btn.act { background: linear-gradient(rgba(240,228,205,.42), rgba(225,208,178,.42)), url("gfx/drevo-dub.jpg") center / 420px auto, #dccfb5; }
 .btn.act.wide, .btn.act.end { background: #c9a25a; }
 #game { background: url("gfx/more-svetle.jpg") center / 520px repeat, #74b2be; } /* klidné světlé moře */
+#actions { min-height: 101px; align-content: start; } /* stálá výška lišty: mapa neposkakuje při změně tlačítek */
+#hint { min-height: 44px; }

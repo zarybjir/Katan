@@ -65,11 +65,15 @@ try {
   await p.waitForSelector('#board');
   await until(p, async () => { await step(p); const v = await view(p); return v.phase === 'main' && v.turn === v.you && v.legal.length; }, 'první vlastní tah');
   let v = await view(p);
+  // kamera a výška mapy se během tahu samy nemění (mapa neposkakuje)
+  const cam = () => p.evaluate(() => { const B = __so.S.G.board; return [B.cam.x, B.cam.y, B.cam.k, document.getElementById('board').getBoundingClientRect().height].map(x => x.toFixed(2)).join(); });
+  const cam0 = await cam();
   ok(v.bld >= 8 && v.roads >= 8, `po rozmístění má být aspoň 8 osad a 8 cest, je ${v.bld} a ${v.roads}`);
   // suroviny pro stavbu (zásah do stavu hostitele, pak směna jako běžná akce)
   await p.evaluate(() => { const g = __so.S.host.g, h = g.players[__so.S.cur].hand; for (const r in h) { g.bank[r] -= 6 - h[r]; h[r] = 6; } __so.S.host.act(__so.S.cur, { t: 'bank', give: 'wood', get: 'brick' }); });
   await until(p, async () => (await view(p)).hand.brick === 7, 'směna přes hostitele');
   await p.screenshot({ path: join(out, 'hra-na-vysku.png') });
+  eq(await cam(), cam0, 'mapa poskočila během tahu:');
   await p.click('#a-prices'); ok((await p.locator('.price').count()) === 4, 'ceník nemá čtyři položky');
   ok((await p.locator('.price[data-kind=road]').textContent()).includes('Lze postavit'), 'ceník neukazuje, že cestu lze postavit');
   await p.screenshot({ path: join(out, 'cenik.png') }); await p.mouse.click(5, 5);

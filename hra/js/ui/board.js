@@ -61,17 +61,19 @@ export function createBoard(cv, onPick) {
     dpr = Math.min(2, globalThis.devicePixelRatio || 1);
     W = r.width; H = r.height;
     cv.width = Math.max(1, Math.round(W * dpr)); cv.height = Math.max(1, Math.round(H * dpr));
-    if (B.g && !B.moved) B.fit(); else B.draw();
+    // kamera se sama nemění: vystředí se jen poprvé (nebo na pokyn hráče přes B.fit)
+    if (B.g && !B.fitted) B.fit(); else B.draw();
   };
   B.setView = v => {
     const first = !B.v || B.v.map.hexes.length !== v.map.hexes.length;
     B.v = v; B.g = graph(v.map.hexes);
-    if (first) { B.moved = false; B.fit(); } else B.draw();
+    if (first) { B.moved = false; B.fitted = false; B.fit(); } else B.draw();
   };
   B.setTargets = t => { B.targets = t; B.draw(); };
   B.setMark = m => { B.mark = m; };
   B.fit = () => {
     if (!B.g || !W) return;
+    B.fitted = true;
     const xs = Object.values(B.g.V).map(v => v.x), ys = Object.values(B.g.V).map(v => v.y);
     const M = B.v.map.ports.length ? 1.45 : 1.1, x0 = Math.min(...xs) - M, x1 = Math.max(...xs) + M, y0 = Math.min(...ys) - M, y1 = Math.max(...ys) + M; // okraj pro přístavy
     B.cam.k = Math.min(W / (x1 - x0), H / (y1 - y0));
