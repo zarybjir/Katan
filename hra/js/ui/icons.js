@@ -17,7 +17,7 @@ const BG = { ...RES_COLOR, bank: '#8a6d3b', guard: '#2d5a8a', cards: '#4f6378', 
 
 // ikonka jako HTML prvek; kind = surovina nebo cards / special / points
 // suroviny a banka mají malované obrázky v gfx/, ostatní ukazatele zůstávají jako SVG
-const IMG = { wood: 'res-wood', stone: 'res-stone', grain: 'res-grain', sheep: 'res-sheep', brick: 'res-brick', bank: 'banka' };
+const IMG = { wood: 'res-wood', stone: 'res-stone', grain: 'res-grain', sheep: 'res-sheep', brick: 'res-brick' }; // banka je kreslená ikona
 export function icon(kind, size = 22) {
   const s = document.createElement('span');
   s.className = 'ico';

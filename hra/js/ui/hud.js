@@ -15,7 +15,7 @@ export function createGame(root, S) {
     players: h('div', { id: 'players' }), cv: h('canvas', { id: 'board' }), log: h('div', { id: 'log', onclick: showLog }),
     hint: h('div', { id: 'hint' }), hand: h('div', { id: 'hand' }), actions: h('div', { id: 'actions' }), pass: h('div', { id: 'pass' }),
   };
-  clear(root).append(el.players, h('div', { id: 'mid' }, el.cv, el.log, h('div', { id: 'bank', title: 'banka' }, icon('bank', 40))), h('div', { id: 'bar' }, el.hint, el.hand, el.actions), el.pass);
+  clear(root).append(el.players, h('div', { id: 'mid' }, el.cv, el.log, h('div', { id: 'bank', title: 'banka' }, icon('bank', 30))), h('div', { id: 'bar' }, el.hint, el.hand, el.actions), el.pass);
   const board = createBoard(el.cv, pick);
   const G = { update, board };
 
