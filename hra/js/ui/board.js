@@ -167,7 +167,7 @@ export function createBoard(cv, onPick) {
     const pg = ctx.createRadialGradient(x - 0.08, y - 0.1, 0.02, x, y, r);
     pg.addColorStop(0, '#fbf3dc'); pg.addColorStop(1, '#ead9ae');
     ctx.save();
-    ctx.globalAlpha = 0.55; // poloprůhledný podklad, aby žeton nerušil krajinu
+    ctx.globalAlpha = 0.75; // podklad průhledný na 25 %, aby žeton nerušil krajinu
     ctx.beginPath(); ctx.arc(x, y, r * 0.9, 0, 7); ctx.fillStyle = pg; ctx.fill();
     ctx.restore();
     ctx.save(); ctx.shadowColor = 'rgba(255,248,225,.9)'; ctx.shadowBlur = 0.06 * B.cam.k * dpr; // světlá záře kolem čísla pro čitelnost

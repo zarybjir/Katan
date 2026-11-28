@@ -238,7 +238,7 @@ převádí jen `ui/board.js`.
   Přístavy kreslí `port()` v `board.js`: lávky (`lavka.webp`), kormidlo (`kormidlo.webp`) se žetonem
   suroviny nebo kotvou (`res-any.webp`), štítek s poměrem. Cesta je `fig-cesta.webp` obarvená na hráče.
   V UI se barva hráče bere vždy přes `pc(p)` (tečka v textu: `dot(p)`) z `dom.js`, nikdy `COLORS[p]`.
-  Cesty jsou kreslené trámy v barvě hráče, čísla na dílcích poloprůhledné pergamenové žetony (alpha 0,55) bez lemu (`road`, `token` v `board.js`). Čísla na dílcích jsou bez teček (zadavatel
+  Cesty jsou kreslené trámy v barvě hráče, čísla na dílcích pergamenové žetony průhledné na 25 % (alpha 0,75) bez lemu (`road`, `token` v `board.js`). Čísla na dílcích jsou bez teček (zadavatel
   je nechce); 6 a 8 jsou červené a větší.
 - Canvas se škáluje podle `devicePixelRatio` (nejvýš 2). Grafika se předkreslí do offscreen
   canvasů; ve smyčce jen `drawImage`. Překresluje se při změně, ne trvale 60× za vteřinu.
