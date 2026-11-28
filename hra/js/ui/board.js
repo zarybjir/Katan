@@ -113,8 +113,8 @@ export function createBoard(cv, onPick) {
     // mělčina kolem ostrova
     // písečný břeh kolem ostrova: mělčina, příboj, písek (vnitřek pak překryjí dílky)
     const rs = Array.from({ length: KAMENY }, (_, i) => sprite('kamen-' + (i + 1)));
-    if (rs.every(Boolean)) { // kamenité pobřeží: podklad (mělčina, pěna, kamenitý lem) a jednotlivé kameny
-      for (const [col, w] of [['rgba(200,238,240,.45)', 1.2], ['rgba(255,255,255,.55)', 0.98], ['#7d7366', 0.74]]) {
+    if (rs.every(Boolean)) { // kamenité pobřeží: podklad (mělčina, pěna) a jednotlivé kameny
+      for (const [col, w] of [['rgba(200,238,240,.45)', 1.2], ['rgba(255,255,255,.55)', 0.98]]) {
         ctx.strokeStyle = col; ctx.lineWidth = w; v.map.hexes.forEach((_, i) => { path(i); ctx.stroke(); });
       }
       stones(rs);
@@ -213,8 +213,8 @@ export function createBoard(cv, onPick) {
       if (e.hex.length !== 1) continue;
       const a = g.V[e.a], b = g.V[e.b], c = cen(e.hex[0]), r = rnd(id);
       const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2, d = Math.hypot(mx - c.x, my - c.y), ux = (mx - c.x) / d, uy = (my - c.y) / d;
-      for (let k = 0; k < 9; k++) { // dvě řady: u hrany hustěji, venku řidčeji
-        const t = (k + r()) / 9, off = k % 3 === 2 ? 0.18 + r() * 0.08 : 0.03 + r() * 0.1;
+      for (let k = 0; k < 11; k++) { // dvě řady: u hrany hustěji, venku řidčeji
+        const t = (k + r()) / 11, off = k % 3 === 2 ? 0.18 + r() * 0.08 : 0.03 + r() * 0.1;
         add(a.x + (b.x - a.x) * t + ux * off, a.y + (b.y - a.y) * t + uy * off, r);
       }
     }
