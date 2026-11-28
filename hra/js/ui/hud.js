@@ -2,7 +2,7 @@
 import { h, clear, modal, closeModals, toast, pc, dot, setColors } from './dom.js';
 import { createBoard } from './board.js';
 import { icon } from './icons.js';
-import { dice, deal, bankFlow, between, banner, cardShow, expand, sources, animDialog, FLY, GAP, DICE_ROLL } from './anim.js';
+import { dice, deal, bankFlow, between, banner, cardShow, expand, sources, animDialog, setSpeed, FLY, GAP, DICE_ROLL } from './anim.js';
 import { sfx, snd } from './sound.js';
 import { resTile, tradeDialog, respondDialog, offerDialog, discardDialog, cardsDialog } from './trade.js';
 import { fmtRes } from './text.js';
@@ -225,7 +225,7 @@ export function createGame(root, S) {
     if (!v || !ev.length) return;
     const target = (p, r) => p === v.you ? (r ? document.querySelector(`#hand .have[data-res=${r}]`) : document.getElementById('hand')) : document.querySelector(`.chip[data-p="${p}"]`);
     let sum = 0, fromBank = false;
-    snd.on = a.sound !== false;
+    snd.on = a.sound !== false; setSpeed(a.speed);
     const coin = () => sfx.coin(), gainS = r => sfx.gain(r);
     const nm = p => (v.players[p] ? v.players[p].name : '');
     const say = t => { if (a.banner !== false) banner(t); };

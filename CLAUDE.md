@@ -167,7 +167,8 @@ prohlížeč, WebView i Node v testech.
   deníku), `dom.js` (`h()`, dialogy, značky hráčů), `icons.js` (SVG ikonky surovin a ukazatelů),
   `anim.js` (hod kostkami, rozdávání surovin z dílků, suroviny do banky a z banky – ikonka banky
   vpravo nahoře na mapě; jen vizuální vrstva `#fx`,
-  stav se mění hned; zapínají se v nastavení `so-set.anim`). Animace spouští `G.animate(události)`
+  stav se mění hned; zapínají se v nastavení `so-set.anim`; rychlost letu surovin `so-set.anim.speed`
+  = `fast`/`mid`/`slow`, tabulka `SPEEDS` v `anim.js`). Animace spouští `G.animate(události)`
   po překreslení.
 - `hra/js/app.js` – start, přepínání obrazovek, relace hostitele a klienta, ukládání nastavení.
 - `hra/lib/peerjs.min.js` – jediná cizí knihovna (MIT), načítá se až při hře přes internet. Nečti ji.
@@ -242,7 +243,7 @@ převádí jen `ui/board.js`.
   je nechce); 6 a 8 jsou červené a větší.
 - Vzhled je střídmý a světlý (zadavatel nechce kýč ani tmavé UI): lišty a tlačítka světlé matné
   (béžové, světlá dubová textura `drevo-dub.jpg` pod krémovým závojem) s tmavým písmem, bez tmavých textur
-  dřeva, moře je klidný světlejší modrý přechod (ne `more.jpg`), banka je kreslená SVG ikona. Malované
+  dřeva, moře je světlý klidný obrázek `more-svetle.jpg` (ne `more.jpg`), banka je kreslená SVG ikona. Malované
   obrázky `drevo-*.jpg`, `btn-*.webp`, `more.jpg`, `banka.webp` zůstávají v repu, ale nepoužívají se.
 - Canvas se škáluje podle `devicePixelRatio` (nejvýš 2). Grafika se předkreslí do offscreen
   canvasů; ve smyčce jen `drawImage`. Překresluje se při změně, ne trvale 60× za vteřinu.

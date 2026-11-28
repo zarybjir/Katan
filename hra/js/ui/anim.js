@@ -6,14 +6,19 @@ import { graph } from '../core/hex.js';
 import { TERRAIN } from '../data.js';
 
 export const ANIM_DEF = { dice: true, deal: true, burn: true, banner: true, sound: true };
+const SPEED_DEF = 'mid';
 // klíč burn zůstává kvůli uloženému nastavení; dnes znamená suroviny letící do banky a z ní
 export const ANIM_NAME = { dice: 'Hod kostkami', deal: 'Rozdávání surovin z dílků', burn: 'Pohyb surovin (banka, obchod, krádež)', banner: 'Hlášky uprostřed obrazovky', sound: 'Zvuky' };
 
 let fx = null;
 const layer = () => fx || (fx = document.body.appendChild(h('div', { id: 'fx' })));
 const wait = ms => new Promise(r => setTimeout(r, ms));
-export const FLY = 3600, GAP = 700; // délka letu suroviny a rozestup mezi surovinami (ms)
-export const DICE_ROLL = 1000, DICE_SHOW = 2100; // kostky se točí 1 s, výsledek je vidět do 2,1 s // délka letu suroviny a rozestup mezi surovinami (ms)
+// rychlost letu surovin (volí se v nastavení): délka letu v ms; rozestup je pětina letu
+export const SPEEDS = { fast: 1000, mid: 1700, slow: 2800 };
+export const SPEED_NAME = { fast: 'Rychle', mid: 'Středně', slow: 'Pomalu' };
+export let FLY = SPEEDS.mid, GAP = FLY / 5;
+export function setSpeed(k) { FLY = SPEEDS[k] || SPEEDS.mid; GAP = FLY / 5; }
+export const DICE_ROLL = 1000, DICE_SHOW = 2100; // kostky se točí 1 s, výsledek je vidět do 2,1 s
 
 // ---------- kostky ----------
 const PIPS = { 1: [5], 2: [1, 9], 3: [1, 5, 9], 4: [1, 3, 7, 9], 5: [1, 3, 5, 7, 9], 6: [1, 3, 4, 6, 7, 9] };
@@ -144,5 +149,13 @@ export function animDialog(set, save) {
     const cb = h('input', { type: 'checkbox', 'data-anim': k, checked: set[k] !== false, onchange: () => { set[k] = cb.checked; save(); } });
     return h('label', { class: 'toggle' }, cb, h('span', null, ANIM_NAME[k]));
   });
-  modal('Animace a zvuky', h('div', { class: 'col' }, rows, h('p', { class: 'dim' }, 'Animace jsou jen pro přehled; hra pokračuje i během nich. Kostky lze přeskočit klepnutím.')));
+  // rychlost letu: po změně přeletí ukázková surovina nad spodní lištou
+  setSpeed(set.speed || SPEED_DEF);
+  const sp = h('div', { class: 'row' }, Object.keys(SPEEDS).map(k => h('button', { class: 'btn small' + ((set.speed || SPEED_DEF) === k ? ' on' : ''), 'data-speed': k, onclick: e => {
+    set.speed = k; save(); setSpeed(k);
+    sp.querySelectorAll('button').forEach(b => b.classList.toggle('on', b === e.currentTarget));
+    const bar = document.getElementById('bar'), y = bar ? bar.getBoundingClientRect().top - 24 : innerHeight * 0.8;
+    fly(['wood', 'stone', 'grain', 'sheep', 'brick'][Math.floor(Math.random() * 5)], { x: 30, y }, { x: innerWidth - 30, y }, 0);
+  } }, SPEED_NAME[k])));
+  modal('Animace a zvuky', h('div', { class: 'col' }, rows, h('label', null, 'Rychlost letu surovin', sp), h('p', { class: 'dim' }, 'Animace jsou jen pro přehled; hra pokračuje i během nich. Kostky lze přeskočit klepnutím.')));
 }

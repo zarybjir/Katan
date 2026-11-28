@@ -291,3 +291,4 @@ input:focus, select:focus { outline: 2px solid var(--acc2); outline-offset: 1px;
 .chip, #hand { background: linear-gradient(90deg, color-mix(in srgb, var(--c, #000) 22%, transparent) 0%, transparent 60%), linear-gradient(rgba(252,246,234,.6), rgba(252,246,234,.6)), url("gfx/drevo-dub.jpg") center / 420px auto, var(--matte2); }
 .btn.act { background: linear-gradient(rgba(240,228,205,.42), rgba(225,208,178,.42)), url("gfx/drevo-dub.jpg") center / 420px auto, #dccfb5; }
 .btn.act.wide, .btn.act.end { background: #c9a25a; }
+#game { background: url("gfx/more-svetle.jpg") center / 520px repeat, #74b2be; } /* klidné světlé moře */
