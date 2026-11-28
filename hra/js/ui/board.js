@@ -193,6 +193,14 @@ export function createBoard(cv, onPick) {
     const g = B.g, e = g.E[pt.e], a = g.V[e.a], b = g.V[e.b], hx = B.v.map.hexes[e.hex[0]], c = hexXY(hx.q, hx.r);
     const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2, d = Math.hypot(mx - c.x, my - c.y), ux = (mx - c.x) / d, uy = (my - c.y) / d;
     const px = mx + ux * 0.86, py = my + uy * 0.86;
+    // lodička mezi lávkami, přídí ke břehu (lod-1…3.webp, druh podle id hrany)
+    const lod = sprite('lod-' + (1 + [...pt.e].reduce((s, ch) => s + ch.charCodeAt(0), 0) % 3));
+    if (lod) {
+      const L = 0.42, W = L * lod.naturalWidth / lod.naturalHeight;
+      ctx.save(); ctx.translate(mx + ux * 0.36, my + uy * 0.36); ctx.rotate(Math.atan2(-ux, uy));
+      ctx.shadowColor = 'rgba(0,30,45,.4)'; ctx.shadowBlur = 0.05 * B.cam.k * dpr; ctx.shadowOffsetY = 0.02 * B.cam.k * dpr;
+      ctx.drawImage(lod, -W / 2, -L / 2, W, L); ctx.restore();
+    }
     // dvě lávky od rohů hrany k přístavu
     const jet = sprite('lavka');
     for (const v of [a, b]) {
