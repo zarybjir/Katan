@@ -1,7 +1,10 @@
 // Obrazovky mimo hru: nabídka, založení hry, připojení, lobby.
-import { h, clear } from './dom.js';
+import { h, clear, setColors } from './dom.js';
 import { NAME, COLORS, COLOR_NAME, BOT_LEVEL, RULES, MAPS, MAP_TEXT } from '../data.js';
-import { genMap } from '../core/mapgen.js';
+import { newGame, view } from '../core/state.js';
+import { apply } from '../core/rules.js';
+import { next } from '../core/rng.js';
+import { botAct } from '../bot/bot.js';
 import { createBoard } from './board.js';
 
 const screen = (root, ...kids) => clear(root).append(h('div', { class: 'screen' }, kids));
@@ -61,9 +64,13 @@ export function showSetup(root, A, onStart, onBack) {
     const sel = h('select', { id: 's-map', onchange: () => { cfg.map = sel.value; reroll(); draw(); } },
       [...types.map(k => [k, MAPS[k]]), ['random', 'Náhodná']].map(([k, t]) => h('option', { value: k, selected: cfg.map === k }, t)));
     const cv = h('canvas', { class: 'preview', id: 's-preview' });
-    // náhled ukazuje ostrov tak, jak se bude hrát: krajiny, čísla, přístavy i bouři
-    const m = genMap(seed, cfg.n, type);
-    createBoard(cv, () => {}).setView({ map: { hexes: m.hexes, ports: m.ports }, roads: {}, bld: {}, storm: m.storm });
+    // náhled: mapa, na které se bude hrát, s ukázkovým úvodním rozmístěním osad a cest v barvách míst
+    // (rozmístění je jen pro ilustraci, ve hře ho dělají hráči)
+    const g = newGame({ seed, names: cfg.seats.slice(0, cfg.n).map((_, i) => 'H' + i), map: type, colors: cfg.seats.slice(0, cfg.n).map(x => x.c) });
+    const R = { rng: seed ^ 99 };
+    for (let k = 0; k < 4 * cfg.n && g.phase === 'setup'; k++) { const v = view(g, g.turn), a = botAct(v, 'mid', () => next(R)); if (!a || !apply(g, g.turn, a).ok) break; }
+    setColors(g.colors);
+    createBoard(cv, () => {}).setView({ map: g.map, roads: g.roads, bld: g.bld, storm: g.storm });
     return h('label', null, 'Mapa', sel, cv, h('div', { class: 'row' },
       h('span', { class: 'dim grow' }, (cfg.map === 'random' ? MAPS[type] + ': ' : '') + MAP_TEXT[type]),
       !type.startsWith('sym') && h('button', { class: 'btn small', id: 's-reroll', onclick: e => { e.preventDefault(); reroll(); draw(); } }, 'Jiný tvar')));

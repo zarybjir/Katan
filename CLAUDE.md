@@ -42,7 +42,8 @@ Každou změnu poměřuj těmito body.
   zátoky, atol, šíje, hřeben. Počty krajin podle poměru `TERRAIN_SHARE` (les, pastvina, pole po 4,
   hliniště a skály po 3; na 19 dílcích přesně 4/4/4/3/3 + pustina).
   Pevnina je vždy souvislá (lodě nejsou). Nový typ = záznam v `MAPS`, `MAP_TEXT`, `SHAPES` a test tvaru.
-  Při zakládání hry náhled ukazuje přesně tu mapu, na které se bude hrát (krajiny, čísla, přístavy); u náhodných tvarů jde tvar vyměnit tlačítkem Jiný tvar. Dílky: les (dřevo), skály (kámen),
+  Při zakládání hry náhled ukazuje přesně tu mapu, na které se bude hrát (krajiny, čísla, přístavy),
+  s ukázkovým úvodním rozmístěním osad a cest v barvách míst (rozmístí ho boti, jen pro ilustraci); u náhodných tvarů jde tvar vyměnit tlačítkem Jiný tvar. Dílky: les (dřevo), skály (kámen),
   pole (obilí), pastvina (ovce), hliniště (cihly), pustina (nic). Každý dílek kromě pustiny má číslo
   2–12 bez 7; 6 a 8 nesousedí a stejná čísla také ne (test na 1000 mapách každého typu). Souměrný
   ostrov klade čísla ve spirále od okraje ke středu podle vlastních posloupností `SPIRAL` v `data.js`
