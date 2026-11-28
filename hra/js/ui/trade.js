@@ -31,7 +31,7 @@ export function picker(max, limit, onChange) {
 
 export function tradeDialog(v, act) {
   const L = v.legal, hand = v.players[v.you].hand;
-  const body = h('div', { class: 'col' });
+  const body = h('div', { class: 'col' }, h('div', { class: 'mine-res' }, h('span', { class: 'dim' }, 'V ruce:'), RES.map(r => h('span', { class: 'ri' + (hand[r] ? '' : ' zero') }, icon(r, 24), h('b', null, String(hand[r]))))));
   // banka
   const bank = L.filter(a => a.t === 'bank');
   let give = null, get = null;

@@ -89,8 +89,9 @@ export function botAct(v, level, rnd) {
   }
   const others = v.longLen.filter((_, i) => i !== me), chase = v.longLen[me] >= 4 && v.long !== me && v.longLen[me] + 1 >= Math.max(0, ...others);
   if (road.length && (g === 'road' || pl.handN >= 7 || chase)) {
-    const sp = spotMap();
-    return bestOf(road, a => cfg.plan ? roadScore(v, me, a.at, sp, w, have) + 0.01 : rnd());
+    const sp = spotMap(), b = bestOf(road, a => cfg.plan ? roadScore(v, me, a.at, sp, w, have) + 0.01 : rnd());
+    // cesta, která nevede k žádnému místu pro osadu, jen při honbě za nejdelší cestou
+    if (!cfg.plan || chase || roadScore(v, me, b.at, sp, w, have) > 0) return b;
   }
   if (L.some(a => a.t === 'buy') && (g === 'card' || pl.handN >= 6)) return { t: 'buy' };
   // směna s bankou, když přiblíží cíl a nesáhne na potřebné suroviny

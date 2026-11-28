@@ -382,3 +382,5 @@ body:has(.modal) #fx .fly:not(.demo) { visibility: hidden; }
 .colors .cdot { flex: none; }
 .seat .col.grow { min-width: 0; }
 .colors { padding: 6px 6px 8px; }
+.mine-res { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 4px 8px; border-radius: 8px; background: rgba(255,255,255,.35); border: 1px solid var(--line); }
+.mine-res .ri.zero { opacity: .4; }

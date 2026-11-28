@@ -45,7 +45,10 @@ export function openSpots(v) {
 export function roadScore(v, p, e, spots, w, have) {
   const g = graph(v.map.hexes), ed = g.E[e];
   let best = 0;
-  for (const start of [ed.a, ed.b]) {
+  // počítá se jen od nového konce cesty (napojený konec nic nepřidá); cesta mezi dvěma už
+  // napojenými vrcholy nevede nikam nového a má skóre 0
+  const linked = x => (v.bld[x] && v.bld[x].p === p) || g.V[x].edges.some(id => id !== e && v.roads[id] === p);
+  for (const start of [ed.a, ed.b].filter(x => !linked(x))) {
     if (v.bld[start] && v.bld[start].p !== p) continue;
     const dist = new Map([[start, 0]]), q = [start];
     while (q.length) {

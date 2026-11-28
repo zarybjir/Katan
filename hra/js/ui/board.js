@@ -69,7 +69,9 @@ export function createBoard(cv, onPick) {
     W = r.width; H = r.height;
     cv.width = Math.max(1, Math.round(W * dpr)); cv.height = Math.max(1, Math.round(H * dpr));
     // kamera se sama nemění: vystředí se jen poprvé (nebo na pokyn hráče přes B.fit)
-    if (B.g && !B.fitted) B.fit(); else B.draw();
+    if (B.g && !B.fitted) B.fit();
+    if (raf) { cancelAnimationFrame(raf); raf = 0; }
+    paint(); // hned: změna rozměru canvas vymaže, odložené kreslení by mapu na snímek ukázalo prázdnou
   };
   B.setView = v => {
     const first = !B.v || B.v.map.hexes.length !== v.map.hexes.length;

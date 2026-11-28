@@ -6,6 +6,7 @@ import { apply, legal, roadSpots, settleSpots, rate } from '../js/core/rules.js'
 import { points, roadLen, updateBonus } from '../js/core/score.js';
 import { next } from '../js/core/rng.js';
 import { botAct } from '../js/bot/bot.js';
+import { roadScore } from '../js/bot/eval.js';
 import { createHost } from '../js/net/host.js';
 import { createClient } from '../js/net/client.js';
 import { memPair } from '../js/net/transport-mem.js';
@@ -289,6 +290,17 @@ test('směna s bankou a přístavy', () => {
   setHand(s, 0, { [pt.type]: 2 });
   must(s, 0, { t: 'bank', give: pt.type, get: RES.find(r => r !== pt.type) });
   eq(total(s.players[0].hand), 1);
+});
+test('bot: cesta mezi dvěma už napojenými vrcholy nemá hodnotu', () => {
+  const s = started(), g = graph(s.map.hexes), v = view(s, 0);
+  const mine = Object.keys(s.roads).find(id => s.roads[id] === 0), ed = g.E[mine];
+  const spots = new Map(Object.keys(g.V).map(id => [id, 1]));
+  const next = g.V[ed.b].edges.find(id => id !== mine && s.roads[id] === undefined) || g.V[ed.a].edges.find(id => id !== mine && s.roads[id] === undefined);
+  ok(roadScore(v, 0, next, spots) > 0, 'cesta na nový vrchol má mít hodnotu');
+  const far = [g.E[next].a, g.E[next].b].find(x => x !== ed.a && x !== ed.b);
+  const e2 = g.V[far].edges.find(id => id !== next);
+  s.roads[e2] = 0; // obě strany hrany next jsou teď napojené
+  ok(roadScore(view(s, 0), 0, next, spots) === 0, 'spojka dvou napojených vrcholů má mít nulu');
 });
 test('bot zahraje hlídku před hodem, když bouře stojí u jeho stavby', () => {
   const s = started();
