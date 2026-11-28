@@ -22,7 +22,7 @@ export function setSpeed(k) { FLY = SPEEDS[k] || SPEEDS.mid; GAP = FLY / 5; }
 export const DICE_ROLL = 1000, DICE_SHOW = 2100; // kostky se točí 1 s, výsledek je vidět do 2,1 s
 
 // ---------- kostky ----------
-const PIPS = { 1: [5], 2: [1, 9], 3: [1, 5, 9], 4: [1, 3, 7, 9], 5: [1, 3, 5, 7, 9], 6: [1, 3, 4, 6, 7, 9] };
+export const PIPS = { 1: [5], 2: [1, 9], 3: [1, 5, 9], 4: [1, 3, 7, 9], 5: [1, 3, 5, 7, 9], 6: [1, 3, 4, 6, 7, 9] };
 function face(el, n) {
   el.replaceChildren(...Array.from({ length: 9 }, (_, i) => h('i', { class: PIPS[n].includes(i + 1) ? 'on' : '' })));
 }

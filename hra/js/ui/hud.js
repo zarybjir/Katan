@@ -2,7 +2,7 @@
 import { h, clear, modal, closeModals, toast, pc, dot, setColors } from './dom.js';
 import { createBoard } from './board.js';
 import { icon, resIcons } from './icons.js';
-import { dice, deal, bankFlow, between, banner, cardShow, expand, sources, animDialog, setSpeed, after, FLY, GAP, DICE_ROLL } from './anim.js';
+import { dice, deal, bankFlow, between, banner, cardShow, expand, sources, animDialog, setSpeed, after, PIPS, FLY, GAP, DICE_ROLL } from './anim.js';
 import { sfx, snd } from './sound.js';
 import { resTile, tradeDialog, respondDialog, offerDialog, discardDialog, cardsDialog } from './trade.js';
 import { fmtRes } from './text.js';
@@ -108,7 +108,7 @@ export function createGame(root, S) {
     else if (v.trade) hint = 'Probíhá nabídka obchodu.';
     else hint = 'Probíhá vlastní tah.';
     clear(el.hint).append(h('span', { class: 'grow' }, hint), h('button', { class: 'btn small', id: 'a-prices', onclick: () => prices(v) }, 'Ceník'));
-    if (v.rolled) el.hint.append(h('span', { class: 'dice' }, h('i', null, String(v.rolled[0])), h('i', null, String(v.rolled[1]))));
+    if (v.rolled) el.hint.append(h('span', { class: 'dice', title: `Poslední hod: ${v.rolled[0] + v.rolled[1]}` }, v.rolled.map(n => h('span', { class: 'mini-die' }, Array.from({ length: 9 }, (_, i) => h('i', { class: PIPS[n].includes(i + 1) ? 'on' : '' }))))));
 
     // ---------- vlastní pruh ----------
     clear(el.hand);
