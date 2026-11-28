@@ -111,10 +111,10 @@ export function createBoard(cv, onPick) {
     ctx.lineJoin = 'round'; ctx.lineCap = 'round';
     const path = i => { ctx.beginPath(); g.hv[i].forEach((id, j) => { const p = g.V[id]; j ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y); }); ctx.closePath(); };
     // mělčina kolem ostrova
-    ctx.strokeStyle = 'rgba(190,230,245,.35)'; ctx.lineWidth = 0.55;
-    v.map.hexes.forEach((_, i) => { path(i); ctx.stroke(); });
-    ctx.strokeStyle = '#e9dcb2'; ctx.lineWidth = 0.22;
-    v.map.hexes.forEach((_, i) => { path(i); ctx.stroke(); });
+    // písečný břeh kolem ostrova: mělčina, příboj, písek (vnitřek pak překryjí dílky)
+    for (const [col, w] of [['rgba(200,238,240,.45)', 1.25], ['rgba(255,255,255,.55)', 0.98], ['#d9c38f', 0.9], ['#ead9aa', 0.78]]) {
+      ctx.strokeStyle = col; ctx.lineWidth = w; v.map.hexes.forEach((_, i) => { path(i); ctx.stroke(); });
+    }
     // přístavy: dřevěné molo od pobřeží k bóji s žetonem suroviny (2:1) nebo kotvou (3:1)
     for (const pt of v.map.ports) port(pt);
     // dílky
@@ -136,7 +136,7 @@ export function createBoard(cv, onPick) {
         ctx.restore();
         path(i); ctx.fillStyle = 'rgba(20,16,10,.06)'; ctx.fill(); // ztlumení krajiny, aby stavby vynikly
       }
-      ctx.strokeStyle = 'rgba(29,42,56,.7)'; ctx.lineWidth = 0.05; path(i); ctx.stroke();
+      ctx.strokeStyle = '#ecdcad'; ctx.lineWidth = 0.1; path(i); ctx.stroke(); // světlá spára mezi dílky
       if (!tx && TERRAIN_COLOR[hx.t]) glyph(hx.t, c.x, c.y - 0.42);
       if (hx.n) token(c.x, c.y + 0.18, hx.n);
       if (B.targets && B.targets.h && B.targets.h.includes(i)) { path(i); ctx.fillStyle = 'rgba(255,255,255,.28)'; ctx.fill(); ctx.strokeStyle = '#fff'; ctx.lineWidth = 0.08; ctx.stroke(); }
@@ -164,9 +164,9 @@ export function createBoard(cv, onPick) {
     // nabídka vrcholů
     if (B.targets && B.targets.v) for (const id of B.targets.v) {
       const p = g.V[id];
-      ctx.beginPath(); ctx.arc(p.x, p.y, v.bld[id] ? 0.36 : 0.14, 0, 7);
-      if (!v.bld[id]) { ctx.fillStyle = 'rgba(255,255,255,.85)'; ctx.fill(); }
-      ctx.strokeStyle = v.bld[id] ? '#fff' : INK; ctx.lineWidth = v.bld[id] ? 0.08 : 0.05; ctx.stroke();
+      ctx.beginPath(); ctx.arc(p.x, p.y, v.bld[id] ? 0.36 : 0.085, 0, 7); // nenápadná tečka, zásahová plocha je větší
+      if (!v.bld[id]) { ctx.fillStyle = 'rgba(255,250,235,.7)'; ctx.fill(); }
+      else { ctx.strokeStyle = 'rgba(255,255,255,.85)'; ctx.lineWidth = 0.05; ctx.stroke(); }
     }
     // značka poslední stavby
   }
@@ -207,23 +207,20 @@ export function createBoard(cv, onPick) {
       }
       ctx.restore();
     }
-    // žeton suroviny (2:1) nebo kotvy (3:1)
-    const r = 0.36, tok = sprite(pt.type === 'any' ? 'res-any' : 'res-' + pt.type);
-    if (tok) { // žeton suroviny (2:1) nebo kotvy (3:1) se stínem, bez kormidla
-      ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.5)'; ctx.shadowBlur = 0.1 * B.cam.k * dpr; ctx.shadowOffsetY = 0.04 * B.cam.k * dpr;
-      ctx.drawImage(tok, px - r, py - r, r * 2, r * 2); ctx.restore();
-    } else {
-      ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.55)'; ctx.shadowBlur = 0.12 * B.cam.k * dpr; ctx.shadowOffsetY = 0.04 * B.cam.k * dpr;
-      ctx.beginPath(); ctx.arc(px, py, r, 0, 7); ctx.fillStyle = '#7a5520'; ctx.fill(); ctx.restore();
-      ctx.beginPath(); ctx.arc(px, py, r * 0.84, 0, 7); ctx.fillStyle = pt.type === 'any' ? '#1f4f6e' : RES_COLOR[pt.type]; ctx.fill();
-      if (pt.type === 'any') anchor(px, py - 0.02, 0.2);
+    // štítek přístavu: pergamenová cedulka s ikonkou suroviny a poměrem (3:1 jen poměr)
+    const any = pt.type === 'any', tok = !any && sprite('res-' + pt.type);
+    const w = any ? 0.62 : 0.94, hh = 0.44, X = px - w / 2, Y = py - hh / 2;
+    ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.35)'; ctx.shadowBlur = 0.08 * B.cam.k * dpr; ctx.shadowOffsetY = 0.03 * B.cam.k * dpr;
+    ctx.beginPath(); ctx.roundRect ? ctx.roundRect(X, Y, w, hh, 0.07) : ctx.rect(X, Y, w, hh);
+    ctx.fillStyle = '#f5ead0'; ctx.fill(); ctx.restore();
+    ctx.strokeStyle = 'rgba(110,80,40,.55)'; ctx.lineWidth = 0.02; ctx.stroke();
+    ctx.font = "700 0.23px Georgia, 'Noto Serif', serif"; ctx.textBaseline = 'middle'; ctx.fillStyle = '#3a2a16';
+    if (any) { ctx.textAlign = 'center'; ctx.fillText('3:1', px, py + 0.01); }
+    else {
+      if (tok) ctx.drawImage(tok, X + 0.04, py - 0.18, 0.36, 0.36);
+      else { ctx.beginPath(); ctx.arc(X + 0.17, py, 0.12, 0, 7); ctx.fillStyle = RES_COLOR[pt.type]; ctx.fill(); ctx.fillStyle = '#3a2a16'; }
+      ctx.textAlign = 'left'; ctx.fillText('2:1', X + 0.45, py + 0.015);
     }
-    // štítek s poměrem pod bójí
-    const lx = px, ly = py + r * 1.08, w = 0.42, hgt = 0.2;
-    ctx.beginPath(); ctx.roundRect ? ctx.roundRect(lx - w / 2, ly - hgt / 2, w, hgt, 0.05) : ctx.rect(lx - w / 2, ly - hgt / 2, w, hgt);
-    ctx.fillStyle = '#2b1d10'; ctx.fill(); ctx.strokeStyle = '#d8b25a'; ctx.lineWidth = 0.02; ctx.stroke();
-    ctx.font = "700 0.155px Georgia, 'Noto Serif', serif"; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = '#f4e3b5';
-    ctx.fillText(pt.type === 'any' ? '3:1' : '2:1', lx, ly + 0.005);
   }
   function anchor(x, y, s) { // kotva pro přístav 3:1
     ctx.save(); ctx.strokeStyle = '#f4e3b5'; ctx.fillStyle = '#f4e3b5'; ctx.lineWidth = s * 0.16; ctx.lineCap = 'round';
