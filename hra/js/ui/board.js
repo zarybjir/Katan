@@ -112,7 +112,9 @@ export function createBoard(cv, onPick) {
     const path = i => { ctx.beginPath(); g.hv[i].forEach((id, j) => { const p = g.V[id]; j ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y); }); ctx.closePath(); };
     // mělčina kolem ostrova
     // písečný břeh kolem ostrova: mělčina, příboj, písek (vnitřek pak překryjí dílky)
-    for (const [col, w] of [['rgba(200,238,240,.45)', 1.25], ['rgba(255,255,255,.55)', 0.98], ['#d9c38f', 0.9], ['#ead9aa', 0.78]]) {
+    const br = sprite('breh');
+    if (br) shore(br); // skalnaté pobřeží z malovaného pruhu (breh.webp)
+    else for (const [col, w] of [['rgba(200,238,240,.45)', 1.25], ['rgba(255,255,255,.55)', 0.98], ['#d9c38f', 0.9], ['#ead9aa', 0.78]]) {
       ctx.strokeStyle = col; ctx.lineWidth = w; v.map.hexes.forEach((_, i) => { path(i); ctx.stroke(); });
     }
     // přístavy: dřevěné molo od pobřeží k bóji s žetonem suroviny (2:1) nebo kotvou (3:1)
@@ -192,6 +194,25 @@ export function createBoard(cv, onPick) {
   function text(t, x, y, size, color) {
     ctx.font = `700 ${size}px system-ui, sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     ctx.fillStyle = color; ctx.fillText(t, x, y);
+  }
+  // pruh pobřeží na každou hranu s jediným dílkem: tráva pod dílek, skály a pěna ven do moře.
+  // Pruh je 4:1, výška SH jednotek mapy, hrana leží v SE jeho výšky; konce přesahují o SX kvůli rohům.
+  const SH = 0.8, SE = 0.12, SX = 0.3;
+  function shore(img) {
+    const g = B.g, iw = img.naturalWidth, ih = img.naturalHeight;
+    for (const id in g.E) {
+      const e = g.E[id];
+      if (e.hex.length !== 1) continue;
+      const a = g.V[e.a], b = g.V[e.b], hx = B.v.map.hexes[e.hex[0]], c = hexXY(hx.q, hx.r);
+      const L = Math.hypot(b.x - a.x, b.y - a.y), tx = (b.x - a.x) / L, ty = (b.y - a.y) / L;
+      let ux = -ty, uy = tx; // kolmice ven z dílku
+      if (ux * ((a.x + b.x) / 2 - c.x) + uy * ((a.y + b.y) / 2 - c.y) < 0) { ux = -ux; uy = -uy; }
+      const len = L + 2 * SX, sw = len / SH * ih, h = [...String(id)].reduce((s, ch) => s * 31 + ch.charCodeAt(0) | 0, 7);
+      const sx = Math.abs(h) % Math.max(1, Math.floor(iw - sw));
+      ctx.save(); ctx.transform(tx, ty, ux, uy, a.x, a.y);
+      ctx.drawImage(img, sx, 0, sw, ih, -SX, -SH * SE, len, SH);
+      ctx.restore();
+    }
   }
   function port(pt) {
     const g = B.g, e = g.E[pt.e], a = g.V[e.a], b = g.V[e.b], hx = B.v.map.hexes[e.hex[0]], c = hexXY(hx.q, hx.r);
