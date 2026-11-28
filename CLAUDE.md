@@ -178,7 +178,7 @@ prohlížeč, WebView i Node v testech.
   s pastvinou). Dílek bez obrázku se kreslí barvou a značkou.
   Hotové šestiúhelníkové dílky s okrajem jsou `hex-*.webp` (`TERRAIN_HEX`), zapínají se
   konstantou `HEX_TILES` v `board.js` (zatím vypnuto, čeká na rozhodnutí zadavatele).
-  Další malovaná grafika: `spara.jpg` (vzor písku ve spárách mezi dílky, `board.js`), `res-*.webp`, `obj-road/settle/city/card.webp` a `banka.webp` (žetony, `icons.js`), `karta-ram.webp` (rám karty výpravy, `.vcard` ve `style.css`), `boure.webp` (mapa),
+  Další malovaná grafika: `spara.jpg` (vzor písku ve spárách mezi dílky, `board.js`), `res-*.webp`, `obj-road/settle/city/card.webp` a `banka.webp` (žetony, `icons.js`), `karta-ram.webp` (rám karty výpravy, `.vcard` ve `style.css`), `ram-dialog.webp` (dřevěný rám dialogů a obrazovek nabídky, `border-image` na `.box, .screen`), `pergamen.jpg` (pozadí dialogů), `kostka.webp` (stěna kostky, tečky kreslí CSS), `boure.webp` (mapa),
   `fig-osada.webp`, `fig-mesto.webp` (bílé figurky, `board.js` je obarví na barvu
   hráče), `btn-wood.webp`, `btn-brass.webp`, `ramecek.webp` (CSS `border-image`), `drevo-*.jpg`, `more.jpg`,
   `pozadi-menu.jpg`, `karta-<druh>.jpg`. Obrázky na zeleném pozadí se klíčují skriptem (zelená →

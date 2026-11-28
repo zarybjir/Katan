@@ -344,3 +344,9 @@ input:focus, select:focus { outline: 2px solid var(--acc2); outline-offset: 1px;
 .card-show .vtxt { padding-bottom: 0; } .card-show .vtxt p { font-size: 14px; }
 /* otevřený dialog: přelety surovin z tahů ostatních se nad ním neukazují (kromě ukázky rychlosti) */
 body:has(.modal) #fx .fly:not(.demo) { visibility: hidden; }
+/* ---------- malované dialogy a kostky ---------- */
+.box, .screen { border: 28px solid transparent; border-image: url("gfx/ram-dialog.webp") 72 / 28px round; border-radius: 0;
+  background: url("gfx/pergamen.jpg") center / 320px repeat, #f6eedd; background-clip: border-box; background-origin: border-box;
+  padding: 8px 12px; box-shadow: 0 14px 40px rgba(0,0,0,.5); }
+.die { background: url("gfx/kostka.webp") center / 100% 100% no-repeat; border-radius: 0; box-shadow: none; padding: 12px; filter: drop-shadow(0 6px 10px rgba(0,0,0,.45)); }
+.die i.on { background: #3a2414; box-shadow: inset 0 1px 2px rgba(0,0,0,.6); }
