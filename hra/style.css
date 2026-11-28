@@ -317,3 +317,19 @@ input:focus, select:focus { outline: 2px solid var(--acc2); outline-offset: 1px;
 .card-show .vcard { box-shadow: 0 14px 40px rgba(0,0,0,.55); }
 .vwho { font: 700 14px/1.2 var(--serif); color: #6e5a3e; margin-top: 4px; }
 .btn.act .ricons { flex-wrap: nowrap; gap: 1px; } .btn.act .ri { gap: 0; } .btn.act .ri b { font-size: 10px; margin-right: 1px; }
+
+/* karta výpravy s malovaným rámem karta-ram.webp: obrázek v okně nahoře, text dole */
+.vcard { aspect-ratio: 1521 / 2307; padding: 0; border: 0; background: none; border-radius: 6% / 4%; overflow: hidden; box-shadow: none; filter: drop-shadow(0 3px 6px rgba(0,0,0,.3)); }
+.vcard::before { content: ''; position: absolute; inset: 0; background: url("gfx/karta-ram.webp") center / 100% 100% no-repeat; z-index: 1; pointer-events: none; }
+.vart { position: absolute; left: 11.5%; top: 7.6%; width: 76.8%; height: 40%; border: 0; border-radius: 0; box-shadow: none; z-index: 0; }
+.vtxt { position: absolute; left: 10%; right: 10%; top: 51.5%; bottom: 6%; z-index: 2; padding: 0; min-height: 0; overflow: hidden; }
+.vtxt b { font-size: 15px; } .vtxt p { font-size: 12px; }
+.vtxt .btn.small { min-height: 34px; padding: 2px 8px; font-size: 14px; }
+.vcount { z-index: 3; top: 9%; right: 15%; }
+.card-show { width: min(240px, 64vw); }
+.vart { left: 10.3%; top: 6.6%; width: 79.4%; height: 42.4%; background: #3a2a18; }
+.vart img { margin: 0 !important; }
+.vtxt { top: 53.5%; gap: 3px; } .vtxt p { font-size: 11.5px; line-height: 1.25; } .vtxt b { font-size: 14px; }
+.card-show .vtxt b { font-size: 18px; } .card-show .vtxt p { font-size: 14px; }
+.vart img { width: 100% !important; height: 100% !important; object-fit: cover; }
+.vtxt .btn.small { min-height: 30px; padding: 0 8px; font-size: 13px; }
