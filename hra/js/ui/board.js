@@ -205,7 +205,7 @@ export function createBoard(cv, onPick) {
     const jet = sprite('lavka');
     for (const v of [a, b]) {
       const sx = v.x + (mx - v.x) * 0.25, sy = v.y + (my - v.y) * 0.25, ex = px + (v.x - mx) * 0.3, ey = py + (v.y - my) * 0.3;
-      const ang = Math.atan2(ey - sy, ex - sx), len = Math.hypot(ex - sx, ey - sy);
+      const ang = Math.atan2(ey - sy, ex - sx), len = Math.hypot(ex - sx, ey - sy) * 0.6; // molo končí kus před cedulkou
       ctx.save(); ctx.translate(sx, sy); ctx.rotate(ang);
       ctx.shadowColor = 'rgba(0,0,0,.45)'; ctx.shadowBlur = 0.06 * B.cam.k * dpr; ctx.shadowOffsetY = 0.03 * B.cam.k * dpr;
       if (jet) ctx.drawImage(jet, -0.02, -0.08, len + 0.04, 0.16);
