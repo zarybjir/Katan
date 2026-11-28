@@ -1,6 +1,6 @@
 // Tabulky hry. Čísla se ladí tady, ne v kódu.
 export const NAME = 'Osadníci';
-export const PROTO = 12;
+export const PROTO = 13;
 
 // ---------- suroviny a dílky ----------
 export const RES = ['wood', 'stone', 'grain', 'sheep', 'brick'];

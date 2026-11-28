@@ -100,7 +100,7 @@ export function createGame(root, S) {
       const two = v.setup.i >= v.players.length; // druhé kolo jde v opačném pořadí a dává suroviny
       hint = `Rozmístění, ${two ? '2' : '1'}. kolo: ` + (L[0].kind === 'settle' ? 'výběr místa pro osadu' + (two ? ' (dá suroviny z okolních dílků)' : '') : 'cesta k osadě');
     }
-    else if (L[0].t === 'roll') hint = 'Tah začíná hodem kostkami.';
+    else if (L[0].t === 'roll') hint = L.some(a => a.t === 'play') ? 'Tah začíná hodem kostkami. Hlídku lze zahrát už před hodem.' : 'Tah začíná hodem kostkami.';
     else if (L[0].t === 'storm') hint = 'Bouře: výběr dílku, kam se přesune';
     else if (L[0].t === 'discard') hint = 'Bouře: odhození karet';
     else if (free) hint = `Stavba cesty zdarma (zbývá ${v.freeRoads})`;
@@ -125,7 +125,11 @@ export function createGame(root, S) {
     // tlačítko, které při nedostupnosti nezamrzne, ale ukáže ceník s tím, co chybí
     const soft = (id, label, on, click, cls = '') => h('button', { class: 'btn act ' + cls + (on ? '' : ' off'), id: 'a-' + id, onclick: on ? click : () => prices(S.view()) }, label);
     const cost = k => resIcons(COST[k], 14);
-    if (L.some(a => a.t === 'roll')) el.actions.append(btn('roll', 'Hodit kostkami', true, () => act({ t: 'roll' }), 'wide'));
+    if (L.some(a => a.t === 'roll')) { // před hodem jde otevřít karty (hlídku lze zahrát už teď)
+      const nc = mine.cards.length + mine.fresh.length, r = btn('roll', 'Hodit kostkami', true, () => act({ t: 'roll' }), 'wide');
+      r.style.gridColumn = 'span 2';
+      el.actions.append(r, btn('cards', `Karty (${nc})`, nc > 0, () => cardsDialog(v, act)));
+    }
     else if (mine) { // mimo vlastní tah zůstávají tlačítka na místě, jen nedostupná (lišta není prázdná)
       const own = v.phase === 'main' && v.turn === me && !free && !v.trade, nc = mine.cards.length + mine.fresh.length;
       for (const k of ['road', 'settle', 'city'])

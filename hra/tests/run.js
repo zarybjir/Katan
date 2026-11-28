@@ -290,6 +290,19 @@ test('směna s bankou a přístavy', () => {
   must(s, 0, { t: 'bank', give: pt.type, get: RES.find(r => r !== pt.type) });
   eq(total(s.players[0].hand), 1);
 });
+test('hlídka jde zahrát i před hodem, pak se hází', () => {
+  const s = started();
+  s.turn = 0; s.phase = 'roll'; s.played = false; s.players[0].cards = ['guard', 'supply'];
+  bad(s, 0, { t: 'play', card: 'supply', res: ['wood', 'wood'] }); // před hodem jen hlídka
+  must(s, 0, { t: 'play', card: 'guard' });
+  eq(s.phase, 'storm');
+  bad(s, 0, { t: 'roll' });
+  must(s, 0, legal(s, 0)[0]);
+  eq(s.phase, 'roll');
+  eq(legal(s, 0).map(a => a.t), ['roll']); // druhá karta v tahu už ne
+  must(s, 0, { t: 'roll' });
+  ok(s.phase !== 'roll');
+});
 test('výpravy: koupě, zahrání až další tah, jedna za tah', () => {
   const s = started();
   setHand(s, 0, {});

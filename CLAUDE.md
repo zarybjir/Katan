@@ -62,7 +62,7 @@ Každou změnu poměřuj těmito body.
 - **Obchod:** s bankou v pevném poměru, výhodněji přes přístav na pobřeží, mezi hráči nabídkou
   („dám–chci“), kterou ostatní přijmou, odmítnou nebo upraví.
 - **Výpravy** (karty kupované za suroviny, skryté): zahnání bouře, stavba cest zdarma, suroviny
-  z banky, vítězný bod. Přibudou až po fungujícím jádru.
+  z banky, vítězný bod. Hlídku (přesun bouře) lze zahrát i před hodem (`s.back` vrátí fázi na hod). Přibudou až po fungujícím jádru.
 - **Body:** osada 1, město 2, nejdelší cesta a největší počet zahraných výprav bonus. Vyhrává, kdo
   na svém tahu dosáhne cílového počtu (výchozí 10, volitelné v nastavení hry).
 

@@ -7,7 +7,7 @@ získá cílový počet bodů. Android aplikace; server hry běží na zařízen
 ## Co hra umí
 
 - Mapa se pro každou hru generuje nově, velikost podle počtu hráčů. Sedm typů map: souměrný
-  ostrov s čísly ve spirále, souměrný ostrov s náhodnými čísly, ostrov, zátoky, atol, šíje a hřeben; při zakládání hry je vidět náhled celé mapy (krajiny, čísla, přístavy).
+  ostrov s čísly ve spirále, souměrný ostrov s náhodnými čísly, ostrov, zátoky, atol, šíje a hřeben; při zakládání hry je vidět obrys mapy.
 - Boti ve třech obtížnostech (lehký, střední, těžký), libovolná kombinace lidí a botů.
 - **Jedno zařízení:** více hráčů si zařízení předává, mezi tahy je obrazovka předání.
 - **Místní síť:** hostitel hru otevře, ostatní ji uvidí v seznamu nebo zadají adresu, kterou
@@ -47,6 +47,8 @@ získá cílový počet bodů. Android aplikace; server hry běží na zařízen
   na jiný dílek (ten nevyrábí) a vezme kartu jednomu sousedovi.
 - Směna s bankou 4:1, v přístavu 3:1 nebo 2:1 za vyznačenou surovinu. Na každé mapě je přístav
   2:1 pro každou surovinu (na pobřeží mezi dvěma dílky) a čtyři přístavy 3:1 (na výběžcích).
+- Výprava hlídka (přesun bouře a krádež karty) jde zahrát i před hodem kostkami; za tah lze zahrát
+  jen jednu výpravu.
 - Nejdelší cesta (od 5 úseků) a nejvíc zahraných hlídek (od 3) dávají po 2 bodech.
 
 ## Instalace a aktualizace

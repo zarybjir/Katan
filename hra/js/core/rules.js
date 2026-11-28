@@ -83,7 +83,11 @@ export function legal(s, p) {
     else for (const at of roadSpots(s, p)) out.push({ t: 'build', kind: 'road', at });
     return out;
   }
-  if (s.phase === 'roll') { out.push({ t: 'roll' }); return out; }
+  if (s.phase === 'roll') { // před hodem jde zahrát jen hlídka (přesun bouře)
+    out.push({ t: 'roll' });
+    if (!s.played && pl.cards.includes('guard')) out.push({ t: 'play', card: 'guard' });
+    return out;
+  }
   if (s.phase === 'storm') {
     s.map.hexes.forEach((h, i) => {
       if (i === s.storm) return;
@@ -176,7 +180,7 @@ export function apply(s, p, a) {
         h[r]--; pl.hand[r]++;
         ev.push({ e: 'steal', p, from: a.from, secret: { res: r }, see: [p, a.from] });
       }
-      s.phase = 'main';
+      s.phase = s.back || 'main'; delete s.back;
       break;
     }
     case 'buy': {
@@ -194,7 +198,7 @@ export function apply(s, p, a) {
       }
       pl.cards.splice(pl.cards.indexOf(a.card), 1); s.played = true;
       ev.push({ e: 'play', p, card: a.card });
-      if (a.card === 'guard') { pl.guards++; updateBonus(s); s.phase = 'storm'; }
+      if (a.card === 'guard') { pl.guards++; updateBonus(s); s.back = s.phase === 'roll' ? 'roll' : 'main'; s.phase = 'storm'; } // po přesunu bouře zpět k hodu, nebo dál v tahu
       else if (a.card === 'roads') s.freeRoads = Math.min(2, pl.left.road);
       else { const res = {}; for (const r of a.res) res[r] = (res[r] || 0) + give(s, p, r, 1); ev.push({ e: 'gain', p, res }); }
       break;
