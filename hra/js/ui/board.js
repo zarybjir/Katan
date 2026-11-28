@@ -110,15 +110,7 @@ export function createBoard(cv, onPick) {
     ctx.setTransform(k, 0, 0, k, cv.width / 2 - B.cam.x * k, cv.height / 2 - B.cam.y * k);
     ctx.lineJoin = 'round'; ctx.lineCap = 'round';
     const path = i => { ctx.beginPath(); g.hv[i].forEach((id, j) => { const p = g.V[id]; j ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y); }); ctx.closePath(); };
-    // pobřeží: lem z malované textury oblázků (oblazky.jpg, vzor 512 px = 2 jednotky mapy) a na něm
-    // jednotlivé kameny; plochý barevný lem zadavatel nechce, bez textury se lem nekreslí
-    const ob = sprite('oblazky', 'jpg');
-    if (ob) {
-      if (!B.shingle) { B.shingle = ctx.createPattern(ob, 'repeat'); B.shingle.setTransform(new DOMMatrix().scale(2 / 512)); }
-      ctx.strokeStyle = B.shingle; ctx.lineWidth = 0.74; v.map.hexes.forEach((_, i) => { path(i); ctx.stroke(); });
-    }
-    const rs = Array.from({ length: KAMENY }, (_, i) => sprite('kamen-' + (i + 1)));
-    if (rs.every(Boolean)) stones(rs);
+    // pobřeží se nekreslí: dílky leží přímo v moři (lem ani kameny zadavatel nechce)
     // přístavy: dřevěné molo od pobřeží k bóji s žetonem suroviny (2:1) nebo kotvou (3:1)
     for (const pt of v.map.ports) port(pt);
     // spáry mezi dílky: malovaný písek (spara.jpg) jako vzor, 512 px = 2 jednotky mapy
@@ -196,39 +188,6 @@ export function createBoard(cv, onPick) {
   function text(t, x, y, size, color) {
     ctx.font = `700 ${size}px system-ui, sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     ctx.fillStyle = color; ctx.fillText(t, x, y);
-  }
-  // kameny podél pobřeží (kamen-1…KAMENY.webp): na každé hraně se dvěma dílky jen z jedné strany
-  // a kolem vypouklých rohů; poloha, velikost, natočení a druh z čísla odvozeného z id, takže
-  // se při překreslení nemění. Kámen 200 px odpovídá ROCK jednotkám mapy.
-  const KAMENY = 18, ROCK = 0.5;
-  function stones(rs) {
-    const g = B.g, list = [];
-    const rnd = id => { let h = [...String(id)].reduce((s, ch) => s * 31 + ch.charCodeAt(0) | 0, 7) >>> 0; return () => ((h = (h * 1664525 + 1013904223) >>> 0) / 4294967296); };
-    const cen = i => hexXY(B.v.map.hexes[i].q, B.v.map.hexes[i].r);
-    const add = (x, y, r) => list.push({ x, y, img: rs[Math.floor(r() * rs.length)], s: 0.65 + r() * 0.45, rot: r() * Math.PI * 2, flip: r() < 0.5 });
-    for (const id in g.E) {
-      const e = g.E[id];
-      if (e.hex.length !== 1) continue;
-      const a = g.V[e.a], b = g.V[e.b], c = cen(e.hex[0]), r = rnd(id);
-      const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2, d = Math.hypot(mx - c.x, my - c.y), ux = (mx - c.x) / d, uy = (my - c.y) / d;
-      for (let k = 0; k < 11; k++) { // dvě řady: u hrany hustěji, venku řidčeji
-        const t = (k + r()) / 11, off = k % 3 === 2 ? 0.18 + r() * 0.08 : 0.03 + r() * 0.1;
-        add(a.x + (b.x - a.x) * t + ux * off, a.y + (b.y - a.y) * t + uy * off, r);
-      }
-    }
-    for (const id in g.V) { // vypouklý roh: pár kamenů kolem vrcholu
-      const v = g.V[id];
-      if (v.hex.length !== 1) continue;
-      const c = cen(v.hex[0]), r = rnd(id), d = Math.hypot(v.x - c.x, v.y - c.y), ux = (v.x - c.x) / d, uy = (v.y - c.y) / d;
-      for (let k = 0; k < 3; k++) { const off = 0.08 + r() * 0.16, sx = (r() - 0.5) * 0.2; add(v.x + ux * off - uy * sx, v.y + uy * off + ux * sx, r); }
-    }
-    list.sort((p, q) => q.s - p.s); // velké dospod
-    for (const k of list) {
-      const w = k.img.naturalWidth / 200 * ROCK * k.s, h = k.img.naturalHeight / 200 * ROCK * k.s;
-      ctx.save(); ctx.translate(k.x, k.y); ctx.rotate(k.rot); if (k.flip) ctx.scale(-1, 1);
-      ctx.drawImage(k.img, -w / 2, -h / 2, w, h);
-      ctx.restore();
-    }
   }
   function port(pt) {
     const g = B.g, e = g.E[pt.e], a = g.V[e.a], b = g.V[e.b], hx = B.v.map.hexes[e.hex[0]], c = hexXY(hx.q, hx.r);
