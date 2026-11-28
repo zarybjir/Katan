@@ -123,7 +123,7 @@ export function createBoard(cv, onPick) {
       const hl = HEX_TILES && TERRAIN_HEX[hx.t], ht = hl && sprite(hl[Math.abs(hx.q * 7 + hx.r * 13) % hl.length]);
       if (ht) { // hotový šestiúhelníkový dílek i s okrajem
         ctx.drawImage(ht, c.x - S3W / 2, c.y - 1, S3W, 2);
-        if (hx.n) token(c.x, c.y + 0.18, hx.n);
+        if (hx.n) token(c.x, c.y, hx.n);
         if (B.targets && B.targets.h && B.targets.h.includes(i)) { path(i); ctx.fillStyle = 'rgba(255,255,255,.28)'; ctx.fill(); ctx.strokeStyle = '#fff'; ctx.lineWidth = 0.08; ctx.stroke(); }
         return;
       }
@@ -139,7 +139,7 @@ export function createBoard(cv, onPick) {
       ctx.strokeStyle = seam; ctx.lineWidth = 0.13; path(i); ctx.stroke(); // nahnědlá spára mezi dílky
       ctx.strokeStyle = 'rgba(120,85,40,.35)'; ctx.lineWidth = 0.02; path(i); ctx.stroke();
       if (!tx && TERRAIN_COLOR[hx.t]) glyph(hx.t, c.x, c.y - 0.42);
-      if (hx.n) token(c.x, c.y + 0.18, hx.n);
+      if (hx.n) token(c.x, c.y, hx.n);
       if (B.targets && B.targets.h && B.targets.h.includes(i)) { path(i); ctx.fillStyle = 'rgba(255,255,255,.28)'; ctx.fill(); ctx.strokeStyle = '#fff'; ctx.lineWidth = 0.08; ctx.stroke(); }
     });
     // bouře
