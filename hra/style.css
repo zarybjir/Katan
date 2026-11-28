@@ -384,3 +384,9 @@ body:has(.modal) #fx .fly:not(.demo) { visibility: hidden; }
 .colors { padding: 6px 6px 8px; }
 .mine-res { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 4px 8px; border-radius: 8px; background: rgba(255,255,255,.35); border: 1px solid var(--line); }
 .mine-res .ri.zero { opacity: .4; }
+/* řádky surovin v dialozích: všech pět vždy v jednom řádku (číslo pod ikonkou) */
+.box .row:has(> .res) { flex-wrap: nowrap; gap: 5px; }
+.box .row > .res { flex: 1 1 0; min-width: 0; flex-direction: column; gap: 1px; padding: 4px 2px; }
+.box .row > .res b { font-size: 16px; }
+.mine-res { flex-wrap: nowrap; gap: 6px; justify-content: space-between; }
+.mine-res .ri b { font-size: 15px; }
