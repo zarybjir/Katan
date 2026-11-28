@@ -210,8 +210,11 @@ export function createBoard(cv, onPick) {
       const len = L + 2 * SX, sw = len / SH * ih, h = [...String(id)].reduce((s, ch) => s * 31 + ch.charCodeAt(0) | 0, 7);
       const sx = Math.abs(h) % Math.max(1, Math.floor(iw - sw));
       ctx.save();
-      // výseč dílku za touto hranou: sousední pruhy se v rozích potkají bez mezery a bez přesahu
-      ctx.beginPath(); ctx.moveTo(c.x, c.y); ctx.lineTo(c.x + (a.x - c.x) * 3, c.y + (a.y - c.y) * 3); ctx.lineTo(c.x + (b.x - c.x) * 3, c.y + (b.y - c.y) * 3); ctx.closePath(); ctx.clip();
+      // ořez: na vypouklém rohu (vrchol jen jednoho dílku) po paprsku ze středu dílku, aby pruhy
+      // nepřečnívaly do moře; v zálivu (vrchol dvou dílků) bez ořezu, aby se pruhy překryly a nevznikla mezera
+      const end = (v, s) => v.hex.length === 1 ? [v.x, v.y, v.x - c.x, v.y - c.y] : [v.x - s * tx * SX, v.y - s * ty * SX, ux, uy];
+      const [ax, ay, adx, ady] = end(a, 1), [bx, by, bdx, bdy] = end(b, -1);
+      ctx.beginPath(); ctx.moveTo(c.x, c.y); ctx.lineTo(ax, ay); ctx.lineTo(ax + adx * 3, ay + ady * 3); ctx.lineTo(bx + bdx * 3, by + bdy * 3); ctx.lineTo(bx, by); ctx.closePath(); ctx.clip();
       ctx.transform(tx, ty, ux, uy, a.x, a.y);
       ctx.drawImage(img, sx, 0, sw, ih, -SX, -SH * SE, len, SH);
       ctx.restore();
