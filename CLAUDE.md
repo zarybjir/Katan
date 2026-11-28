@@ -241,7 +241,7 @@ převádí jen `ui/board.js`.
   Cesty jsou kreslené trámy v barvě hráče, čísla na dílcích pergamenové žetony průhledné na 25 % (alpha 0,75) bez lemu (`road`, `token` v `board.js`). Čísla na dílcích jsou bez teček (zadavatel
   je nechce); 6 a 8 jsou červené a větší.
 - Vzhled je střídmý a světlý (zadavatel nechce kýč ani tmavé UI): lišty a tlačítka světlé matné
-  (béžové) s tmavým písmem, bez obrázkových textur
+  (béžové, světlá dubová textura `drevo-dub.jpg` pod krémovým závojem) s tmavým písmem, bez tmavých textur
   dřeva, moře je klidný světlejší modrý přechod (ne `more.jpg`), banka je kreslená SVG ikona. Malované
   obrázky `drevo-*.jpg`, `btn-*.webp`, `more.jpg`, `banka.webp` zůstávají v repu, ale nepoužívají se.
 - Canvas se škáluje podle `devicePixelRatio` (nejvýš 2). Grafika se předkreslí do offscreen
