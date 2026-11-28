@@ -126,14 +126,15 @@ export function createGame(root, S) {
     const soft = (id, label, on, click, cls = '') => h('button', { class: 'btn act ' + cls + (on ? '' : ' off'), id: 'a-' + id, onclick: on ? click : () => prices(S.view()) }, label);
     const cost = k => resIcons(COST[k], 14);
     if (L.some(a => a.t === 'roll')) el.actions.append(btn('roll', 'Hodit kostkami', true, () => act({ t: 'roll' }), 'wide'));
-    else if (v.phase === 'main' && v.turn === me && !free && !v.trade) {
+    else if (mine) { // mimo vlastní tah zůstávají tlačítka na místě, jen nedostupná (lišta není prázdná)
+      const own = v.phase === 'main' && v.turn === me && !free && !v.trade, nc = mine.cards.length + mine.fresh.length;
       for (const k of ['road', 'settle', 'city'])
-        el.actions.append(soft(k, [h('span', { class: 'kh' }, icon(k, 20), KIND_NAME[k][0].toUpperCase() + KIND_NAME[k].slice(1)), cost(k)], builds(k).length > 0, () => { mode = mode === k ? null : k; update(); }, mode === k ? 'on' : ''));
-      el.actions.append(soft('buy', [h('span', { class: 'kh' }, icon('card', 20), 'Výprava'), cost('card')], L.some(a => a.t === 'buy'), () => act({ t: 'buy' })),
-        btn('cards', `Karty (${mine.cards.length + mine.fresh.length})`, mine.cards.length + mine.fresh.length > 0, () => cardsDialog(v, act)),
-        btn('trade', 'Obchod', L.some(a => a.t === 'bank' || a.t === 'offer'), () => tradeDialog(v, act)),
-        btn('end', 'Konec tahu', L.some(a => a.t === 'end'), () => act({ t: 'end' }), 'end'));
-    } else if (mine && mine.cards && mine.cards.length + mine.fresh.length) el.actions.append(btn('cards', `Karty (${mine.cards.length + mine.fresh.length})`, true, () => cardsDialog(v, act)));
+        el.actions.append(soft(k, [h('span', { class: 'kh' }, icon(k, 20), KIND_NAME[k][0].toUpperCase() + KIND_NAME[k].slice(1)), cost(k)], own && builds(k).length > 0, () => { mode = mode === k ? null : k; update(); }, own && mode === k ? 'on' : ''));
+      el.actions.append(soft('buy', [h('span', { class: 'kh' }, icon('card', 20), 'Výprava'), cost('card')], own && L.some(a => a.t === 'buy'), () => act({ t: 'buy' })),
+        btn('cards', `Karty (${nc})`, nc > 0, () => cardsDialog(v, act)),
+        btn('trade', 'Obchod', own && L.some(a => a.t === 'bank' || a.t === 'offer'), () => tradeDialog(v, act)),
+        btn('end', 'Konec tahu', own && L.some(a => a.t === 'end'), () => act({ t: 'end' }), 'end'));
+    }
     el.actions.append(h('button', { class: 'btn act ghost', id: 'a-menu', onclick: menu }, '☰'));
 
     // ---------- deník ----------

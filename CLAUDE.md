@@ -231,6 +231,7 @@ převádí jen `ui/board.js`.
 - Hra je **na výšku i na šířku**; mapa uprostřed s posunem a zoomem dvěma prsty, ovládání dole
   (na šířku vpravo). Dotykové cíle nejméně 48 dp; vrcholy a hrany mají větší zásahovou plochu,
   než jak jsou nakreslené.
+- Tlačítka akcí jsou ve spodní liště vždy (i mimo vlastní tah, pak zašedlá), aby lišta nebyla prázdná.
 - Stavba: vybrat typ → zvýrazní se dovolená místa → klepnutí umístí. Drahé nebo nevratné akce
   (město, odhození karet) se potvrzují, ostatní ne.
 - Hráče rozlišuje jen barva (značky zadavatel nechce). Paleta je `COLORS` (8 barev);
