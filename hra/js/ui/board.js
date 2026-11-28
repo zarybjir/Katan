@@ -136,7 +136,8 @@ export function createBoard(cv, onPick) {
         ctx.restore();
         path(i); ctx.fillStyle = 'rgba(20,16,10,.06)'; ctx.fill(); // ztlumení krajiny, aby stavby vynikly
       }
-      ctx.strokeStyle = '#ecdcad'; ctx.lineWidth = 0.1; path(i); ctx.stroke(); // světlá spára mezi dílky
+      ctx.strokeStyle = '#d2b47c'; ctx.lineWidth = 0.13; path(i); ctx.stroke(); // nahnědlá spára mezi dílky
+      ctx.strokeStyle = 'rgba(120,85,40,.35)'; ctx.lineWidth = 0.02; path(i); ctx.stroke();
       if (!tx && TERRAIN_COLOR[hx.t]) glyph(hx.t, c.x, c.y - 0.42);
       if (hx.n) token(c.x, c.y + 0.18, hx.n);
       if (B.targets && B.targets.h && B.targets.h.includes(i)) { path(i); ctx.fillStyle = 'rgba(255,255,255,.28)'; ctx.fill(); ctx.strokeStyle = '#fff'; ctx.lineWidth = 0.08; ctx.stroke(); }
