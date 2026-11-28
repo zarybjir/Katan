@@ -165,7 +165,7 @@ export function createBoard(cv, onPick) {
     }
     // stavby
     for (const id of Object.keys(v.bld)) { const b = v.bld[id], p = g.V[id]; house(p.x, p.y, b.p, b.c); }
-    if (v.ext) drawTowers(ctx, v, g); // rozšíření
+    if (v.ext) drawTowers(ctx, v, g, tinted, sprite, B.cam.k * dpr); // rozšíření
     // nabídka vrcholů
     if (B.targets && B.targets.v) for (const id of B.targets.v) {
       const p = g.V[id];

@@ -8,29 +8,32 @@ import { STRAZE, GUILDS, GUILD_TEXT } from './straze.js';
 export const EXT_KIND = { tower: 'věž', tup: 'vylepšení věže', guild: 'cech' };
 export const EXT_COST = { tower: STRAZE.tower, tup: STRAZE.towerUp, guild: STRAZE.guild };
 
-// věž: kamenná bašta v barvě hráče, stupeň 2 je vyšší a má druhé cimbuří
-export function drawTowers(ctx, v, g) {
+// věž: malovaná figurka (vez-1/2.webp, bílá, obarví se na barvu hráče), bez obrázku kreslená bašta;
+// cech ve městě: malý žeton (cech-*.webp) vedle města. fig(name, barva) a img(name) dodává board.js.
+export function drawTowers(ctx, v, g, fig, img, k) {
   for (const [id, t] of Object.entries(v.ext.towers)) {
-    const { x, y } = g.V[id], w = 0.26, hh = t.l === 2 ? 0.52 : 0.38, top = y - hh + 0.1;
-    ctx.save();
-    ctx.shadowColor = 'rgba(0,0,0,.45)'; ctx.shadowBlur = 0.08 * ctx.getTransform().a; ctx.shadowOffsetY = 0.03 * ctx.getTransform().a;
-    ctx.beginPath();
-    ctx.moveTo(x - w / 2, y + 0.1); ctx.lineTo(x - w / 2, top);
-    for (let i = 0; i < 3; i++) { const cx = x - w / 2 + (i * w) / 2.5; ctx.lineTo(cx, top - 0.07); ctx.lineTo(cx + w / 5, top - 0.07); ctx.lineTo(cx + w / 5, top); ctx.lineTo(cx + w / 2.5, top); }
-    ctx.lineTo(x + w / 2, top - 0.07); ctx.lineTo(x + w / 2, y + 0.1); ctx.closePath();
-    ctx.fillStyle = pc(t.p); ctx.fill();
-    ctx.shadowColor = 'transparent';
+    const { x, y } = g.V[id], f = fig('vez-' + t.l, pc(t.p));
+    if (f) {
+      const hh = t.l === 2 ? 0.95 : 0.72, w = hh * f.width / f.height;
+      ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.5)'; ctx.shadowBlur = 0.12 * k; ctx.shadowOffsetY = 0.05 * k;
+      ctx.drawImage(f, x - w / 2, y - hh * 0.8, w, hh); ctx.restore();
+      continue;
+    }
+    const w = 0.26, hh = t.l === 2 ? 0.52 : 0.38, top = y - hh + 0.1;
+    ctx.beginPath(); ctx.rect(x - w / 2, top, w, hh); ctx.fillStyle = pc(t.p); ctx.fill();
     ctx.strokeStyle = 'rgba(255,255,255,.9)'; ctx.lineWidth = 0.035; ctx.stroke();
-    if (t.l === 2) { ctx.beginPath(); ctx.moveTo(x - w / 2, top + 0.16); ctx.lineTo(x + w / 2, top + 0.16); ctx.stroke(); }
-    ctx.beginPath(); ctx.rect(x - 0.035, y - 0.02, 0.07, 0.12); ctx.fillStyle = 'rgba(30,20,10,.7)'; ctx.fill(); // brána
-    ctx.restore();
+  }
+  for (const [id, gk] of Object.entries(v.ext.guild)) {
+    const im = img('cech-' + gk); if (!im) continue;
+    const { x, y } = g.V[id];
+    ctx.drawImage(im, x + 0.22, y - 0.05, 0.34, 0.34);
   }
 }
 
 // ukazatel flotily pod ikonou banky
 export function pirateBadge(v) {
   const n = v.ext.pirates, of = STRAZE.pirateSteps;
-  return h('div', { id: 'pirates', title: 'Pirátská flotila: při plném počtu zaútočí' }, '⚓ ', h('b', null, `${n}/${of}`));
+  return h('div', { id: 'pirates', title: 'Pirátská flotila: při plném počtu zaútočí' }, h('img', { src: 'gfx/pirati.webp', alt: '' }), h('b', null, `${n}/${of}`));
 }
 
 // dialog Stráže: věž, vylepšení, cech a přehled obrany
@@ -53,7 +56,7 @@ export function guardDialog(v, builds, own, setMode) {
 export function guildPick(L, at, act) {
   const opts = L.filter(a => a.t === 'guild' && a.at === at);
   const m = modal('Cech ve městě', h('div', { class: 'col' }, opts.map(a => h('button', { class: 'btn', 'data-guild': a.g, onclick: () => { m.close(); act(a); } },
-    h('span', null, h('b', null, GUILDS[a.g][0].toUpperCase() + GUILDS[a.g].slice(1)), ' – ', GUILD_TEXT[a.g]))),
+    h('img', { class: 'cech', src: `gfx/cech-${a.g}.webp`, alt: '' }), h('span', null, h('b', null, GUILDS[a.g][0].toUpperCase() + GUILDS[a.g].slice(1)), ' – ', GUILD_TEXT[a.g]))),
     h('button', { class: 'btn ghost', onclick: () => m.close() }, 'Zpět')));
 }
 

@@ -224,6 +224,7 @@ bouři na sousední dílky smí přesunout jen její majitel. Piráti se přibl�
 `STRAZE.pirateSums`; po `pirateSteps` útok: kdo má součet stupňů věží menší než počet měst,
 ztratí surovinu za město, nejsilnější obrana +1 bod. Cechy ve městech (každý druh jednou):
 kupecký 3:1, stavitelský levnější cesta, učenecký levnější první výprava v tahu.
+- Grafika: `vez-1/2.webp` (bílé věže obarvené na hráče), `cech-trade/build/learn.webp`, `pirati.webp`.
 - Celé je v `hra/js/ext/`: `straze.js` (pravidla a čísla `STRAZE` – výjimka z „čísla v data.js“,
   aby šlo rozšíření smazat najednou), `straze-bot.js`, `straze-ui.js`.
 - Do základní hry vedou jen řádky s komentářem `// rozšíření` v `core/rules.js`, `core/score.js`,

@@ -396,3 +396,7 @@ body:has(.modal) #fx .fly:not(.demo) { visibility: hidden; }
 #pirates { position: absolute; right: 8px; top: 62px; padding: 2px 8px; border-radius: 10px; background: rgba(250,242,225,.9); color: #2e2214; font-size: 13px; pointer-events: none; box-shadow: 0 1px 3px rgba(0,0,0,.3); }
 #actions.ext > :nth-child(n+5) { font-size: 13px; padding: 0; white-space: nowrap; }
 #actions.ext > #a-end { grid-column: span 5; } #actions.ext > #a-menu { grid-column: span 3; }
+#pirates { display: flex; align-items: center; gap: 4px; top: 60px; padding: 2px 8px 2px 4px; }
+#pirates img { width: 34px; height: auto; }
+.box .btn img.cech { width: 40px; height: 40px; flex: none; margin-right: 6px; }
+.box .btn:has(img.cech) { display: flex; align-items: center; text-align: left; }
