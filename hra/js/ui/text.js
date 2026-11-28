@@ -1,5 +1,6 @@
 // Texty: popis událostí do deníku a formátování surovin.
 import { RES, RES_NAME, KIND_NAME, CARDS } from '../data.js';
+import { describeExt, EXT_KIND } from '../ext/straze-ui.js'; // rozšíření
 
 export const fmtRes = o => RES.filter(r => o[r]).map(r => `${o[r]}× ${RES_NAME[r]}`).join(', ') || 'nic';
 
@@ -9,7 +10,7 @@ export function describe(e, names) {
   switch (e.e) {
     case 'roll': return `${n}: hod ${e.d[0] + e.d[1]} (${e.d[0]} + ${e.d[1]})`;
     case 'gain': return Object.keys(e.res).length ? `${n}: zisk ${fmtRes(e.res)}` : null;
-    case 'build': return `${n}: stavba – ${KIND_NAME[e.kind]}`;
+    case 'build': return `${n}: stavba – ${KIND_NAME[e.kind] || EXT_KIND[e.kind]}`; // rozšíření: věž
     case 'seven': return 'Padla sedmička, přichází bouře.';
     case 'discard': return `${n}: odhozeno karet: ${e.n}`;
     case 'storm': return `${n}: přesun bouře`;
@@ -22,6 +23,6 @@ export function describe(e, names) {
     case 'trade': return `${n} a ${names[e.with]}: obchod ${fmtRes(e.give)} za ${fmtRes(e.want)}`;
     case 'tradeEnd': return 'Nabídka obchodu skončila.';
     case 'win': return `Hra skončila. Vítězí ${n}.`;
-    default: return null;
+    default: return describeExt(e, names); // rozšíření
   }
 }

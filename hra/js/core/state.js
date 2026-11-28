@@ -4,6 +4,7 @@ import { rint, shuffle } from './rng.js';
 import { legal } from './rules.js';
 import { points } from './score.js';
 import { RES, PIECES, RULES, bankSize, deckFor } from '../data.js';
+import * as X from '../ext/straze.js'; // rozšíření
 
 export const emptyRes = () => Object.fromEntries(RES.map(r => [r, 0]));
 export const total = h => RES.reduce((a, r) => a + (h[r] || 0), 0);
@@ -23,6 +24,7 @@ export function newGame(opts) {
   };
   for (const [c, k] of Object.entries(deckFor(n))) for (let i = 0; i < k; i++) s.deck.push(c);
   shuffle(s, s.deck);
+  if (opts.ext) X.init(s); // rozšíření
   const first = rint(s, n), order = [];
   for (let i = 0; i < n; i++) order.push((first + i) % n);
   s.setup = { order: order.concat(order.slice().reverse()), i: 0, step: 'settle', last: null };

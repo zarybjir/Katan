@@ -52,6 +52,7 @@ function texture(t, q, r) {
   return { img: f ? IMG[key] : img, h };
 }
 import { pc } from './dom.js';
+import { drawTowers } from '../ext/straze-ui.js'; // rozšíření
 
 const INK = '#1d2a38';
 const S3W = Math.sqrt(3); // šířka dílku (špičkou nahoru) při výšce 2
@@ -164,6 +165,7 @@ export function createBoard(cv, onPick) {
     }
     // stavby
     for (const id of Object.keys(v.bld)) { const b = v.bld[id], p = g.V[id]; house(p.x, p.y, b.p, b.c); }
+    if (v.ext) drawTowers(ctx, v, g); // rozšíření
     // nabídka vrcholů
     if (B.targets && B.targets.v) for (const id of B.targets.v) {
       const p = g.V[id];

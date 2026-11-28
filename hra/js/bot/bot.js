@@ -2,6 +2,7 @@
 // Vrací null jen tehdy, když čeká na odpovědi na vlastní nabídku obchodu.
 import { graph } from '../core/hex.js';
 import { RES, TERRAIN, PIPS, COST, BOT, BOT_OFFER } from '../data.js';
+import { extBot } from '../ext/straze-bot.js'; // rozšíření
 import { resWeights, myRes, vertexScore, openSpots, roadScore, missing, goal } from './eval.js';
 
 export function botAct(v, level, rnd) {
@@ -79,6 +80,7 @@ export function botAct(v, level, rnd) {
   const city = builds('city'), settle = builds('settle'), road = builds('road');
   if (city.length) return bestOf(city, a => vertexScore(v, a.at, w, null));
   if (settle.length) return bestOf(settle, a => vertexScore(v, a.at, w, have));
+  if (v.ext) { const x = extBot(v, me, L, cfg, rnd); if (x) return x; } // rozšíření
   if (play('roads')) return play('roads');
   const g = myGoal();
   const sup = L.filter(a => a.t === 'play' && a.card === 'supply');

@@ -49,11 +49,12 @@ export function showSetup(root, A, onStart, onBack) {
         return h('div', { class: 'seat' }, h('span', { class: 'pdot big', style: `background:${COLORS[s.c]}` }), h('div', { class: 'col grow' }, sel, nm, pick));
       }),
       h('label', null, 'Cílový počet bodů', h('div', { class: 'row' }, [8, 10, 12].map(n => h('button', { class: 'btn small' + (cfg.target === n ? ' on' : ''), onclick: () => { cfg.target = n; draw(); } }, String(n))))),
+      h('label', { class: 'toggle' }, h('input', { type: 'checkbox', id: 's-ext', checked: !!cfg.ext, onchange: e => { cfg.ext = e.target.checked; } }), h('span', null, 'Rozšíření Stráže a cechy (věže, piráti, cechy ve městech)')), // rozšíření
       seats.some(s => s.k === 'open') && h('p', { class: 'dim' }, 'Hra se otevře pro připojení. Neobsazená místa po spuštění převezmou boti.'),
       h('button', { class: 'btn', id: 's-go', onclick: () => {
         A.settings.setup = cfg; A.saveSettings();
         let l = 0;
-        onStart({ target: cfg.target, map: type, seed, seats: seats.map((s, i) => ({ color: s.c, ...(s.k.startsWith('bot') ? { kind: 'bot', level: s.k.slice(4) } : s.k === 'open' ? { kind: 'open' } : { kind: 'local', name: (s.name || (l++ === 0 ? A.settings.name : '')).trim() || 'Hráč ' + (i + 1) }) })) });
+        onStart({ target: cfg.target, ext: !!cfg.ext, map: type, seed, seats: seats.map((s, i) => ({ color: s.c, ...(s.k.startsWith('bot') ? { kind: 'bot', level: s.k.slice(4) } : s.k === 'open' ? { kind: 'open' } : { kind: 'local', name: (s.name || (l++ === 0 ? A.settings.name : '')).trim() || 'Hráč ' + (i + 1) }) })) });
       } }, 'Pokračovat'),
       h('button', { class: 'btn ghost', onclick: onBack }, 'Zpět'));
   };
@@ -101,7 +102,7 @@ export function showLobby(root, m, o) {
         const owner = m.seats.findIndex((x, j) => j !== i && x.color === k), human = owner >= 0 && (m.seats[owner].kind === 'local' || (m.seats[owner].kind === 'open' && m.seats[owner].taken));
         return h('button', { class: 'cdot' + (s.color === k ? ' on' : ''), style: `--c:${c}`, title: COLOR_NAME[k], 'aria-label': COLOR_NAME[k], 'data-color': k, disabled: human, onclick: () => o.color(i, k) });
       })))),
-    h('p', { class: 'dim' }, `Mapa: ${MAPS[m.map] || MAPS.island}, cíl: ${m.target} bodů`),
+    h('p', { class: 'dim' }, `Mapa: ${MAPS[m.map] || MAPS.island}, cíl: ${m.target} bodů` + (m.ext ? ', rozšíření Stráže a cechy' : '')),
     o.host && h('button', { class: 'btn', id: 'l-start', onclick: o.start }, 'Spustit hru'),
     h('button', { class: 'btn ghost', id: 'l-leave', onclick: o.leave }, o.host ? 'Zrušit' : 'Odejít'));
 }

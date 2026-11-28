@@ -1,4 +1,5 @@
-// Simulace her botů pro ladění čísel. Spuštění: node hra/tests/sim.js [hráčů] [easy|mid|hard] [typ mapy]
+// Simulace her botů pro ladění čísel. Spuštění: node hra/tests/sim.js [hráčů] [easy|mid|hard] [typ mapy] [ext]
+// (ext = s rozšířením Stráže a cechy; typ mapy pak lze zadat jako „-“ pro všechny)
 import { newGame, view, total } from '../js/core/state.js';
 import { apply, settleSpots } from '../js/core/rules.js';
 import { points } from '../js/core/score.js';
@@ -9,11 +10,12 @@ const N = +process.argv[2] || 3, G = 200, lv = process.argv[3] || 'hard';
 const med = a => a.slice().sort((x, y) => x - y)[a.length >> 1], pct = (a, p) => a.slice().sort((x, y) => x - y)[Math.floor(a.length * p)];
 const avg = a => a.reduce((x, y) => x + y, 0) / a.length;
 console.log(`hráčů ${N}, boti ${lv}, ${G} her na mapu`);
-for (const map of (process.argv[4] ? [process.argv[4]] : Object.keys(MAPS))) {
+const EXT = process.argv[5] === 'ext', ext = { tower: 0, tup: 0, guild: 0, raid: 0 };
+for (const map of (process.argv[4] && process.argv[4] !== '-' ? [process.argv[4]] : Object.keys(MAPS))) {
   const rounds = [], seatWin = Array(N).fill(0), second = [], last = [], dead = [], c = { road: 0, settle: 0, city: 0, buy: 0, bank: 0, offer: 0, trade: 0, seven: 0, discard: 0, play: 0 };
   let longB = 0, guardB = 0, noSpot = 0, outSettle = 0, gainPerTurn = [], firstBuild = [], stuckTurns = 0, turnsAll = 0, waitMax = [];
   for (let seed = 1; seed <= G; seed++) {
-    const s = newGame({ seed, names: Array.from({ length: N }, (_, i) => 'B' + i), map });
+    const s = newGame({ seed, names: Array.from({ length: N }, (_, i) => 'B' + i), map, ext: EXT });
     const R = { rng: seed * 31 }, rnd = () => next(R);
     let acted = false, gained = 0, fb = null, deadT = 0, turns = 0, streak = Array(N).fill(0), maxStreak = 0;
     while (s.phase !== 'end') {
@@ -24,7 +26,7 @@ for (const map of (process.argv[4] ? [process.argv[4]] : Object.keys(MAPS))) {
         for (const e of r.ev) {
           if (e.e === 'build' && s.phase !== 'setup' && s.turnNo >= 0 && s.setup === null) { c[e.kind]++; acted = true; if (fb === null && e.kind !== 'road') fb = s.turnNo / N; }
           if (e.e === 'buy') { c.buy++; acted = true; } if (e.e === 'bank') { c.bank++; } if (e.e === 'offer') { c.offer++; if (e.p !== 0 && s.trade && s.trade.resp[0] === undefined) c.dialog = (c.dialog || 0) + 1; } if (e.e === 'trade') { c.trade++; }
-          if (e.e === 'seven') c.seven++; if (e.e === 'discard') c.discard++; if (e.e === 'play') { c.play++; }
+          if (e.e === 'seven') c.seven++; if (e.kind === 'tower' || e.kind === 'tup') ext[e.kind]++; if (e.e === 'guild') ext.guild++; if (e.e === 'raid') ext.raid++; if (e.e === 'discard') c.discard++; if (e.e === 'play') { c.play++; }
           if (e.e === 'gain' && s.setup === null) gained += total(e.res);
           if (e.e === 'turn' && s.setup === null) { turns++; const prev = (e.p + N - 1) % N; if (!acted) { deadT++; streak[prev]++; maxStreak = Math.max(maxStreak, streak[prev]); } else streak[prev] = 0; acted = false; }
         }
@@ -46,4 +48,5 @@ for (const map of (process.argv[4] ? [process.argv[4]] : Object.keys(MAPS))) {
   console.log(`surovin na tah (všichni dohromady): ${avg(gainPerTurn).toFixed(2)}, první osada/město v kole: ${med(firstBuild).toFixed(0)}`);
   console.log(`na hru: cest ${g(c.road)}, osad ${g(c.settle)}, měst ${g(c.city)}, výprav ${g(c.buy)}, zahraných ${g(c.play)}, směn s bankou ${g(c.bank)}, nabídek ${g(c.offer)}, obchodů ${g(c.trade)}, dialogů nabídky pro hráče 1: ${g(c.dialog || 0)}, sedmiček ${g(c.seven)}, odhození ${g(c.discard)}`);
   console.log(`bonus cesta udělen ${Math.round(longB / G * 100)} %, hlídky ${Math.round(guardB / G * 100)} %; hráčů bez místa pro osadu na konci ${g(noSpot)}, bez dílků osad ${g(outSettle)}`);
+  if (EXT) { console.log(`rozšíření na hru: věží ${g(ext.tower)}, vylepšení ${g(ext.tup)}, cechů ${g(ext.guild)}, útoků pirátů ${g(ext.raid)}`); for (const k in ext) ext[k] = 0; }
 }

@@ -499,6 +499,65 @@ test('boti: 240 celých her bez chyby a zaseknutí', () => {
   }
   ok(rounds / 240 < 40, 'hry jsou příliš dlouhé: ' + rounds / 240);
 });
+// ---------- rozšíření Stráže a cechy ----------
+test('rozšíření: věž, vylepšení, cech, ochrana před bouří, piráti', () => {
+  const s = newGame({ seed: 3, names: names(3), ext: true }), rnd = rndOf(3);
+  while (s.phase === 'setup') botStep(s, 'mid', rnd);
+  s.turn = 0; s.phase = 'main';
+  setHand(s, 0, {});
+  ok(!legal(s, 0).some(a => a.kind === 'tower'), 'věž bez surovin');
+  setHand(s, 0, { wood: 2, stone: 3, grain: 4, sheep: 2 });
+  const tw = legal(s, 0).find(a => a.kind === 'tower');
+  ok(tw, 'věž lze postavit'); bad(s, 0, { t: 'build', kind: 'tower', at: Object.keys(s.bld)[0] });
+  must(s, 0, tw); eq(s.ext.towers[tw.at], { p: 0, l: 1 });
+  ok(!settleSpots(s, 0).includes(tw.at) && !settleSpots(s, 1).includes(tw.at), 'na věži nelze stavět osadu');
+  must(s, 0, { t: 'build', kind: 'tup', at: tw.at }); eq(s.ext.towers[tw.at].l, 2);
+  bad(s, 0, { t: 'build', kind: 'tup', at: tw.at });
+  // bouře: dílek u cizí věže je pro hráče 1 zakázaný, pro majitele ne
+  const g = graph(s.map.hexes), prot = g.V[tw.at].hex.filter(h => h !== s.storm);
+  s.turn = 1; s.phase = 'storm';
+  ok(!legal(s, 1).some(a => prot.includes(a.hex)), 'cizí hráč nesmí na chráněný dílek');
+  s.turn = 0;
+  ok(legal(s, 0).some(a => prot.includes(a.hex)), 'majitel věže smí');
+  s.phase = 'main';
+  // cech ve městě
+  const st = Object.keys(s.bld).find(v => s.bld[v].p === 0);
+  bad(s, 0, { t: 'guild', at: st, g: 'trade' });
+  s.bld[st].c = 1; s.players[0].left.city--; s.players[0].left.settle++; setHand(s, 0, { grain: 2, sheep: 1, wood: 3 });
+  must(s, 0, { t: 'guild', at: st, g: 'trade' });
+  eq(rate(s, 0, 'wood'), Math.min(3, rate(s, 0, 'wood')));
+  ok(legal(s, 0).some(a => a.t === 'bank' && a.give === 'wood' && a.rate <= 3), 'kupecký cech: 3:1');
+  bad(s, 0, { t: 'guild', at: st, g: 'build' });
+  // piráti: útok bere suroviny tomu, kdo má méně obrany než měst, a dá bod nejlepší obraně
+  s.ext.pirates = 4;
+  const c1 = Object.keys(s.bld).find(v => s.bld[v].p === 1); s.bld[c1].c = 1; s.players[1].left.city--; s.players[1].left.settle++; setHand(s, 1, { wood: 3 });
+  for (const r of RES) s.bank[r] = bankSize(3) - s.players.reduce((a, q) => a + q.hand[r], 0);
+  s.phase = 'roll'; s.turn = 0;
+  let r; do { const t = JSON.parse(JSON.stringify(s)); r = apply(t, 0, { t: 'roll' }); if (r.ev.some(e => e.e === 'raid')) { Object.assign(s, t); break; } s.rng = t.rng; } while (true);
+  eq(s.ext.pirates, 0); eq(s.players[1].hand.wood, 2); eq(s.ext.vp[0], 1);
+  ok(points(s, 0, false) >= 1);
+  invariants(s);
+});
+test('rozšíření: cizí věž přeruší cestu a nejdelší cestu', () => {
+  const s = newGame({ seed: 3, names: names(2), ext: true }), g = graph(s.map.hexes);
+  s.phase = 'main'; s.setup = null;
+  const v0 = Object.keys(g.V)[0], e = g.V[v0].edges;
+  s.roads[e[0]] = 0; const far = g.E[e[0]].a === v0 ? g.E[e[0]].b : g.E[e[0]].a;
+  s.ext.towers[far] = { p: 1, l: 1 };
+  ok(!roadSpots(s, 0).some(x => g.V[far].edges.includes(x) && x !== e[0] && !g.V[v0].edges.includes(x)), 'za cizí věž nelze stavět');
+});
+test('rozšíření: 120 celých her botů bez chyby', () => {
+  const lv = ['easy', 'mid', 'hard'];
+  for (let seed = 1; seed <= 120; seed++) {
+    const n = 2 + seed % 5, s = newGame({ seed, names: names(n), ext: true }), rnd = rndOf(seed * 7);
+    const levels = names(n).map((_, i) => lv[(seed + i) % 3]);
+    let steps = 0;
+    while (s.phase !== 'end') {
+      if (!botStep(s, levels, rnd, invariants)) throw new Error(`seed ${seed}: hra se zasekla ve fázi ${s.phase}`);
+      if (++steps > 30000) throw new Error(`seed ${seed}: hra nekončí`);
+    }
+  }
+});
 test('boti: těžký poráží lehkého', () => {
   let hard = 0;
   for (let seed = 1; seed <= 60; seed++) {

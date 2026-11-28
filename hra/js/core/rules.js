@@ -3,6 +3,8 @@ import { graph } from './hex.js';
 import { rint } from './rng.js';
 import { points, updateBonus } from './score.js';
 import { RES, TERRAIN, COST, RULES } from '../data.js';
+import * as X from '../ext/straze.js'; // rozšíření
+const costOf = (s, p, k) => (s.ext ? X.cost(s, p, k) : COST[k]); // rozšíření: slevy cechů
 
 const tot = h => RES.reduce((a, r) => a + (h[r] || 0), 0);
 export const canPay = (hand, cost) => RES.every(r => (hand[r] || 0) >= (cost[r] || 0));
@@ -19,7 +21,7 @@ export function roadSpots(s, p) {
   for (const e of Object.values(g.E)) {
     if (s.roads[e.id] !== undefined) continue;
     const ok = [e.a, e.b].some(v => {
-      const b = s.bld[v];
+      const b = s.bld[v] || X.tower(s, v); // rozšíření: cizí věž cestu zastaví
       if (b) return b.p === p;
       return g.V[v].edges.some(x => s.roads[x] === p);
     });
@@ -31,7 +33,7 @@ export function settleSpots(s, p) {
   const g = graph(s.map.hexes), out = [];
   if (s.players[p].left.settle < 1) return out;
   for (const v of Object.values(g.V)) {
-    if (s.bld[v.id] || v.adj.some(w => s.bld[w])) continue;
+    if (s.bld[v.id] || X.tower(s, v.id) || v.adj.some(w => s.bld[w])) continue; // rozšíření: věž
     if (s.phase !== 'setup' && !v.edges.some(e => s.roads[e] === p)) continue;
     out.push(v.id);
   }
@@ -51,7 +53,7 @@ export function rate(s, p, r) {
     if (pt.type === 'any') k = Math.min(k, RULES.portRate);
     else if (pt.type === r) k = Math.min(k, RULES.portResRate);
   }
-  return k;
+  return s.ext ? X.rate(s, p, k) : k; // rozšíření: kupecký cech
 }
 // kdo může být okraden při přesunu bouře na dílek
 export function victims(s, p, hex) {
@@ -89,8 +91,9 @@ export function legal(s, p) {
     return out;
   }
   if (s.phase === 'storm') {
+    const ok = i => !s.ext || X.stormOk(s, p, i), any = s.map.hexes.some((_, i) => i !== s.storm && ok(i)); // rozšíření: věže chrání dílky
     s.map.hexes.forEach((h, i) => {
-      if (i === s.storm) return;
+      if (i === s.storm || (any && !ok(i))) return;
       const vs = victims(s, p, i);
       if (vs.length) for (const from of vs) out.push({ t: 'storm', hex: i, from });
       else out.push({ t: 'storm', hex: i, from: null });
@@ -99,10 +102,10 @@ export function legal(s, p) {
   }
   // hlavní fáze
   if (s.freeRoads > 0) { for (const at of roadSpots(s, p)) out.push({ t: 'build', kind: 'road', at, free: true }); return out; }
-  if (canPay(pl.hand, COST.road)) for (const at of roadSpots(s, p)) out.push({ t: 'build', kind: 'road', at });
+  if (canPay(pl.hand, costOf(s, p, 'road'))) for (const at of roadSpots(s, p)) out.push({ t: 'build', kind: 'road', at });
   if (canPay(pl.hand, COST.settle)) for (const at of settleSpots(s, p)) out.push({ t: 'build', kind: 'settle', at });
   if (canPay(pl.hand, COST.city)) for (const at of citySpots(s, p)) out.push({ t: 'build', kind: 'city', at });
-  if (s.deck.length && canPay(pl.hand, COST.card)) out.push({ t: 'buy' });
+  if (s.deck.length && canPay(pl.hand, costOf(s, p, 'card'))) out.push({ t: 'buy' });
   if (!s.played) {
     if (pl.cards.includes('guard')) out.push({ t: 'play', card: 'guard' });
     if (pl.cards.includes('roads') && roadSpots(s, p).length) out.push({ t: 'play', card: 'roads' });
@@ -113,6 +116,7 @@ export function legal(s, p) {
       }
     }
   }
+  if (s.ext) X.legal(s, p, out); // rozšíření: věže a cechy
   for (const r of RES) {
     const k = rate(s, p, r);
     if (pl.hand[r] >= k) for (const q of RES) if (q !== r && s.bank[q] > 0) out.push({ t: 'bank', give: r, get: q, rate: k });
@@ -130,11 +134,16 @@ export function apply(s, p, a) {
   const L = legal(s, p), ev = [], pl = s.players[p];
   const has = f => L.some(f);
   switch (a.t) {
+    case 'guild': // rozšíření
+      if (!s.ext || !has(x => x.t === 'guild' && x.at === a.at && x.g === a.g)) return fail('cech zde nelze otevřít');
+      X.apply(s, p, a, ev);
+      break;
     case 'build': {
       if (!has(x => x.t === 'build' && x.kind === a.kind && x.at === a.at)) return fail('zde nelze stavět');
+      if (s.ext && X.apply(s, p, a, ev)) break; // rozšíření: věže
       const setup = s.phase === 'setup', paid = !setup && !(a.kind === 'road' && s.freeRoads > 0);
       if (a.kind === 'road') {
-        if (s.freeRoads > 0) s.freeRoads--; else if (!setup) pay(s, p, COST.road);
+        if (s.freeRoads > 0) s.freeRoads--; else if (!setup) pay(s, p, costOf(s, p, 'road'));
         s.roads[a.at] = p; pl.left.road--;
       } else if (a.kind === 'settle') {
         if (!setup) pay(s, p, COST.settle);
@@ -159,6 +168,7 @@ export function apply(s, p, a) {
         s.phase = Object.keys(s.discard).length ? 'discard' : 'storm';
         ev.push({ e: 'seven', p, discard: { ...s.discard } });
       } else { produce(s, sum, ev); s.phase = 'main'; }
+      if (s.ext) X.onRoll(s, sum, ev); // rozšíření: piráti
       break;
     }
     case 'discard': {
@@ -185,7 +195,7 @@ export function apply(s, p, a) {
     }
     case 'buy': {
       if (!has(x => x.t === 'buy')) return fail('výpravu teď nelze koupit');
-      pay(s, p, COST.card);
+      pay(s, p, costOf(s, p, 'card')); if (s.ext) X.bought(s); // rozšíření: učenecký cech
       const c = s.deck.pop();
       (c === 'point' ? pl.cards : pl.fresh).push(c);
       ev.push({ e: 'buy', p, secret: { card: c }, see: [p] });

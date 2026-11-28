@@ -30,6 +30,11 @@ získá cílový počet bodů. Android aplikace; server hry běží na zařízen
 - Barvu si každé místo vybírá při zakládání hry z osmi barev; hráč připojený po síti si ji může
   změnit v lobby (barvy ostatních lidí jsou obsazené).
 
+- Volitelné rozšíření **Stráže a cechy** (zapíná se při zakládání hry): strážní věže chránící dílky
+  před bouří a blokující cizí cesty, pirátská flotila, která po vzácných hodech útočí na města bez
+  dostatečné obrany, a cechy ve městech s trvalou výhodou (kupecký, stavitelský, učenecký).
+  Ovládá se tlačítkem Stráže; stav flotily ukazuje kotva pod bankou.
+
 ## Pravidla ve zkratce
 
 - Krajiny: les, pastvina a pole po 4, hliniště a skály po 3, jedna pustina (na větších mapách

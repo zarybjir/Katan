@@ -2,6 +2,7 @@
 import { h, clear, modal, closeModals, toast, pc, dot, setColors } from './dom.js';
 import { createBoard } from './board.js';
 import { icon, resIcons } from './icons.js';
+import { pirateBadge, guardDialog, guildPick, sayExt, EXT_KIND, EXT_COST } from '../ext/straze-ui.js'; // rozšíření
 import { dice, deal, bankFlow, between, banner, cardShow, expand, sources, animDialog, setSpeed, after, PIPS, FLY, GAP, DICE_ROLL } from './anim.js';
 import { sfx, snd } from './sound.js';
 import { resTile, tradeDialog, respondDialog, offerDialog, discardDialog, cardsDialog } from './trade.js';
@@ -39,6 +40,7 @@ export function createGame(root, S) {
         h('button', { class: 'btn ghost', onclick: () => m.close() }, 'Jiný dílek')), { key: 'storm' });
       return;
     }
+    if (mode === 'guild') return L.some(a => a.t === 'guild' && a.at === t.id) ? guildPick(L, t.id, act) : toast('Na tomto místě teď stavět nelze.'); // rozšíření
     const a = L.find(a => a.t === 'build' && a.at === t.id && (!mode || a.kind === mode));
     if (!a) return toast('Na tomto místě teď stavět nelze.');
     if (a.kind !== 'city') return act({ t: 'build', kind: a.kind, at: a.at });
@@ -62,11 +64,12 @@ export function createGame(root, S) {
     }
     el.pass.className = '';
     const me = v.you, L = v.legal, mine = v.players[me];
-    const builds = k => L.filter(a => a.t === 'build' && a.kind === k);
+    const builds = k => L.filter(a => (a.t === 'build' && a.kind === k) || (k === 'guild' && a.t === 'guild')); // rozšíření: cech
     const free = L.length && L[0].free;
     if (mode && !builds(mode).length) mode = null;
     setColors(v.colors);
     board.setView(v);
+    const pb = document.getElementById('pirates'); if (pb) pb.remove(); if (v.ext) document.getElementById('mid').append(pirateBadge(v)); // rozšíření
 
     // ---------- hráči ----------
     // nahoře soupeři (divák vidí všechny), dole vlastní pruh se surovinami
@@ -88,7 +91,7 @@ export function createGame(root, S) {
     if (v.phase === 'setup' && L.length) targets = L[0].kind === 'settle' ? { v: L.map(a => a.at) } : { e: L.map(a => a.at) };
     else if (L.length && L[0].t === 'storm') targets = { h: [...new Set(L.map(a => a.hex))] };
     else if (free) targets = { e: L.map(a => a.at) };
-    else if (mode) targets = mode === 'road' ? { e: builds('road').map(a => a.at) } : { v: builds(mode).map(a => a.at) };
+    else if (mode) targets = mode === 'road' ? { e: builds('road').map(a => a.at) } : { v: [...new Set(builds(mode).map(a => a.at))] };
     board.setTargets(targets);
 
     // ---------- nápověda ----------
@@ -104,7 +107,7 @@ export function createGame(root, S) {
     else if (L[0].t === 'storm') hint = 'Bouře: výběr dílku, kam se přesune';
     else if (L[0].t === 'discard') hint = 'Bouře: odhození karet';
     else if (free) hint = `Stavba cesty zdarma (zbývá ${v.freeRoads})`;
-    else if (mode) hint = `Výběr místa: ${KIND_NAME[mode]}`;
+    else if (mode) hint = `Výběr místa: ${KIND_NAME[mode] || EXT_KIND[mode]}`; // rozšíření
     else if (v.trade) hint = 'Probíhá nabídka obchodu.';
     else hint = 'Probíhá vlastní tah.';
     clear(el.hint).append(h('span', { class: 'grow' }, hint), h('button', { class: 'btn small', id: 'a-prices', onclick: () => prices(v) }, 'Ceník'));
@@ -120,7 +123,7 @@ export function createGame(root, S) {
     }
 
     // ---------- tlačítka ----------
-    clear(el.actions);
+    clear(el.actions); el.actions.classList.toggle('ext', !!v.ext); // rozšíření: 5 tlačítek ve 2. řádku
     const btn = (id, label, on, click, cls = '') => h('button', { class: 'btn act ' + cls, id: 'a-' + id, disabled: !on, onclick: click }, label);
     // tlačítko, které při nedostupnosti nezamrzne, ale ukáže ceník s tím, co chybí
     const soft = (id, label, on, click, cls = '') => h('button', { class: 'btn act ' + cls + (on ? '' : ' off'), id: 'a-' + id, onclick: on ? click : () => prices(S.view()) }, label);
@@ -139,6 +142,7 @@ export function createGame(root, S) {
       el.actions.append(soft('buy', [h('span', { class: 'kh' }, icon('card', 20), 'Výprava'), cost('card')], own && L.some(a => a.t === 'buy'), () => act({ t: 'buy' })),
         btn('cards', `Karty (${nc})`, nc > 0, () => cardsDialog(v, act)),
         btn('trade', 'Obchod', own && L.some(a => a.t === 'bank' || a.t === 'offer'), () => tradeDialog(v, act)),
+        ...(v.ext ? [btn('ext', 'Stráže', true, () => guardDialog(v, builds, own, k => { mode = k; update(); }), own && ['tower', 'tup', 'guild'].includes(mode) ? 'on' : '')] : []), // rozšíření
         btn('end', 'Konec tahu', own && L.some(a => a.t === 'end'), () => act({ t: 'end' }), 'end'));
     }
     el.actions.append(h('button', { class: 'btn act ghost', id: 'a-menu', onclick: menu }, '☰'));
@@ -268,9 +272,11 @@ export function createGame(root, S) {
         }
       }
       else if (e.e === 'offer' && e.p !== v.you) { sfx.offer(); say(`Nabídka obchodu: ${nm(e.p)}`); }
+      else if (sayExt(e, v.players.map(q => q.name))) say(sayExt(e, v.players.map(q => q.name))); // rozšíření
       else if (e.e === 'win') { sfx.win(); say(`Vítězí ${nm(e.p)}`); }
       else if (e.e === 'play') { sfx.card(); if (e.card === 'supply') fromBank = true; if (a.banner !== false) cardShow(e.card, `${CARDS[e.card]}: ${nm(e.p)}`); if (e.card === 'guard' && e.p === v.you) say('Přesun bouře'); }
-      else if (e.e === 'build') { sfx.build(e.kind); if (e.paid) flow(k => target(e.p, k), expand(COST[e.kind]), true); }
+      else if (e.e === 'build') { sfx.build(e.kind); if (e.paid) flow(k => target(e.p, k), expand(COST[e.kind] || EXT_COST[e.kind]), true); } // rozšíření: ceny věží
+      else if (e.e === 'guild') { sfx.build('city'); flow(k => target(e.p, k), expand(EXT_COST.guild), true); } // rozšíření
       else if (e.e === 'gain' && Object.keys(e.res).length) { if (fromBank) flow(k => target(e.p, k), expand(e.res), false); else gains.push(e); }
       else if (e.e === 'discard') flow(k => target(e.p, k), e.res ? expand(e.res) : Array(e.n).fill('cards'), true);
       else if (e.e === 'buy') { sfx.card(); flow(k => target(e.p, k), expand(COST.card), true); if (e.card && a.banner !== false) after(() => cardShow(e.card, 'Nová výprava: ' + CARDS[e.card]), 600); }

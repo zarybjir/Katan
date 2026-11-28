@@ -216,6 +216,21 @@ Souřadnice mapy: axiální `(q, r)` pro dílky; vrchol a hrana mají **jednozna
 z dílku a směru (každý vrchol i hrana právě jedno id, i když sousedí s více dílky). Na pixely
 převádí jen `ui/board.js`.
 
+## Rozšíření „Stráže a cechy“ (volitelné, stranou)
+
+Zapíná se při zakládání hry (`ext: true` → stav má pole `ext`). Vlastní návrh, žádné převzaté
+rozšíření jiné hry. Věž (stupně 1–2) na volném vrcholu u vlastní cesty: blokuje osady i cizí cesty,
+bouři na sousední dílky smí přesunout jen její majitel. Piráti se přiblíží po součtech
+`STRAZE.pirateSums`; po `pirateSteps` útok: kdo má součet stupňů věží menší než počet měst,
+ztratí surovinu za město, nejsilnější obrana +1 bod. Cechy ve městech (každý druh jednou):
+kupecký 3:1, stavitelský levnější cesta, učenecký levnější první výprava v tahu.
+- Celé je v `hra/js/ext/`: `straze.js` (pravidla a čísla `STRAZE` – výjimka z „čísla v data.js“,
+  aby šlo rozšíření smazat najednou), `straze-bot.js`, `straze-ui.js`.
+- Do základní hry vedou jen řádky s komentářem `// rozšíření` v `core/rules.js`, `core/score.js`,
+  `core/state.js`, `bot/bot.js`, `ui/hud.js`, `ui/board.js`, `ui/text.js`, `ui/menu.js`, pole `ext`
+  v `net/host.js` a `app.js`, poslední blok ve `style.css` a testy „rozšíření:“ v `tests/run.js`.
+  Smazání = složka `ext/` + tyto řádky. Simulace: `node hra/tests/sim.js 3 hard - ext`.
+
 ## Boti
 
 - Bot je funkce `(pohled, seed) → akce`. Dostává **pohled**, ne stav – nevidí cizí karty.
