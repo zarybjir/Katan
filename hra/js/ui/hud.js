@@ -1,7 +1,7 @@
 // Herní obrazovka: hráči, mapa, ruka, tlačítka akcí, deník.
 import { h, clear, modal, closeModals, toast, pc, dot, setColors } from './dom.js';
 import { createBoard } from './board.js';
-import { icon } from './icons.js';
+import { icon, resIcons } from './icons.js';
 import { dice, deal, bankFlow, between, banner, cardShow, expand, sources, animDialog, setSpeed, FLY, GAP, DICE_ROLL } from './anim.js';
 import { sfx, snd } from './sound.js';
 import { resTile, tradeDialog, respondDialog, offerDialog, discardDialog, cardsDialog } from './trade.js';
@@ -42,7 +42,7 @@ export function createGame(root, S) {
     const a = L.find(a => a.t === 'build' && a.at === t.id && (!mode || a.kind === mode));
     if (!a) return;
     if (a.kind !== 'city') return act({ t: 'build', kind: a.kind, at: a.at });
-    const m = modal('Stavba města', h('div', { class: 'col' }, h('p', null, 'Osada se změní na město. Cena: ' + fmtRes(COST.city) + '.'),
+    const m = modal('Stavba města', h('div', { class: 'col' }, h('p', { class: 'trade-line' }, 'Osada se změní na město. Cena: ', resIcons(COST.city)),
       h('div', { class: 'row' }, h('button', { class: 'btn', id: 'city-ok', onclick: () => { m.close(); act({ t: 'build', kind: 'city', at: a.at }); } }, 'Postavit'), h('button', { class: 'btn ghost', onclick: () => m.close() }, 'Zpět'))));
   }
 
@@ -124,12 +124,12 @@ export function createGame(root, S) {
     const btn = (id, label, on, click, cls = '') => h('button', { class: 'btn act ' + cls, id: 'a-' + id, disabled: !on, onclick: click }, label);
     // tlačítko, které při nedostupnosti nezamrzne, ale ukáže ceník s tím, co chybí
     const soft = (id, label, on, click, cls = '') => h('button', { class: 'btn act ' + cls + (on ? '' : ' off'), id: 'a-' + id, onclick: on ? click : () => prices(S.view()) }, label);
-    const cost = k => h('span', { class: 'cost' }, RES.flatMap(r => Array(COST[k][r] || 0).fill(0).map(() => h('i', { style: `background:${RES_COLOR[r]}` }))));
+    const cost = k => resIcons(COST[k], 14);
     if (L.some(a => a.t === 'roll')) el.actions.append(btn('roll', 'Hodit kostkami', true, () => act({ t: 'roll' }), 'wide'));
     else if (v.phase === 'main' && v.turn === me && !free && !v.trade) {
       for (const k of ['road', 'settle', 'city'])
-        el.actions.append(soft(k, [h('span', null, KIND_NAME[k][0].toUpperCase() + KIND_NAME[k].slice(1)), cost(k)], builds(k).length > 0, () => { mode = mode === k ? null : k; update(); }, mode === k ? 'on' : ''));
-      el.actions.append(soft('buy', [h('span', null, 'Výprava'), cost('card')], L.some(a => a.t === 'buy'), () => act({ t: 'buy' })),
+        el.actions.append(soft(k, [h('span', { class: 'kh' }, icon(k, 20), KIND_NAME[k][0].toUpperCase() + KIND_NAME[k].slice(1)), cost(k)], builds(k).length > 0, () => { mode = mode === k ? null : k; update(); }, mode === k ? 'on' : ''));
+      el.actions.append(soft('buy', [h('span', { class: 'kh' }, icon('card', 20), 'Výprava'), cost('card')], L.some(a => a.t === 'buy'), () => act({ t: 'buy' })),
         btn('cards', `Karty (${mine.cards.length + mine.fresh.length})`, mine.cards.length + mine.fresh.length > 0, () => cardsDialog(v, act)),
         btn('trade', 'Obchod', L.some(a => a.t === 'bank' || a.t === 'offer'), () => tradeDialog(v, act)),
         btn('end', 'Konec tahu', L.some(a => a.t === 'end'), () => act({ t: 'end' }), 'end'));
@@ -182,19 +182,19 @@ export function createGame(root, S) {
     const mine = v.phase === 'main' && v.turn === me && !v.trade;
     const row = k => {
       const c = COST[k], can = k === 'card' ? L.some(a => a.t === 'buy') : L.some(a => a.t === 'build' && a.kind === k && !a.free);
-      const miss = hand ? RES.filter(r => (c[r] || 0) > hand[r]).map(r => `${c[r] - hand[r]}× ${RES_NAME[r]}`) : [];
+      const lackO = hand ? Object.fromEntries(RES.filter(r => (c[r] || 0) > hand[r]).map(r => [r, c[r] - hand[r]])) : {}, miss = Object.keys(lackO);
       const left = k === 'card' ? v.deckN : pl ? pl.left[k] : null;
       let st;
       if (!hand) st = '';
       else if (can) st = k === 'card' ? 'Lze koupit.' : 'Lze postavit.';
-      else if (miss.length) st = 'Chybí: ' + miss.join(', ') + '.';
+      else if (miss.length) st = h('span', { class: 'trade-line' }, 'Chybí: ', resIcons(lackO, 20));
       else if (left === 0) st = k === 'card' ? 'Balíček je prázdný.' : 'Nezbývá žádný dílek.';
       else if (!mine) st = 'Nakupovat lze jen během vlastního tahu.';
       else st = k === 'city' ? 'Není osada, kterou by šlo vylepšit.' : 'Není volné místo napojené na vlastní cestu.';
       return h('div', { class: 'price' + (can ? ' can' : ''), 'data-kind': k },
-        h('div', { class: 'line' }, h('b', { class: 'grow' }, KIND_NAME[k][0].toUpperCase() + KIND_NAME[k].slice(1)),
+        h('div', { class: 'line' }, icon(k, 34), h('b', { class: 'grow' }, KIND_NAME[k][0].toUpperCase() + KIND_NAME[k].slice(1)),
           left !== null && h('span', { class: 'dim' }, (k === 'card' ? 'v balíčku: ' : 'zbývá: ') + left)),
-        h('div', { class: 'chips' }, RES.filter(r => c[r]).map(r => h('span', { class: 'chip-res' + (hand && hand[r] < c[r] ? ' lack' : ''), style: `--c:${RES_COLOR[r]}` }, `${c[r]}× ${RES_NAME[r]}`))),
+        h('div', { class: 'chips' }, resIcons(c, 30, hand ? lackO : null)),
         h('p', { class: 'dim' }, KIND_TEXT[k]),
         st && h('p', { class: 'st' }, st));
     };
@@ -203,7 +203,7 @@ export function createGame(root, S) {
   }
   function rules() {
     modal('Pravidla', h('div', { class: 'col rules' },
-      ['road', 'settle', 'city', 'card'].map(k => h('p', null, h('b', null, KIND_NAME[k] + ': '), fmtRes(COST[k]))),
+      ['road', 'settle', 'city', 'card'].map(k => h('p', { class: 'trade-line', title: KIND_NAME[k] }, icon(k, 30), ' = ', resIcons(COST[k], 26))),
       h('p', null, 'Hod kostkami určí číslo. Dílky s tímto číslem dají sousedním osadám jednu surovinu, městům dvě.'),
       h('p', null, `Osada je za 1 bod, město za 2. Nejdelší cesta (od ${RULES.longMin} úseků) a nejvíc zahraných hlídek (od ${RULES.guardMin}) dávají po ${RULES.longPts} bodech.`),
       h('p', null, `Při součtu 7 přichází bouře: kdo má víc než ${RULES.discardOver} karet, polovinu odhodí. Hráč na tahu bouři přesune; dílek pod bouří nevyrábí.`),

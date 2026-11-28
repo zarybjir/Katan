@@ -2,6 +2,7 @@
 // mění hned, animace se dají vypnout v nastavení a kostky přeskočit klepnutím.
 import { h, modal } from './dom.js';
 import { icon } from './icons.js';
+import { cardEl } from './trade.js';
 import { graph } from '../core/hex.js';
 import { TERRAIN } from '../data.js';
 
@@ -100,7 +101,7 @@ export function between(a, b, kinds, delay0 = 0, ding) {
 
 // ---------- odhalení karty výpravy ----------
 export function cardShow(card, title) {
-  const el = h('div', { class: 'card-show' }, h('img', { src: `gfx/karta-${card}.jpg`, alt: '' }), h('div', null, title));
+  const el = h('div', { class: 'card-show' }, cardEl(card, h('div', { class: 'vwho' }, title)));
   (document.getElementById('bn') || document.body.appendChild(h('div', { id: 'bn' }))).append(el);
   el.animate([{ opacity: 0, transform: 'translate(-50%,-50%) scale(.6) rotateY(80deg)' }, { opacity: 1, transform: 'translate(-50%,-50%) scale(1) rotateY(0)', offset: .15 }, { opacity: 1, transform: 'translate(-50%,-50%) scale(1)', offset: .85 }, { opacity: 0, transform: 'translate(-50%,-50%) scale(.9)' }], { duration: 2400, fill: 'forwards' })
     .finished.catch(() => {}).then(() => el.remove());

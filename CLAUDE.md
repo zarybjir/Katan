@@ -248,6 +248,9 @@ převádí jen `ui/board.js`.
   (béžové, světlá dubová textura `drevo-dub.jpg` pod krémovým závojem) s tmavým písmem, bez tmavých textur
   dřeva, moře je světlý klidný obrázek `more-svetle.jpg` (ne `more.jpg`), banka je kreslená SVG ikona. Malované
   obrázky `drevo-*.jpg`, `btn-*.webp`, `more.jpg`, `banka.webp` zůstávají v repu, ale nepoužívají se.
+- Suroviny a stavby se v ceníku, obchodu, pravidlech a na tlačítkách ukazují symboly (`icon(k)`,
+  `resIcons({...})` v `icons.js`), ne slovy. Karta výpravy (`cardEl` v `trade.js`) má zarámovaný
+  obrázek nahoře a název s popisem dole; stejně se ukazuje v seznamu karet i při zahrání.
 - Kamera mapy (posun, zoom) se mění jen na pokyn hráče: vystředí se poprvé a přes menu „Vystředit
   mapu“; spodní lišta má stálou výšku, aby mapa neposkakovala.
 - Canvas se škáluje podle `devicePixelRatio` (nejvýš 2). Grafika se předkreslí do offscreen

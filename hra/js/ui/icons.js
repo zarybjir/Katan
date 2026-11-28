@@ -11,9 +11,13 @@ const P = {
   special: '<rect x="6" y="3" width="12" height="18" rx="2"/><path d="M12 7.5l1.3 2.8 3 .3-2.3 2 .7 3-2.7-1.6-2.7 1.6.7-3-2.3-2 3-.3z" fill="#5b3f99"/>',
   bank: '<path d="M12 3l9 5H3z"/><rect x="4" y="9.5" width="16" height="1.6"/><rect x="5.5" y="12" width="2.2" height="6"/><rect x="10.9" y="12" width="2.2" height="6"/><rect x="16.3" y="12" width="2.2" height="6"/><rect x="3" y="19" width="18" height="2"/>',
   guard: '<path d="M12 2.5l7.5 3v5.6c0 4.8-3.2 8.6-7.5 10.4-4.3-1.8-7.5-5.6-7.5-10.4V5.5z"/><path d="M12 6v12M8 10h8" stroke="#2d5a8a" stroke-width="2" fill="none"/>',
+  road: '<rect x="2.5" y="10" width="19" height="4.5" rx="1.2" transform="rotate(-25 12 12)"/>',
+  settle: '<path d="M4 20v-8.5L12 5l8 6.5V20h-5.5v-5h-5v5z"/>',
+  city: '<path d="M2.5 20v-7l5-4 5 4v7z"/><path d="M13.5 20V5h2V3h2v2h1V3h2v2h1v15z"/><rect x="16.2" y="9" width="2.2" height="3" fill="#7a5a33"/>',
+  card: '<rect x="5" y="2.5" width="14" height="19" rx="2"/><path d="M12 7l1.5 3.2 3.4.4-2.5 2.3.7 3.4-3.1-1.8-3.1 1.8.7-3.4-2.5-2.3 3.4-.4z" fill="#7a5a33"/>',
   points: '<path d="M12 3l2.7 5.6 6.1.8-4.5 4.2 1.1 6.1L12 16.8l-5.4 2.9 1.1-6.1L3.2 9.4l6.1-.8z"/>',
 };
-const BG = { ...RES_COLOR, bank: '#8a6d3b', guard: '#2d5a8a', cards: '#4f6378', special: '#7a5bc4', points: '#c9962c' };
+const BG = { ...RES_COLOR, road: '#7a5a33', settle: '#7a5a33', city: '#7a5a33', card: '#7a5a33', bank: '#8a6d3b', guard: '#2d5a8a', cards: '#4f6378', special: '#7a5bc4', points: '#c9962c' };
 
 // ikonka jako HTML prvek; kind = surovina nebo cards / special / points
 // suroviny a banka mají malované obrázky v gfx/, ostatní ukazatele zůstávají jako SVG
@@ -29,5 +33,16 @@ export function icon(kind, size = 22) {
   }
   s.style.cssText = `background:${BG[kind]};width:${size}px;height:${size}px`;
   s.innerHTML = `<svg viewBox="0 0 24 24" width="${Math.round(size * 0.78)}" height="${Math.round(size * 0.78)}" fill="#fff">${P[kind]}</svg>`;
+  return s;
+}
+
+// suroviny jako ikonky s počty, např. { wood: 1, brick: 2 } → [ikona dřeva] 1 [ikona cihel] 2
+export function resIcons(o, size = 22, lack) {
+  const s = document.createElement('span'); s.className = 'ricons';
+  for (const r of ['wood', 'stone', 'grain', 'sheep', 'brick']) if (o && o[r]) {
+    const i = document.createElement('span'); i.className = 'ri' + (lack && lack[r] ? ' lack' : '');
+    const b = document.createElement('b'); b.textContent = o[r];
+    i.append(icon(r, size), b); s.append(i);
+  }
   return s;
 }

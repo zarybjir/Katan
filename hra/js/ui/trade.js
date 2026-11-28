@@ -2,9 +2,14 @@
 import { h, clear, modal, pc, dot } from './dom.js';
 import { RES, RES_NAME, RES_COLOR, CARDS, CARD_TEXT, COLORS } from '../data.js';
 import { fmtRes } from './text.js';
+import { icon, resIcons } from './icons.js';
 
-export const resTile = (r, n, o = {}) => h('button', { class: 'res' + (o.on ? ' on' : ''), style: `--c:${RES_COLOR[r]}`, disabled: !!o.off, 'data-res': r, onclick: o.click || null },
-  h('b', null, String(n)), h('span', null, RES_NAME[r]));
+export const resTile = (r, n, o = {}) => h('button', { class: 'res' + (o.on ? ' on' : ''), style: `--c:${RES_COLOR[r]}`, disabled: !!o.off, 'data-res': r, title: RES_NAME[r], onclick: o.click || null },
+  icon(r, 30), h('b', null, String(n)));
+
+// karta výpravy: zarámovaný obrázek v horní polovině, název a popis v dolní
+export const cardEl = (c, extra) => h('div', { class: 'vcard', 'data-kind': c }, h('div', { class: 'vart' }, h('img', { src: `gfx/karta-${c}.jpg`, alt: '' })),
+  h('div', { class: 'vtxt' }, h('b', null, CARDS[c]), h('p', null, CARD_TEXT[c]), extra));
 
 // výběr počtů surovin: max(r) omezuje, limit = nejvyšší součet
 export function picker(max, limit, onChange) {
@@ -59,7 +64,7 @@ export function tradeDialog(v, act) {
 export function respondDialog(v, act) {
   const tr = v.trade, can = v.legal.some(a => a.t === 'respond' && a.ok);
   return modal('Nabídka obchodu', h('div', { class: 'col' },
-    h('p', null, `${v.players[tr.from].name} nabízí ${fmtRes(tr.give)} za ${fmtRes(tr.want)}.`),
+    h('p', { class: 'trade-line' }, `${v.players[tr.from].name} nabízí `, resIcons(tr.give), ' za ', resIcons(tr.want)),
     !can && h('p', { class: 'dim' }, 'Požadované suroviny v ruce nejsou.'),
     h('div', { class: 'row' },
       h('button', { class: 'btn', id: 'resp-yes', disabled: !can, onclick: () => act({ t: 'respond', ok: true }) }, 'Přijmout'),
@@ -70,7 +75,7 @@ export function respondDialog(v, act) {
 export function offerDialog(v, act) {
   const tr = v.trade;
   return modal('Nabídka odeslána', h('div', { class: 'col' },
-    h('p', null, `${fmtRes(tr.give)} za ${fmtRes(tr.want)}`),
+    h('p', { class: 'trade-line' }, resIcons(tr.give), ' za ', resIcons(tr.want)),
     v.players.map((p, i) => i === tr.from ? null : h('div', { class: 'line' },
       dot(i), h('span', { class: 'grow' }, p.name),
       tr.resp[i] === 'yes' ? h('button', { class: 'btn small', onclick: () => act({ t: 'confirm', with: i }) }, 'Obchodovat')
@@ -85,7 +90,7 @@ export function discardDialog(v, n, act) {
   go.onclick = () => act({ t: 'discard', res: { ...p.val } });
   return modal('Bouře: odhození karet', h('div', { class: 'col' },
     h('p', null, `V ruce je příliš mnoho karet. Odhazuje se ${n}.`),
-    h('p', { class: 'dim' }, 'V ruce: ' + fmtRes(hand)), p.el, go), { sticky: true, key: 'auto' });
+    h('p', { class: 'dim trade-line' }, 'V ruce: ', resIcons(hand)), p.el, go), { sticky: true, key: 'auto' });
 }
 
 export function cardsDialog(v, act) {
@@ -95,10 +100,12 @@ export function cardsDialog(v, act) {
   const body = h('div', { class: 'col' });
   const kinds = Object.keys(CARDS).filter(c => have[c] || fresh[c]);
   if (!kinds.length) body.append(h('p', { class: 'dim' }, 'Žádné karty výprav.'));
+  const grid = h('div', { class: 'vgrid' });
   for (const c of kinds) {
-    const can = L.some(a => a.t === 'play' && a.card === c);
-    body.append(h('div', { class: 'card' }, h('img', { class: 'card-art', src: `gfx/karta-${c}.jpg`, alt: '' }),
-      h('div', { class: 'grow' }, h('b', null, `${CARDS[c]} ${(have[c] || 0) + (fresh[c] || 0)}×`), h('p', { class: 'dim' }, CARD_TEXT[c] + (fresh[c] ? ' Koupená karta jde zahrát od dalšího tahu.' : ''))),
+    const can = L.some(a => a.t === 'play' && a.card === c), n = (have[c] || 0) + (fresh[c] || 0);
+    grid.append(cardEl(c, [
+      n > 1 && h('span', { class: 'vcount' }, n + '×'),
+      fresh[c] && h('p', { class: 'dim small' }, 'Koupená karta jde zahrát od dalšího tahu.'),
       c !== 'point' && h('button', { class: 'btn small', 'data-card': c, disabled: !can, onclick: () => {
         m.close();
         if (c !== 'supply') return act({ t: 'play', card: c });
@@ -106,8 +113,9 @@ export function cardsDialog(v, act) {
         const p = picker(r => Math.min(2, v.bank[r]), 2, () => { go.disabled = p.sum() !== 2; });
         const m2 = modal('Zásoby: dvě suroviny z banky', h('div', { class: 'col' }, p.el, go));
         go.onclick = () => { m2.close(); act({ t: 'play', card: 'supply', res: RES.flatMap(r => Array(p.val[r]).fill(r)) }); };
-      } }, 'Zahrát')));
+      } }, 'Zahrát')]));
   }
+  if (kinds.length) body.append(grid);
   if (v.played) body.append(h('p', { class: 'dim' }, 'V tomto tahu už byla karta zahrána.'));
   const m = modal('Výpravy', body);
   return m;
