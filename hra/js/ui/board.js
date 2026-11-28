@@ -110,17 +110,9 @@ export function createBoard(cv, onPick) {
     ctx.setTransform(k, 0, 0, k, cv.width / 2 - B.cam.x * k, cv.height / 2 - B.cam.y * k);
     ctx.lineJoin = 'round'; ctx.lineCap = 'round';
     const path = i => { ctx.beginPath(); g.hv[i].forEach((id, j) => { const p = g.V[id]; j ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y); }); ctx.closePath(); };
-    // mělčina kolem ostrova
-    // písečný břeh kolem ostrova: mělčina, příboj, písek (vnitřek pak překryjí dílky)
+    // pobřeží: jen jednotlivé kameny přímo v moři, bez lemu (dokud se nenačtou, pobřeží se nekreslí)
     const rs = Array.from({ length: KAMENY }, (_, i) => sprite('kamen-' + (i + 1)));
-    if (rs.every(Boolean)) { // kamenité pobřeží: podklad (mělčina, pěna) a jednotlivé kameny
-      for (const [col, w] of [['rgba(200,238,240,.45)', 1.2], ['rgba(255,255,255,.55)', 0.98]]) {
-        ctx.strokeStyle = col; ctx.lineWidth = w; v.map.hexes.forEach((_, i) => { path(i); ctx.stroke(); });
-      }
-      stones(rs);
-    } else for (const [col, w] of [['rgba(200,238,240,.45)', 1.25], ['rgba(255,255,255,.55)', 0.98], ['#d9c38f', 0.9], ['#ead9aa', 0.78]]) {
-      ctx.strokeStyle = col; ctx.lineWidth = w; v.map.hexes.forEach((_, i) => { path(i); ctx.stroke(); });
-    }
+    if (rs.every(Boolean)) stones(rs);
     // přístavy: dřevěné molo od pobřeží k bóji s žetonem suroviny (2:1) nebo kotvou (3:1)
     for (const pt of v.map.ports) port(pt);
     // spáry mezi dílky: malovaný písek (spara.jpg) jako vzor, 512 px = 2 jednotky mapy
