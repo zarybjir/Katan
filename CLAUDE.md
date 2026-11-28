@@ -248,7 +248,7 @@ převádí jen `ui/board.js`.
   Cesty jsou kreslené trámy v barvě hráče, čísla na dílcích pergamenové žetony průhledné na 25 % (alpha 0,75) bez lemu (`road`, `token` v `board.js`). Čísla na dílcích jsou bez teček (zadavatel
   je nechce); 6 a 8 jsou červené a větší.
 - Vzhled je střídmý a světlý (zadavatel nechce kýč ani tmavé UI): lišty jsou pergamen (`pergamen.jpg`),
-  tlačítka akcí malovaná ořechová deska (`btn-orech.webp`, `border-image`) se světlým písmem, Konec tahu zlatý, moře je světlý klidný obrázek `more-svetle.jpg` (ne `more.jpg`), banka je kreslená SVG ikona. Malované
+  tlačítka akcí malovaná ořechová deska (`btn-orech.webp`, `border-image`) se světlým písmem, Konec tahu a Hodit kostkami tatáž deska v medové barvě (`btn-med.webp`), moře je světlý klidný obrázek `more-svetle.jpg` (ne `more.jpg`), banka je kreslená SVG ikona. Malované
   obrázky `drevo-*.jpg`, `btn-*.webp`, `more.jpg`, `banka.webp` zůstávají v repu, ale nepoužívají se.
 - Suroviny a stavby se v ceníku, obchodu, pravidlech a na tlačítkách ukazují symboly (`icon(k)`,
   `resIcons({...})` v `icons.js`), ne slovy. Karta výpravy (`cardEl` v `trade.js`) má zarámovaný
