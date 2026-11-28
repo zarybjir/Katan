@@ -25,9 +25,9 @@ function tinted(name, color) {
   return (TINT[k] = d);
 }
 // samostatné obrázky (bouře); načtou se jednou, do té doby se kreslí náhradní tvar
-function sprite(name) {
+function sprite(name, ext = 'webp') {
   let img = IMG[name];
-  if (!img) { img = IMG[name] = new Image(); img.onload = () => { for (const B of waiting) B.draw(); }; img.src = 'gfx/' + name + '.webp'; }
+  if (!img) { img = IMG[name] = new Image(); img.onload = () => { for (const B of waiting) B.draw(); }; img.src = 'gfx/' + name + '.' + ext; }
   return img.complete && img.naturalWidth ? img : null;
 }
 // Načítají se jednou pro celou aplikaci; dokud nejsou načtené, dílek se kreslí barvou a značkou.
@@ -117,6 +117,10 @@ export function createBoard(cv, onPick) {
     }
     // přístavy: dřevěné molo od pobřeží k bóji s žetonem suroviny (2:1) nebo kotvou (3:1)
     for (const pt of v.map.ports) port(pt);
+    // spáry mezi dílky: malovaný písek (spara.jpg) jako vzor, 512 px = 2 jednotky mapy
+    let seam = '#d2b47c';
+    const sp = sprite('spara', 'jpg');
+    if (sp) { if (!B.seam) { B.seam = ctx.createPattern(sp, 'repeat'); B.seam.setTransform(new DOMMatrix().scale(2 / 512)); } seam = B.seam; }
     // dílky
     v.map.hexes.forEach((hx, i) => {
       const c = hexXY(hx.q, hx.r);
@@ -136,7 +140,7 @@ export function createBoard(cv, onPick) {
         ctx.restore();
         path(i); ctx.fillStyle = 'rgba(20,16,10,.06)'; ctx.fill(); // ztlumení krajiny, aby stavby vynikly
       }
-      ctx.strokeStyle = '#d2b47c'; ctx.lineWidth = 0.13; path(i); ctx.stroke(); // nahnědlá spára mezi dílky
+      ctx.strokeStyle = seam; ctx.lineWidth = 0.13; path(i); ctx.stroke(); // nahnědlá spára mezi dílky
       ctx.strokeStyle = 'rgba(120,85,40,.35)'; ctx.lineWidth = 0.02; path(i); ctx.stroke();
       if (!tx && TERRAIN_COLOR[hx.t]) glyph(hx.t, c.x, c.y - 0.42);
       if (hx.n) token(c.x, c.y + 0.18, hx.n);
